@@ -25,18 +25,23 @@ CareSync helps hospitals manage patient records, appointments, and emergency ser
 ## ⚙️ Installation
 
 1. Clone the repository:
--git clone https://github.com/VISHALCHANDEL/CareSync---Digital-Application-Portal.git
--cd CareSync---Digital-Application-Portal
-
-2.Create and activate a virtual environment:
- -python -m venv venv
- -source venv/bin/activate   # On Windows use: venv\Scripts\activate
-
+```bash
+   git clone https://github.com/VISHALCHANDEL/CareSync---Digital-Application-Portal.git
+   cd CareSync---Digital-Application-Portal
+```
+2. Create and activate a virtual environment:
+```
+python -m venv venv
+source venv/bin/activate   # On Windows use: venv\Scripts\activate
+```
 3. Install Dependencies
- -pip install -r requirements.txt
-
-4.Run Server
- -python manage.py runserver
+```
+pip install -r requirements.txt
+```
+4. Run Server
+```
+python manage.py runserver
+```
 
 Vishal Chandel
--Student Developer passionate about building healthcare solutions with AI and Django.
+Student Developer passionate about building healthcare solutions with AI and Django.
