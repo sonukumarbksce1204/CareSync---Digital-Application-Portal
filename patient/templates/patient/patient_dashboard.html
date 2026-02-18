@@ -1,0 +1,243 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+
+<!-- Background Slideshow -->
+<div class="background-slideshow">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<!-- ================= NAVBAR ================= -->
+<div class="navbar">
+
+  <!-- Left -->
+  <div class="nav-left">
+      <div class="logo">CareSync</div>
+      <div class="tagline">Digital Care. Peaceful Healing.</div>
+  </div>
+
+  <!-- Center -->
+  <ul class="nav-links">
+      <li><a href="#">Hospitals</a></li>
+      <li><a href="#">Appointments</a></li>
+      <li><a href="#">Doctors</a></li>
+      <li><a href="#">Contact Us</a></li>
+  </ul>
+
+  <!-- Right -->
+  <div class="nav-right">
+
+      <div class="profile">
+          <span class="profile-name">
+             <h2><strong>{{ request.user.username }}</strong> </h2>
+          </span>
+
+          <div class="profile-dropdown">
+              <a href="#">View Profile</a>
+              <a href="{% url 'patient_logout' %}">Logout</a>
+          </div>
+      </div>
+
+  </div>
+
+</div>
+
+<!-- ================= HERO SECTION ================= -->
+<div class="hero-section">
+    <strong><h1 style="color: rgb(43, 33, 33);">Welcome, {{ request.user.username }}</h1></strong>
+
+    <!-- Patient & Family ID Section -->
+    <div class="patient-id-box">
+        <p>
+            <strong style="color: black;">Your Patient ID:</strong> 
+            <span class="highlight-id" style="color: black;">{{ patient.patient_id }}</span>
+        </p>
+
+        {% if patient.family %}
+            <p>
+                <strong style="color: black;">Your Family ID:</strong> 
+                <span class="highlight-id" style="color: black;">{{ patient.family.family_id }}</span>
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard">
+
+    <!-- ================= FAMILY MANAGEMENT ================= -->
+    <div class="section">
+        <h3>Family Management</h3>
+
+        {% if message %}
+            <p class="success-message">{{ message }}</p>
+        {% endif %}
+
+        <!-- Join Family -->
+        <form method="POST" action="{% url 'patient_dashboard' %}" class="family-form">
+            {% csrf_token %}
+            <input type="text" name="family_id" placeholder="Enter Family ID" required>
+            <button type="submit" name="join_family" class="btn secondary">
+                Connect Family
+            </button>
+        </form>
+
+        <hr class="divider">
+
+        <!-- Generate Family -->
+        <form method="POST" action="{% url 'patient_dashboard' %}">
+            {% csrf_token %}
+            <button type="submit" name="generate_family" class="btn primary">
+                Generate New Family ID
+            </button>
+        </form>
+
+        {% if patient.family %}
+            <div class="family-info">
+                <p><strong>Current Family ID:</strong> {{ patient.family.family_id }}</p>
+
+                {% if patient.family.head == patient %}
+                    <p class="family-badge">You are the Head of this Family</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ================= TOP HOSPITALS ================= -->
+    <div class="section">
+        <h3>Top Hospitals</h3>
+
+        <div class="hospital-grid">
+            {% for hospital in hospitals %}
+                <div class="hospital-card">
+                    <h4>{{ hospital.name }}</h4>
+                    <p>{{ hospital.city }}</p>
+                </div>
+            {% empty %}
+                <p>No hospitals available</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ================= ADD MEDICAL RECORD ================= -->
+    <div class="section">
+        <h3>Add Medical Record</h3>
+
+        {% if patient.family %}
+            <form method="POST"
+                  action="{% url 'patient_dashboard' %}"
+                  enctype="multipart/form-data"
+                  class="symptom-form">
+
+                {% csrf_token %}
+                {{ symptom_form.as_p }}
+
+                <button type="submit" name="add_symptom" class="btn primary">
+                    Submit Record
+                </button>
+            </form>
+        {% else %}
+            <p>Please join or create a family to add records.</p>
+        {% endif %}
+    </div>
+
+    <!-- ================= MEDICAL HISTORY ================= -->
+    <div class="section">
+
+        {% if patient.family and patient.family.head == patient %}
+            <h3>Family Medical History</h3>
+            <p class="info-text">
+                You are viewing all family members' records.
+            </p>
+        {% else %}
+            <h3>Your Medical History</h3>
+        {% endif %}
+
+        <div class="history-grid">
+            {% for symptom in symptoms %}
+                <div class="history-card">
+
+                    <small>
+                        {{ symptom.created_at|date:"d M Y, h:i A" }}
+                    </small>
+
+                    {% if patient.family and patient.family.head == patient %}
+                        <p><strong>Patient:</strong> {{ symptom.patient.user.username }}</p>
+                    {% endif %}
+
+                    <p><strong>Description:</strong> {{ symptom.description }}</p>
+
+                    {% if symptom.duration_days %}
+                        <p><strong>Duration:</strong> {{ symptom.duration_days }} days</p>
+                    {% endif %}
+
+                    {% if symptom.medicines_taken %}
+                        <p><strong>Medicines Taken:</strong> {{ symptom.medicines_taken }}</p>
+                    {% endif %}
+
+                    {% if symptom.improvement %}
+                        <p><strong>Status:</strong> {{ symptom.get_improvement_display }}</p>
+                    {% endif %}
+
+                    {% if symptom.image %}
+                        <img src="{{ symptom.image.url }}" alt="Symptom Image">
+                    {% endif %}
+
+                    {% if symptom.test_report %}
+                        <p>
+                            <a href="{{ symptom.test_report.url }}" target="_blank">
+                                View Test Report
+                            </a>
+                        </p>
+                    {% endif %}
+
+                </div>
+            {% empty %}
+                <p>No records available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <!-- About Section -->
+        <div class="footer-section">
+            <h4>About CareSync</h4>
+            <p>
+                CareSync is a digital healthcare management platform designed 
+                to simplify medical records, family health tracking, and 
+                doctor-patient connectivity in one secure environment.
+            </p>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="footer-section">
+            <h4>Contact Us</h4>
+            <p>Email: support@caresync.com</p>
+            <p>Phone: +91 98765 43210</p>
+            <p>Address:Jalandhar,Punjab,India</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-section">
+            <h4>Quick Links</h4>
+            <p><a href="#">Hospitals</a></p>
+            <p><a href="#">Doctors</a></p>
+            <p><a href="#">Appointments</a></p>
+            <p><a href="#">Privacy Policy</a></p>
+        </div>
+
+    </div>
+
+    <!-- Bottom Copyright -->
+    <div class="footer-bottom">
+        © 2026 CareSync. All Rights Reserved. <br>
+        Designed & Developed for Capstone Project.
+    </div>
+
+</footer>

@@ -1,0 +1,154 @@
+/* ------------------------------
+   Root Variables (Medical Theme)
+--------------------------------*/
+:root {
+  --primary: #60a5fa;
+  --secondary: #34d399;
+  --teal: #2dd4bf;
+  --light-bg: #f0f9ff;
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --text-dark: #064e3b;
+  --muted: #64748b;
+}
+
+/* ------------------------------
+   Global Background
+--------------------------------*/
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 20% 30%, rgba(96,165,250,0.15), transparent 40%),
+              radial-gradient(circle at 80% 70%, rgba(52,211,153,0.12), transparent 40%),
+              linear-gradient(135deg, #f0f9ff 0%, #ecfeff 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ------------------------------
+   Glass Dashboard Container
+--------------------------------*/
+.glass-container {
+  width: 100%;
+  max-width: 700px;
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(18px);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.08);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Smooth Fade Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------
+   Headings
+--------------------------------*/
+h2 {
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+
+h3 {
+  margin-top: 25px;
+  margin-bottom: 12px;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* ------------------------------
+   Form Styling
+--------------------------------*/
+textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,0.3);
+  background: rgba(255,255,255,0.9);
+  resize: none;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 8px 25px rgba(96,165,250,0.2);
+  transform: translateY(-2px);
+}
+
+/* ------------------------------
+   Button
+--------------------------------*/
+button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: white;
+  box-shadow: 0 12px 25px rgba(52,211,153,0.25);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 35px rgba(52,211,153,0.35);
+}
+
+/* ------------------------------
+   Symptom History Cards
+--------------------------------*/
+.symptom-card {
+  background: rgba(255,255,255,0.7);
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(148,163,184,0.2);
+  box-shadow: 0 10px 20px rgba(15,23,42,0.05);
+  transition: all 0.3s ease;
+}
+
+.symptom-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(15,23,42,0.08);
+}
+
+.symptom-card small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.symptom-card p {
+  margin-top: 6px;
+  color: #065f46;
+  font-size: 14px;
+}
+
+/* ------------------------------
+   Logout Link
+--------------------------------*/
+a {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--teal);
+  transition: 0.3s;
+}
+
+a:hover {
+  color: var(--primary);
+}

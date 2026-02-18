@@ -1,0 +1,49 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/style1.css' %}">
+
+<div class="page-bg">
+
+    <div class="auth-card">
+
+        <!-- Left Side -->
+        <div class="auth-left">
+            <div class="brand">
+                <h1>CareSync</h1>
+                <p class="tag">Digital Care. Peaceful Healing.</p>
+            </div>
+
+            <div class="greeting">
+                <h2>Welcome 👋</h2>
+                <p>Create your patient account and begin your journey toward better health and harmony.</p>
+            </div>
+             <div class="img">
+                <img src="{% static 'patient/images/sign1.jpg' %}" alt="Signup Illustration">
+</div>
+
+            <div class="medical-animation">
+                🏥 + ❤️ + 🌿
+            </div>
+           
+
+        </div>
+
+        <!-- Right Side Form -->
+        <div class="auth-right">
+            <h2>Patient Signup</h2>
+
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+                {{ user_form.as_p }}
+                {{ profile_form.as_p }}
+                <button type="submit" class="btn primary">Register</button>
+            </form>
+
+            <div class="helper-row">
+                <span>Already have an account?</span>
+                <a href="{% url 'patient_login' %}">Login</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>

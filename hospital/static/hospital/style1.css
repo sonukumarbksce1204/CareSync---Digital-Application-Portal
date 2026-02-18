@@ -1,6 +1,4 @@
-/* ------------------------------
-   GLOBAL STYLE
------------------------------- */
+/* Reset */
 * {
     margin: 0;
     padding: 0;
@@ -8,113 +6,203 @@
     font-family: "Poppins", sans-serif;
 }
 
+/* Page Layout */
 body {
-    background: linear-gradient(135deg, #0a6cf1 0%, #0dbb8c 100%);
-    min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    height: 100vh;
+    background: #f8fdff;
 }
 
-/* ------------------------------
-   FORM CONTAINER
------------------------------- */
-.form-container {
-    background: #ffffff;
-    width: 450px;
-    padding: 35px 35px 45px;
-    border-radius: 20px;
-    box-shadow: 0px 10px 35px rgba(0, 0, 0, 0.15);
-    animation: fadeIn 0.7s ease-in-out;
-}
-
-.form-container h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #083e8b;
-    font-size: 28px;
-}
-
-/* ------------------------------
-   FORM GROUPS
------------------------------- */
-.form-group {
+/* 🌟 HERO SECTION (LEFT) */
+.hero-section {
+    width: 50%;
+    padding: 70px 60px;
+    background: linear-gradient(135deg, #0fbaba, #55d5ff);
+    color: white;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+
+    /* Fade animation */
+    animation: fadeIn 1.4s ease-out forwards;
+}
+
+/* Smooth floating animation for text */
+.hero-section h1,
+.hero-section p {
+    animation: floatUp 1.4s ease-out forwards;
+}
+
+/* Gradient animation for hero section */
+@keyframes gradientShift {
+    0% {
+        background: linear-gradient(135deg, #10b4b4, #4acfff);
+    }
+    50% {
+        background: linear-gradient(135deg, #0aa0a0, #66ddff);
+    }
+    100% {
+        background: linear-gradient(135deg, #10b4b4, #4acfff);
+    }
+}
+
+.hero-section {
+    animation: fadeIn 1.2s ease-out, gradientShift 10s ease-in-out infinite;
+}
+
+/* Floating shapes to give modern website touch */
+.hero-section::before,
+.hero-section::after {
+    content: "";
+    position: absolute;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    animation: floatBubble 8s infinite ease-in-out alternate;
+}
+
+.hero-section::before {
+    width: 180px;
+    height: 180px;
+    top: 20%;
+    left: -50px;
+}
+
+.hero-section::after {
+    width: 230px;
+    height: 230px;
+    bottom: -50px;
+    right: 20%;
+}
+
+/* Hero text styling */
+.hero-section h1 {
+    font-size: 45px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.hero-section p {
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 460px;
+    opacity: 0.92;
+}
+
+/* ✨ RIGHT LOGIN CONTAINER */
+.login-container {
+    width: 50%;   /* Reduced width for better balance */
+    background: white;
+    padding: 65px 55px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-left: 1px solid #e4f3f5;
+    box-shadow: -2px 0 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Heading */
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #0a7c8c;
+    font-size: 30px;
+}
+
+/* Input Fields */
+.input-group {
     margin-bottom: 18px;
 }
 
-.form-group label {
+.input-group label {
+    display: block;
+    font-size: 14px;
     margin-bottom: 6px;
-    font-weight: 600;
-    color: #083e8b;
+    color: #2f2f2f;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.input-group input {
     width: 100%;
-    padding: 12px 14px;
-    border: 2px solid #dbe7ff;
-    border-radius: 10px;
-    font-size: 15px;
-    background: #f5f9ff;
-    transition: 0.25s;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1.5px solid #cce7ea;
+    transition: 0.2s;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #0a6cf1;
-    background: #ffffff;
-    box-shadow: 0px 0px 6px rgba(10, 108, 241, 0.2);
+.input-group input:focus {
+    border-color: #0db5b6;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 190, 190, 0.3);
 }
 
-/* ------------------------------
-   ERROR MESSAGE
------------------------------- */
-.error {
-    color: red;
-    font-size: 13px;
-    margin-top: 5px;
-}
-
-/* ------------------------------
-   SUBMIT BUTTON
------------------------------- */
-.btn {
+/* Button */
+.btn-login {
     width: 100%;
-    padding: 13px;
-    margin-top: 10px;
-    background: linear-gradient(135deg, #0a6cf1, #0dbb8c);
+    padding: 12px;
+    background: #0db5b6;
     border: none;
-    border-radius: 12px;
+    border-radius: 8px;
     color: white;
-    font-weight: 600;
     font-size: 16px;
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: 0.25s ease-in-out;
 }
 
-.btn:hover {
-    opacity: 0.85;
+.btn-login:hover {
+    background: #0aa5a5;
+    transform: translateY(-2px);
 }
 
-/* ------------------------------
-   ANIMATION
------------------------------- */
+/* Register Link */
+.register-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.register-link a {
+    color: #0db5b6;
+    font-weight: 600;
+}
+
+/* Messages */
+.messages p {
+    background: #ffe7e7;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    color: #d60000;
+    font-size: 14px;
+}
+
+/* ✨ Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0px); }
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-/* ------------------------------
-   RESPONSIVE
------------------------------- */
-@media (max-width: 500px) {
-    .form-container {
+@keyframes floatUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatBubble {
+    0% { transform: translateY(0px) scale(1); }
+    100% { transform: translateY(-40px) scale(1.1); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+    }
+    .hero-section {
         width: 100%;
-        padding: 30px 20px;
+        height: 260px;
+    }
+    .login-container {
+        width: 100%;
+        padding: 40px 30px;
     }
 }

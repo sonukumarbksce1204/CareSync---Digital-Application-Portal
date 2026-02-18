@@ -7,7 +7,15 @@
     <link rel="stylesheet" href="{% static 'hospital/style1.css' %}">
 </head>
 
+
+
 <body>
+
+<div class="hero-section">
+    <h1>CareSync Hospital Portal</h1>
+    <p>Access hospital dashboard, manage appointments, records, and streamline your workflow securely.</p>
+</div>
+
 
 <div class="login-container">
     <h2>🏥 Hospital Login</h2>
@@ -22,7 +30,6 @@
 
     <form method="POST">
         {% csrf_token %}
-
         <div class="input-group">
             <label>Registration Number</label>
             <input type="text" name="registration_number" required>
@@ -42,4 +49,7 @@
 </div>
 
 </body>
+
+
+
 </html>
