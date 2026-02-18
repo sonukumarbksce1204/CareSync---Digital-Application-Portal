@@ -45,3 +45,4 @@ python manage.py runserver
 
 Vishal Chandel
 Student Developer passionate about building healthcare solutions with AI and Django.
+In last don't forget to give star
