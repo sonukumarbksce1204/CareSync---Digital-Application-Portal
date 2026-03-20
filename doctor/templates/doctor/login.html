@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Login</title>
+</head>
+<body>
+
+<h2>Doctor Login</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="email" name="email" placeholder="Email"><br><br>
+    <input type="password" name="password" placeholder="Password"><br><br>
+    <button type="submit">Login</button>
+</form>
+
+{% for message in messages %}
+<p style="color:red;">{{ message }}</p>
+{% endfor %}
+
+</body>
+</html>
