@@ -109,3 +109,27 @@ def doctor_dashboard(request):
 def doctor_logout(request):
     request.session.flush()
     return redirect("doctor_login")
+
+
+def doctor_profile(request):
+    doctor_id = request.session.get("doctor_id")
+
+    if not doctor_id:
+        return redirect("doctor_login")
+
+    doctor = Doctor.objects.get(doctor_id=doctor_id)
+
+    if request.method == "POST":
+        image = request.FILES.get("profile_image")
+        if image:
+            doctor.profile_image = image
+            doctor.save()
+
+    qualifications = doctor.qualifications.all()
+    specializations = doctor.specializations.all()
+
+    return render(request, "doctor/profile.html", {
+        "doctor": doctor,
+        "qualifications": qualifications,
+        "specializations": specializations
+    })

@@ -137,3 +137,4 @@ def patient_dashboard(request):
 def patient_logout(request):
     logout(request)
     return redirect('patient_login')
+

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Profile • CareSync</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);
+min-height:100vh;
+display:flex;
+}
+
+/* Sidebar */
+.sidebar{
+width:250px;
+background:linear-gradient(140deg,#1FBF8F,#3EC7A6);
+color:white;
+padding:30px;
+display:flex;
+flex-direction:column;
+}
+
+.logo{
+font-size:28px;
+font-weight:600;
+margin-bottom:40px;
+cursor:pointer;
+}
+
+.nav a{
+color:white;
+text-decoration:none;
+display:block;
+margin:15px 0;
+font-size:15px;
+opacity:0.9;
+}
+
+.logout{margin-top:auto;}
+
+/* Main */
+.main{
+flex:1;
+padding:40px;
+}
+
+/* Card */
+.profile-card{
+background:rgba(255,255,255,0.8);
+backdrop-filter:blur(20px);
+border-radius:18px;
+padding:40px;
+box-shadow:0 10px 40px rgba(0,0,0,0.06);
+max-width:900px;
+}
+
+/* Avatar */
+.avatar{
+width:150px;
+height:150px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:48px;
+color:white;
+background:linear-gradient(135deg,#1FBF8F,#3EC7A6);
+margin-bottom:20px;
+overflow:hidden;
+}
+
+.avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+/* Info */
+.info p{
+margin:6px 0;
+color:#333;
+font-size:15px;
+}
+
+/* Sections */
+.section{
+margin-top:30px;
+}
+
+.section h3{
+margin-bottom:12px;
+color:#1A2B2B;
+}
+
+.list-item{
+background:#f7fffb;
+padding:12px;
+border-radius:10px;
+margin-bottom:8px;
+font-size:14px;
+border:1px solid #e2f5ee;
+}
+
+/* Upload */
+.upload-box{
+margin-top:30px;
+padding:20px;
+background:#f7fffb;
+border-radius:12px;
+border:1px dashed #1FBF8F;
+}
+
+.upload-box label{
+font-size:14px;
+color:#1A2B2B;
+margin-bottom:10px;
+display:block;
+}
+
+button{
+padding:10px 20px;
+border:none;
+background:#1FBF8F;
+color:white;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+<div class="logo" onclick="window.location.href='/'">CareSync</div>
+
+<div class="nav">
+<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+<a href="{% url 'doctor_profile' %}">Profile</a>
+<a href="#">Appointments</a>
+<a href="#">Hospitals</a>
+<a href="#">Emergency</a>
+</div>
+
+<div class="logout">
+<a href="{% url 'doctor_logout' %}">Logout</a>
+</div>
+</div>
+
+<div class="main">
+
+<div class="profile-card">
+
+<div class="avatar">
+{% if doctor.profile_image %}
+<img src="{{ doctor.profile_image.url }}">
+{% else %}
+{{ doctor.full_name|first|upper }}
+{% endif %}
+</div>
+
+<h2>Dr. {{ doctor.full_name }}</h2>
+
+<div class="info">
+<p><strong>Email:</strong> {{ doctor.email }}</p>
+<p><strong>Phone:</strong> {{ doctor.phone }}</p>
+<p><strong>Status:</strong> {{ doctor.verification_status }}</p>
+</div>
+
+<div class="section">
+<h3>Specializations</h3>
+{% for s in specializations %}
+<div class="list-item">{{ s.name }}</div>
+{% endfor %}
+</div>
+
+<div class="section">
+<h3>Qualifications</h3>
+{% for q in qualifications %}
+<div class="list-item">{{ q.degree }}</div>
+{% endfor %}
+</div>
+
+<div class="upload-box">
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<label>Choose Profile Picture</label>
+<input type="file" name="profile_image">
+<br>
+<button>Update</button>
+</form>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

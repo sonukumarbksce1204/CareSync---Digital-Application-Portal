@@ -1,22 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Doctor Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Login • CareSync</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+height:100vh;
+background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.container{
+width:1000px;
+height:650px;
+background:rgba(255,255,255,0.75);
+backdrop-filter:blur(20px);
+border-radius:18px;
+display:flex;
+box-shadow:0 20px 60px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.left{
+width:50%;
+background:linear-gradient(140deg,#1FBF8F,#3EC7A6);
+color:white;
+padding:60px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+.left h1{
+font-size:42px;
+font-weight:600;
+margin-bottom:10px;
+cursor:pointer;
+}
+
+.left p{
+font-size:16px;
+opacity:0.9;
+}
+
+.features{
+margin-top:30px;
+font-size:14px;
+line-height:1.8;
+}
+
+.right{
+width:50%;
+padding:60px;
+}
+
+.right h2{
+font-size:28px;
+margin-bottom:20px;
+color:#1A2B2B;
+}
+
+input{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #dceee8;
+outline:none;
+margin-bottom:14px;
+transition:0.3s;
+}
+
+input:focus{
+border-color:#1FBF8F;
+box-shadow:0 0 8px rgba(31,191,143,0.2);
+}
+
+.btn{
+width:100%;
+padding:13px;
+border:none;
+border-radius:8px;
+background:#1FBF8F;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
+}
+
+.btn:hover{
+background:#159D73;
+}
+
+.signup-link{
+margin-top:14px;
+font-size:14px;
+}
+
+.signup-link a{
+color:#1FBF8F;
+text-decoration:none;
+font-weight:500;
+}
+
+.error{
+color:red;
+margin-top:10px;
+}
+</style>
 </head>
+
 <body>
 
+<div class="container">
+
+<div class="left">
+<h1 onclick="window.location.href='/'">CareSync</h1>
+<p>Doctor Professional Portal</p>
+
+<div class="features">
+✔ Manage appointments efficiently<br>
+✔ Secure patient treatment workflow<br>
+✔ Multi-hospital practice support<br>
+✔ Emergency response integration<br>
+✔ Digital clinical documentation
+</div>
+</div>
+
+<div class="right">
 <h2>Doctor Login</h2>
 
 <form method="POST">
-    {% csrf_token %}
-    <input type="email" name="email" placeholder="Email"><br><br>
-    <input type="password" name="password" placeholder="Password"><br><br>
-    <button type="submit">Login</button>
+{% csrf_token %}
+<input type="email" name="email" placeholder="Email" required>
+<input type="password" name="password" placeholder="Password" required>
+<button class="btn">Login</button>
 </form>
 
 {% for message in messages %}
-<p style="color:red;">{{ message }}</p>
+<div class="error">{{ message }}</div>
 {% endfor %}
+
+<div class="signup-link">
+New doctor? <a href="{% url 'doctor_signup' %}">Create account</a>
+</div>
+
+</div>
+
+</div>
 
 </body>
 </html>

@@ -37,6 +37,12 @@ class Doctor(models.Model):
     verification_status = models.CharField(max_length=10, choices=VERIFY_CHOICES, default='pending')
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    profile_image = models.ImageField(
+    upload_to='doctor_profiles/',
+    null=True,
+    blank=True
+)
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
 

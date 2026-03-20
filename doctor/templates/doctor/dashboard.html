@@ -1,13 +1,151 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
-    <title>Doctor Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Dashboard • CareSync</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);
+height:100vh;
+display:flex;
+}
+
+/* Sidebar */
+.sidebar{
+width:250px;
+background:linear-gradient(140deg,#1FBF8F,#3EC7A6);
+color:white;
+padding:30px;
+display:flex;
+flex-direction:column;
+}
+
+.logo{
+font-size:28px;
+font-weight:600;
+margin-bottom:40px;
+cursor:pointer;
+}
+
+.nav a{
+color:white;
+text-decoration:none;
+display:block;
+margin:15px 0;
+font-size:15px;
+opacity:0.9;
+}
+
+.logout{
+margin-top:auto;
+}
+
+.logout a{
+color:white;
+text-decoration:none;
+font-weight:500;
+}
+
+/* Main */
+.main{
+flex:1;
+padding:40px;
+}
+
+/* Top */
+.top{
+font-size:24px;
+font-weight:600;
+margin-bottom:30px;
+}
+
+/* Cards */
+.cards{
+display:flex;
+gap:20px;
+}
+
+.card{
+flex:1;
+background:rgba(255,255,255,0.75);
+backdrop-filter:blur(20px);
+border-radius:16px;
+padding:25px;
+box-shadow:0 10px 30px rgba(0,0,0,0.05);
+}
+
+.card h3{
+margin-bottom:10px;
+color:#1A2B2B;
+}
+
+.card p{
+font-size:14px;
+color:#555;
+}
+</style>
+
 </head>
+
 <body>
 
-<h1>Welcome Dr. {{ doctor.full_name }}</h1>
+<div class="sidebar">
 
+<div class="logo" onclick="window.location.href='/'">CareSync</div>
+
+<div class="nav">
+<a href="#">Dashboard</a>
+<a href="#">Appointments</a>
+<a href="#">Patients</a>
+<a href="#">Hospitals</a>
+<a href="#">Emergency</a>
+<a href="{% url 'doctor_profile' %}"> View Profile</a>
+</div>
+
+<div class="logout">
 <a href="{% url 'doctor_logout' %}">Logout</a>
+</div>
+
+</div>
+
+<div class="main">
+
+<div class="top">
+Welcome Dr. {{ doctor.full_name }}
+</div>
+
+<div class="cards">
+
+<div class="card">
+<h3>Profile Status</h3>
+<p>Your account is {{ doctor.verification_status }}</p>
+</div>
+
+<div class="card">
+<h3>Hospitals</h3>
+<p>You are not connected to any hospital yet.</p>
+</div>
+
+<div class="card">
+<h3>Appointments</h3>
+<p>No appointments scheduled.</p>
+</div>
+
+</div>
+
+</div>
 
 </body>
 </html>

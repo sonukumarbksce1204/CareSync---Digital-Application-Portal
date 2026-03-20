@@ -2,28 +2,28 @@ from django.contrib import admin
 from .models import Doctor, Specialization, Qualification, DoctorVerification
 
 
+@admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'email', 'verification_status')
-
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.set_password(obj.password)
-        super().save_model(request, obj, form, change)
+    list_display = ('full_name', 'email', 'verification_status', 'profile_status')
+    search_fields = ('full_name', 'email')
+    list_filter = ('verification_status', 'profile_status')
 
 
+@admin.register(Specialization)
+class SpecializationAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+
+
+@admin.register(Qualification)
+class QualificationAdmin(admin.ModelAdmin):
+    list_display = ('doctor', 'degree', 'institution')
+
+
+@admin.register(DoctorVerification)
 class DoctorVerificationAdmin(admin.ModelAdmin):
-    list_display = ('doctor', 'license_number', 'verified_by_admin')
+    list_display = ('doctor', 'license_number', 'verified_by_admin', 'verified_at')
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
+    readonly_fields = ('license_number', 'license_document')
 
-        if obj.verified_by_admin:
-            doctor = obj.doctor
-            doctor.verification_status = 'verified'
-            doctor.save()
-
-
-admin.site.register(Doctor, DoctorAdmin)
-admin.site.register(Specialization)
-admin.site.register(Qualification)
-admin.site.register(DoctorVerification, DoctorVerificationAdmin)
+    def has_add_permission(self, request):
+        return False
