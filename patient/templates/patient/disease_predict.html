@@ -1,0 +1,874 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Know Your Disease | CareSync</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+    <style>
+        /* ── Page Layout ── */
+        .predictor-page {
+            min-height: 100vh;
+            background: #f0f4ff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .predictor-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* ── Header ── */
+        .pred-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .pred-icon {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.08); }
+        }
+
+        .pred-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 8px;
+        }
+
+        .pred-header p {
+            color: #64748b;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        /* ── Card ── */
+        .pred-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 24px;
+            padding: 36px;
+            box-shadow: 0 20px 60px rgba(79, 70, 229, 0.12);
+            margin-bottom: 28px;
+        }
+
+        .pred-card h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin: 0 0 6px;
+        }
+
+        .pred-card .subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin: 0 0 20px;
+        }
+
+        /* ── Search bar ── */
+        .symptom-search-wrap {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .symptom-search-wrap input {
+            width: 100%;
+            padding: 13px 16px 13px 44px;
+            border-radius: 14px;
+            border: 2px solid #e0e7ff;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.25s;
+            box-sizing: border-box;
+        }
+
+        .symptom-search-wrap input:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        /* ── Symptom Grid ── */
+        .symptom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding: 6px 4px;
+            border-radius: 14px;
+            border: 2px solid #e0e7ff;
+            background: #f8f7ff;
+        }
+
+        .symptom-grid::-webkit-scrollbar { width: 6px; }
+        .symptom-grid::-webkit-scrollbar-track { background: transparent; }
+        .symptom-grid::-webkit-scrollbar-thumb {
+            background: #c4b5fd;
+            border-radius: 99px;
+        }
+
+        /* Each symptom checkbox item */
+        .sym-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.18s;
+            user-select: none;
+        }
+
+        .sym-item:hover { background: #ede9fe; }
+
+        .sym-item.selected { background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+
+        .sym-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #7c3aed;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .sym-item label {
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            text-transform: capitalize;
+            line-height: 1.3;
+        }
+
+        /* ── Selected chips ── */
+        .selected-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 40px;
+            padding: 10px;
+            border-radius: 14px;
+            border: 2px dashed #c4b5fd;
+            background: #faf5ff;
+            margin-top: 14px;
+        }
+
+        .chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 500;
+            animation: popIn 0.15s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+
+        .chip-remove {
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            opacity: 0.8;
+        }
+        .chip-remove:hover { opacity: 1; }
+
+        .chips-placeholder {
+            font-size: 13px;
+            color: #a78bfa;
+            align-self: center;
+            font-style: italic;
+        }
+
+        /* ── Count badge ── */
+        .sel-count {
+            font-size: 12px;
+            color: #7c3aed;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* ── Other symptoms textarea ── */
+        .other-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #4b5563;
+            margin: 20px 0 8px;
+        }
+
+        .other-textarea {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 14px;
+            border: 2px solid #e0e7ff;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.25s;
+            box-sizing: border-box;
+            min-height: 80px;
+        }
+
+        .other-textarea:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        /* ── Predict button ── */
+        .predict-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+            margin-top: 24px;
+            letter-spacing: 0.3px;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 32px rgba(124, 58, 237, 0.45);
+        }
+
+        .predict-btn:active { transform: translateY(0); }
+
+        /* ── Error ── */
+        .pred-error {
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            color: #b91c1c;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+
+        /* ── Saved badge ── */
+        .saved-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #dcfce7;
+            border: 1.5px solid #86efac;
+            color: #166534;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* ── Result Section ── */
+        .result-card {
+            background: linear-gradient(135deg, #f0f4ff, #f5f3ff);
+            border-radius: 24px;
+            padding: 36px;
+            box-shadow: 0 20px 60px rgba(79, 70, 229, 0.12);
+            border: 2px solid #ddd6fe;
+            animation: slideUp 0.4s ease both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e1b4b;
+            margin: 0 0 6px;
+        }
+
+        .result-subtitle {
+            font-size: 13px;
+            color: #6d28d9;
+            margin: 0 0 24px;
+        }
+
+        /* Each disease result row */
+        .disease-row {
+            margin-bottom: 20px;
+        }
+
+        .disease-row:last-child { margin-bottom: 0; }
+
+        .disease-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 6px;
+        }
+
+        .disease-rank {
+            font-size: 12px;
+            font-weight: 700;
+            color: #a78bfa;
+            background: #ede9fe;
+            padding: 2px 10px;
+            border-radius: 99px;
+            margin-right: 10px;
+        }
+
+        .disease-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #3730a3;
+            flex: 1;
+        }
+
+        .disease-name.top {
+            font-size: 22px;
+            color: #4c1d95;
+        }
+
+        .conf-pct {
+            font-size: 15px;
+            font-weight: 700;
+            color: #7c3aed;
+        }
+
+        .conf-bar-wrap {
+            height: 10px;
+            background: rgba(109, 40, 217, 0.12);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .conf-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #7c3aed, #4f46e5);
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Recognized symptoms */
+        .recognized-wrap {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1.5px solid #ddd6fe;
+        }
+
+        .recognized-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6d28d9;
+            margin-bottom: 10px;
+        }
+
+        .recognized-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .rec-chip {
+            background: #ede9fe;
+            color: #5b21b6;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 99px;
+            border: 1px solid #c4b5fd;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #7c3aed;
+            background: rgba(124, 58, 237, 0.07);
+            border-radius: 10px;
+            padding: 10px 14px;
+            border-left: 3px solid #7c3aed;
+        }
+
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #6d28d9;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 28px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: rgba(124, 58, 237, 0.08);
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover { background: rgba(124, 58, 237, 0.15); }
+
+        /* Hidden items */
+        .sym-item.hidden { display: none; }
+
+        /* Separator */
+        .section-sep {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 28px 0;
+            color: #c4b5fd;
+            font-size: 13px;
+        }
+        .section-sep::before, .section-sep::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd6fe;
+        }
+    </style>
+</head>
+<body class="predictor-page">
+
+<!-- Background from dashboard -->
+<div class="background-slideshow">
+    <span></span><span></span><span></span><span></span>
+</div>
+
+<!-- Sticky Navbar -->
+<div class="navbar">
+    <div class="nav-left">
+        <div class="logo">CareSync</div>
+        <div class="tagline">Digital Care. Peaceful Healing.</div>
+    </div>
+    <ul class="nav-links">
+        <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+    </ul>
+    <div class="nav-right">
+        <div class="profile">
+            <span class="profile-name"><h2><strong>{{ patient.user.username }}</strong></h2></span>
+            <div class="profile-dropdown">
+                <a href="{% url 'patient_dashboard' %}">Dashboard</a>
+                <a href="{% url 'patient_logout' %}">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="predictor-container">
+
+    <a href="{% url 'patient_dashboard' %}" class="back-btn">← Back to Dashboard</a>
+
+    <!-- Header -->
+    <div class="pred-header">
+        <span class="pred-icon">🤖</span>
+        <h1>AI Disease Predictor</h1>
+        <p>Select your symptoms below — our AI model (89% accuracy, 41 diseases) will predict the most likely condition.</p>
+    </div>
+
+    {% if saved %}
+    <div class="saved-badge">
+        ✅ Prediction saved to your Medical History!
+    </div>
+    {% endif %}
+
+    <!-- ===== Input Form ===== -->
+    <form method="POST" id="pred-form">
+        {% csrf_token %}
+
+        <div class="pred-card">
+            <h2>Select Symptoms</h2>
+            <p class="subtitle">Search and select all symptoms that apply to you. Select at least 2 for best results.</p>
+
+            <!-- ── Symptom Autocomplete ── -->
+            <div class="sym-ac-wrapper">
+                <label class="sym-ac-label">Symptoms <span class="sym-ac-hint">(type to search, add multiple)</span></label>
+
+                <!-- Search input + dropdown -->
+                <div class="sym-ac-input-wrap">
+                    <span class="sym-ac-icon">🔍</span>
+                    <input type="text"
+                           id="sym-search"
+                           class="sym-ac-input"
+                           placeholder="e.g. fever, headache, fatigue…"
+                           autocomplete="off">
+                    <div class="sym-dropdown" id="sym-dropdown"></div>
+                </div>
+
+                <!-- Selected chips row -->
+                <div class="sym-chips" id="sym-chips">
+                    <span class="sym-chips-placeholder" id="sym-placeholder">Selected symptoms will appear here…</span>
+                </div>
+
+                <!-- Hidden count display -->
+                <div class="sym-count" id="sym-count"></div>
+            </div>
+
+            <div class="section-sep">Optional</div>
+
+            <!-- Other symptoms textarea -->
+            <label class="other-label" for="other-symptoms">Other symptoms (not in the list above)</label>
+            <textarea class="other-textarea" id="other-symptoms" name="other_symptoms"
+                      placeholder="e.g. feeling anxious, mild back pain…">{{ request.POST.other_symptoms }}</textarea>
+        </div>
+
+        {% if error %}
+        <div class="pred-error">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <button type="submit" class="predict-btn" id="predict-btn">
+            🔬 &nbsp;Predict My Disease
+        </button>
+    </form>
+
+    <!-- ===== Results ===== -->
+    {% if result %}
+    <div style="margin-top: 32px;">
+        <div class="result-card">
+            <p class="result-title">🩺 Diagnosis Results</p>
+            <p class="result-subtitle">Based on {{ result.recognized|length }} symptom(s) — top {{ result.top|length }} possible conditions</p>
+
+            {% for item in result.top %}
+            <div class="disease-row">
+                <div class="disease-meta">
+                    <span>
+                        <span class="disease-rank">#{{ forloop.counter }}</span>
+                        <span class="disease-name {% if forloop.first %}top{% endif %}">{{ item.disease }}</span>
+                    </span>
+                    <span class="conf-pct">{{ item.confidence }}%</span>
+                </div>
+                <div class="conf-bar-wrap">
+                    <div class="conf-bar-fill" style="width: {{ item.confidence }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Recognized symptoms used -->
+            {% if result.recognized %}
+            <div class="recognized-wrap">
+                <p class="recognized-title">✅ Symptoms used in prediction:</p>
+                <div class="recognized-chips">
+                    {% for sym in result.recognized %}
+                    <span class="rec-chip">{{ sym|title }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <p class="disclaimer">⚠️ This is an AI-based suggestion only. Always consult a qualified doctor for proper diagnosis and treatment.</p>
+        </div>
+    </div>
+    {% endif %}
+
+</div><!-- /container -->
+
+<style>
+/* ─── Symptom Autocomplete Widget ─── */
+.sym-ac-wrapper { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.sym-ac-label   { display: none; } /* Hide label on predict page context */
+.sym-ac-hint    { font-weight: 400; color: #94a3b8; font-size: 12px; display: none; }
+
+.sym-ac-input-wrap {
+    position: relative;
+    margin-bottom: 10px;
+}
+.sym-ac-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 17px;
+    pointer-events: none;
+}
+.sym-ac-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 16px 13px 44px;
+    border-radius: 14px;
+    border: 2px solid #e0e7ff;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    background: #fff;
+}
+.sym-ac-input:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 4px rgba(124,58,237,0.1);
+}
+
+/* Dropdown */
+.sym-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0; right: 0;
+    background: #fff;
+    border: 2px solid #e0e7ff;
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(79,70,229,0.15);
+    z-index: 200;
+    overflow: hidden;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.sym-dropdown.open { display: block; }
+.sym-dd-item {
+    padding: 11px 16px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+    text-transform: capitalize;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f3f4f6;
+}
+.sym-dd-item:last-child { border-bottom: none; }
+.sym-dd-item:hover, .sym-dd-item.focused { background: #ede9fe; color: #5b21b6; }
+.sym-dd-empty { padding: 12px 16px; font-size: 13px; color: #94a3b8; }
+
+/* Chips area */
+.sym-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 2px dashed #c4b5fd;
+    background: #faf5ff;
+    align-items: center;
+}
+.sym-chips-placeholder { font-size: 13px; color: #a78bfa; font-style: italic; }
+
+.sym-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    animation: chipPop 0.15s ease;
+}
+@keyframes chipPop {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
+.sym-chip-remove {
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0.8;
+}
+.sym-chip-remove:hover { opacity: 1; }
+
+.sym-count { font-size: 12px; color: #7c3aed; font-weight: 600; min-height: 16px; margin-top: 5px; }
+</style>
+
+<script>
+(function () {
+    'use strict';
+
+    const SUGGESTIONS_URL = "{% url 'symptom_suggestions' %}";
+
+    const searchInput  = document.getElementById('sym-search');
+    const dropdown     = document.getElementById('sym-dropdown');
+    const chipsWrap    = document.getElementById('sym-chips');
+    const placeholder  = document.getElementById('sym-placeholder');
+    const countEl      = document.getElementById('sym-count');
+    const form         = document.getElementById('pred-form');
+    const submitBtn    = document.getElementById('predict-btn');
+
+    let selected = [];   // array of symptom name strings
+    let fetchTimer = null;
+    let focusedIdx = -1;
+
+    /* ── AJAX fetch suggestions ── */
+    function fetchSuggestions(q) {
+        clearTimeout(fetchTimer);
+        if (!q) { closeDropdown(); return; }
+        fetchTimer = setTimeout(() => {
+            fetch(`${SUGGESTIONS_URL}?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => renderDropdown(data, q))
+                .catch(() => closeDropdown());
+        }, 180);
+    }
+
+    function renderDropdown(items, q) {
+        dropdown.innerHTML = '';
+        focusedIdx = -1;
+
+        // Filter out already-selected items
+        const filtered = items.filter(s => !selected.includes(s));
+
+        if (!filtered.length) {
+            dropdown.innerHTML = `<div class="sym-dd-empty">No matches found</div>`;
+            dropdown.classList.add('open');
+            return;
+        }
+
+        filtered.forEach((sym, idx) => {
+            const div = document.createElement('div');
+            div.className = 'sym-dd-item';
+            // Highlight matching part
+            const display = sym.replace(/_/g, ' ');
+            const hi = display.replace(
+                new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+                m => `<strong>${m}</strong>`
+            );
+            div.innerHTML = hi;
+            div.dataset.value = sym;
+            div.addEventListener('mousedown', e => {
+                e.preventDefault();
+                addSymptom(sym);
+            });
+            dropdown.appendChild(div);
+        });
+
+        dropdown.classList.add('open');
+    }
+
+    function closeDropdown() {
+        dropdown.classList.remove('open');
+        dropdown.innerHTML = '';
+        focusedIdx = -1;
+    }
+
+    /* ── Add / remove chips ── */
+    function addSymptom(sym) {
+        if (selected.includes(sym)) { closeDropdown(); return; }
+        selected.push(sym);
+        searchInput.value = '';
+        closeDropdown();
+        renderChips();
+    }
+
+    function removeSymptom(sym) {
+        selected = selected.filter(s => s !== sym);
+        renderChips();
+    }
+
+    window.removeChipByName = function(sym) {
+        removeSymptom(sym);
+    };
+
+    function renderChips() {
+        // Remove old chips
+        chipsWrap.querySelectorAll('.sym-chip').forEach(c => c.remove());
+        // Remove old hidden inputs
+        form.querySelectorAll('input[name="symptoms"]').forEach(i => i.remove());
+
+        if (selected.length === 0) {
+            placeholder.style.display = '';
+            countEl.textContent = '';
+        } else {
+            placeholder.style.display = 'none';
+            selected.forEach(sym => {
+                // Chip
+                const chip = document.createElement('span');
+                chip.className = 'sym-chip';
+                chip.innerHTML = `${sym.replace(/_/g, ' ')} <span class="sym-chip-remove" onclick="removeChipByName('${sym}')" title="Remove">✕</span>`;
+                chipsWrap.appendChild(chip);
+
+                // Hidden input
+                const hidden = document.createElement('input');
+                hidden.type  = 'hidden';
+                hidden.name  = 'symptoms';
+                hidden.value = sym;
+                form.appendChild(hidden);
+            });
+            countEl.textContent = `${selected.length} symptom${selected.length > 1 ? 's' : ''} selected`;
+        }
+    }
+
+    /* ── Input events ── */
+    searchInput.addEventListener('input', function () {
+        fetchSuggestions(this.value.trim());
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+        const items = dropdown.querySelectorAll('.sym-dd-item');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+            items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            focusedIdx = Math.max(focusedIdx - 1, 0);
+            items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (focusedIdx >= 0 && items[focusedIdx]) {
+                addSymptom(items[focusedIdx].dataset.value);
+            }
+        } else if (e.key === 'Escape') {
+            closeDropdown();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.sym-ac-input-wrap')) closeDropdown();
+    });
+
+    /* ── Form submit guard ── */
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            const otherSymptoms = document.getElementById('other-symptoms').value.trim();
+            if (selected.length === 0 && otherSymptoms === '') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.style.borderColor = '#ef4444';
+                searchInput.placeholder = '⚠ Please add at least one symptom';
+                setTimeout(() => {
+                    searchInput.style.borderColor = '';
+                    searchInput.placeholder = 'e.g. fever, headache, fatigue…';
+                }, 2500);
+                return;
+            }
+            if (submitBtn) {
+                // Avoid using disabled=true which cancels form submit in some browsers/iOS.
+                // We'll apply pointer-events-none and change text.
+                setTimeout(() => {
+                    submitBtn.innerHTML = '⏳ &nbsp;Analyzing…';
+                    submitBtn.style.pointerEvents = 'none';
+                    submitBtn.style.opacity = '0.7';
+                }, 10);
+            }
+        });
+    }
+})();
+</script>
+</body>
+</html>

@@ -1,18 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 import random
-
 import string
 
+
 def generate_patient_id():
-    return ''.join(
+    return "".join(
         random.choices(string.ascii_uppercase + string.digits, k=4)
     )
 
 
 def generate_family_code():
     return str(random.randint(100000, 999999))
-
 
 
 class Family(models.Model):
@@ -25,15 +24,16 @@ class Family(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     head = models.ForeignKey(
-        'Patient',
+        "Patient",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='headed_family'
+        related_name="headed_family"
     )
 
     def __str__(self):
         return self.family_id
+
 
 class Patient(models.Model):
     patient_id = models.CharField(
@@ -50,7 +50,7 @@ class Patient(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='members'
+        related_name="members"
     )
 
     age = models.IntegerField(blank=True, null=True)
@@ -58,9 +58,9 @@ class Patient(models.Model):
     gender = models.CharField(
         max_length=10,
         choices=[
-            ('male', 'Male'),
-            ('female', 'Female'),
-            ('other', 'Other')
+            ("male", "Male"),
+            ("female", "Female"),
+            ("other", "Other"),
         ],
         blank=True
     )
@@ -88,9 +88,6 @@ class Patient(models.Model):
         return f"{self.patient_id} - {self.user.username}"
 
 
-
-
-
 class Symptom(models.Model):
     patient = models.ForeignKey(
         Patient,
@@ -98,22 +95,11 @@ class Symptom(models.Model):
         related_name='symptoms'
     )
 
-    # Basic details
     description = models.TextField()
     address = models.TextField()
 
-    # NEW FIELDS
-    duration_days = models.PositiveIntegerField(
-        null=True,
-        blank=True,
-        help_text="How many days since symptoms started?"
-    )
-
-    medicines_taken = models.TextField(
-        null=True,
-        blank=True,
-        help_text="Mention any medicines already taken"
-    )
+    duration_days = models.PositiveIntegerField(null=True, blank=True)
+    medicines_taken = models.TextField(null=True, blank=True)
 
     improvement = models.CharField(
         max_length=50,
@@ -126,19 +112,11 @@ class Symptom(models.Model):
         blank=True
     )
 
-    # Image (like skin infection photo etc.)
-    image = models.ImageField(
-        upload_to='symptoms/',
-        null=True,
-        blank=True
-    )
+    image = models.ImageField(upload_to='symptoms/', null=True, blank=True)
+    test_report = models.FileField(upload_to='test_reports/', null=True, blank=True)
 
-    # Test reports (PDF / image)
-    test_report = models.FileField(
-        upload_to='test_reports/',
-        null=True,
-        blank=True
-    )
+    predicted_disease = models.CharField(max_length=200, null=True, blank=True)
+    prediction_confidence = models.FloatField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

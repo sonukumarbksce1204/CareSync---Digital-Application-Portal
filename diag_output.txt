@@ -1,0 +1,16 @@
+Python: 3.10.0 (tags/v3.10.0:b494f59, Oct  4 2021, 19:00:18) [MSC v.1929 64 bit (AMD64)]
+CWD: C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal
+joblib: OK 1.5.3
+PKL path: C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal\ml_model\symptom_index.pkl
+PKL exists: True
+Loaded symptoms: 131
+First 10: [' abdominal_pain', ' abnormal_menstruation', ' acidity', ' acute_liver_failure', ' altered_sensorium', ' anxiety', ' back_pain', ' belly_pain', ' blackheads', ' bladder_discomfort']
+TensorFlow: No module named 'tensorflow'
+rapidfuzz: OK
+Django setup: OK
+patient.views import: OK
+patient.views import: FAILED - module 'patient.views' has no attribute 'ALL_SYMPTOMS'
+Traceback (most recent call last):
+  File "C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal\diag.py", line 56, in <module>
+    out.append(f"ALL_SYMPTOMS count: {len(views.ALL_SYMPTOMS)}")
+AttributeError: module 'patient.views' has no attribute 'ALL_SYMPTOMS'

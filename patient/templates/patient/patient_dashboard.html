@@ -28,10 +28,9 @@
 
   <!-- Right -->
   <div class="nav-right">
-
       <div class="profile">
           <span class="profile-name">
-             <h2><strong>{{ request.user.username }}</strong> </h2>
+             <h2><strong>{{ request.user.username }}</strong></h2>
           </span>
 
           <div class="profile-dropdown">
@@ -39,9 +38,7 @@
               <a href="{% url 'patient_logout' %}">Logout</a>
           </div>
       </div>
-
   </div>
-
 </div>
 
 <!-- ================= HERO SECTION ================= -->
@@ -51,17 +48,22 @@
     <!-- Patient & Family ID Section -->
     <div class="patient-id-box">
         <p>
-            <strong style="color: black;">Your Patient ID:</strong> 
+            <strong style="color: black;">Your Patient ID:</strong>
             <span class="highlight-id" style="color: black;">{{ patient.patient_id }}</span>
         </p>
 
         {% if patient.family %}
             <p>
-                <strong style="color: black;">Your Family ID:</strong> 
+                <strong style="color: black;">Your Family ID:</strong>
                 <span class="highlight-id" style="color: black;">{{ patient.family.family_id }}</span>
             </p>
         {% endif %}
     </div>
+
+    <!-- AI Predictor CTA Button -->
+    <a href="{% url 'disease_predictor' %}" class="ai-cta-btn">
+        🤖 &nbsp; Know Your Disease &nbsp; →
+    </a>
 </div>
 
 <div class="dashboard">
@@ -128,19 +130,105 @@
             <form method="POST"
                   action="{% url 'patient_dashboard' %}"
                   enctype="multipart/form-data"
-                  class="symptom-form">
+                  class="symptom-form"
+                  id="medical-record-form">
 
                 {% csrf_token %}
-                {{ symptom_form.as_p }}
+                <input type="hidden" name="form_type" value="add_symptom">
 
-                <button type="submit" name="add_symptom" class="btn primary">
-                    Submit Record
+                <!-- ── Symptom Autocomplete ── -->
+                <div class="sym-ac-wrapper">
+                    <label class="sym-ac-label">Symptoms <span class="sym-ac-hint">(type to search, add multiple)</span></label>
+
+                    <div class="sym-ac-input-wrap">
+                        <span class="sym-ac-icon">🔍</span>
+                        <input type="text"
+                               id="sym-search"
+                               class="sym-ac-input"
+                               placeholder="e.g. fever, headache, fatigue…"
+                               autocomplete="off">
+                        <div class="sym-dropdown" id="sym-dropdown"></div>
+                    </div>
+
+                    <div class="sym-chips" id="sym-chips">
+                        <span class="sym-chips-placeholder" id="sym-placeholder">Selected symptoms will appear here…</span>
+                    </div>
+
+                    <textarea name="description" id="sym-description" style="display:none" required></textarea>
+                    <div class="sym-count" id="sym-count"></div>
+                </div>
+
+                <!-- ── Address ── -->
+                <div>
+                    <label>Current Address</label>
+                    {{ symptom_form.address }}
+                </div>
+
+                <!-- ── Duration ── -->
+                <div>
+                    <label>Duration (days)</label>
+                    {{ symptom_form.duration_days }}
+                </div>
+
+                <!-- ── Medicines ── -->
+                <div>
+                    <label>Medicines Taken</label>
+                    {{ symptom_form.medicines_taken }}
+                </div>
+
+                <!-- ── Improvement ── -->
+                <div>
+                    <label>Current Status</label>
+                    {{ symptom_form.improvement }}
+                </div>
+
+                <!-- ── Image ── -->
+                <div>
+                    <label>Symptom Image (optional)</label>
+                    {{ symptom_form.image }}
+                </div>
+
+                <!-- ── Test Report ── -->
+                <div>
+                    <label>Test Report (optional)</label>
+                    {{ symptom_form.test_report }}
+                </div>
+
+                <button type="submit" name="add_symptom" value="1" class="btn primary" id="submit-record-btn">
+                    🔬 &nbsp;Submit &amp; Predict Disease
                 </button>
             </form>
         {% else %}
             <p>Please join or create a family to add records.</p>
         {% endif %}
     </div>
+
+    <!-- ================= AI DIAGNOSIS RESULT ================= -->
+    {% if prediction %}
+    <div class="section ai-result-card">
+        <div class="ai-result-header">
+            <span class="ai-icon">🤖</span>
+            <h3>AI Diagnosis Result</h3>
+        </div>
+        <div class="ai-result-body">
+            <p class="ai-disease">{{ prediction.disease }}</p>
+            <div class="confidence-bar-wrap">
+                <div class="confidence-bar" style="width: {{ prediction.confidence }}%"></div>
+            </div>
+            <p class="ai-confidence">Confidence: <strong>{{ prediction.confidence }}%</strong></p>
+            {% if prediction.recognized %}
+                <p class="ai-recognized">Matched symptoms: {{ prediction.recognized|join:", " }}</p>
+            {% endif %}
+            <p class="ai-disclaimer">⚠️ This is an AI suggestion only. Please consult a qualified doctor for diagnosis.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="section">
+        <p class="error-message">{{ error }}</p>
+    </div>
+    {% endif %}
 
     <!-- ================= MEDICAL HISTORY ================= -->
     <div class="section">
@@ -192,30 +280,36 @@
                         </p>
                     {% endif %}
 
+                    {% if symptom.predicted_disease %}
+                    <div class="ai-mini-result">
+                        <span class="ai-mini-icon">🤖</span>
+                        <span class="ai-mini-label">AI Prediction:</span>
+                        <span class="ai-mini-disease">{{ symptom.predicted_disease }}</span>
+                        <span class="ai-mini-conf">({{ symptom.prediction_confidence|floatformat:1 }}%)</span>
+                    </div>
+                    {% endif %}
+
                 </div>
             {% empty %}
                 <p>No records available yet.</p>
             {% endfor %}
         </div>
     </div>
-
 </div>
+
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
-
     <div class="footer-container">
 
-        <!-- About Section -->
         <div class="footer-section">
             <h4>About CareSync</h4>
             <p>
-                CareSync is a digital healthcare management platform designed 
-                to simplify medical records, family health tracking, and 
+                CareSync is a digital healthcare management platform designed
+                to simplify medical records, family health tracking, and
                 doctor-patient connectivity in one secure environment.
             </p>
         </div>
 
-        <!-- Contact Section -->
         <div class="footer-section">
             <h4>Contact Us</h4>
             <p>Email: support@caresync.com</p>
@@ -223,7 +317,6 @@
             <p>Address:Jalandhar,Punjab,India</p>
         </div>
 
-        <!-- Quick Links -->
         <div class="footer-section">
             <h4>Quick Links</h4>
             <p><a href="#">Hospitals</a></p>
@@ -234,10 +327,292 @@
 
     </div>
 
-    <!-- Bottom Copyright -->
     <div class="footer-bottom">
         © 2026 CareSync. All Rights Reserved. <br>
         Designed & Developed for Capstone Project.
     </div>
-
 </footer>
+
+<style>
+.sym-ac-wrapper { display: flex; flex-direction: column; gap: 8px; }
+.sym-ac-label { font-weight: 600; color: #374151; font-size: 14px; }
+.sym-ac-hint { font-weight: 400; color: #94a3b8; font-size: 12px; }
+
+.sym-ac-input-wrap {
+    position: relative;
+}
+.sym-ac-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 17px;
+    pointer-events: none;
+}
+.sym-ac-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 16px 13px 44px;
+    border-radius: 14px;
+    border: 2px solid #e0e7ff;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    background: #fff;
+}
+.sym-ac-input:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 4px rgba(124,58,237,0.1);
+}
+
+.sym-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0; right: 0;
+    background: #fff;
+    border: 2px solid #e0e7ff;
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(79,70,229,0.15);
+    z-index: 200;
+    overflow: hidden;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.sym-dropdown.open { display: block; }
+.sym-dd-item {
+    padding: 11px 16px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+    text-transform: capitalize;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f3f4f6;
+}
+.sym-dd-item:last-child { border-bottom: none; }
+.sym-dd-item:hover, .sym-dd-item.focused { background: #ede9fe; color: #5b21b6; }
+.sym-dd-empty { padding: 12px 16px; font-size: 13px; color: #94a3b8; }
+
+.sym-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 2px dashed #c4b5fd;
+    background: #faf5ff;
+    align-items: center;
+}
+.sym-chips-placeholder { font-size: 13px; color: #a78bfa; font-style: italic; }
+
+.sym-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    animation: chipPop 0.15s ease;
+}
+@keyframes chipPop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.sym-chip-remove {
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0.8;
+}
+.sym-chip-remove:hover { opacity: 1; }
+
+.sym-count { font-size: 12px; color: #7c3aed; font-weight: 600; min-height: 16px; }
+
+.symptom-form label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+
+.error-message {
+    color: #b91c1c;
+    font-weight: 600;
+}
+</style>
+
+<script>
+(function () {
+    'use strict';
+
+    const SUGGESTIONS_URL = "{% url 'symptom_suggestions' %}";
+
+    const searchInput = document.getElementById('sym-search');
+    const dropdown = document.getElementById('sym-dropdown');
+    const chipsWrap = document.getElementById('sym-chips');
+    const placeholder = document.getElementById('sym-placeholder');
+    const countEl = document.getElementById('sym-count');
+    const descTextarea = document.getElementById('sym-description');
+    const form = document.getElementById('medical-record-form');
+    const submitBtn = document.getElementById('submit-record-btn');
+
+    if (!searchInput) return;
+
+    let selected = [];
+    let fetchTimer = null;
+    let focusedIdx = -1;
+
+    function fetchSuggestions(q) {
+        clearTimeout(fetchTimer);
+        if (!q) { closeDropdown(); return; }
+        fetchTimer = setTimeout(() => {
+            fetch(`${SUGGESTIONS_URL}?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => renderDropdown(data, q))
+                .catch(() => closeDropdown());
+        }, 180);
+    }
+
+    function renderDropdown(items, q) {
+        dropdown.innerHTML = '';
+        focusedIdx = -1;
+
+        const filtered = items.filter(s => !selected.includes(s));
+
+        if (!filtered.length) {
+            dropdown.innerHTML = `<div class="sym-dd-empty">No matches found</div>`;
+            dropdown.classList.add('open');
+            return;
+        }
+
+        filtered.forEach((sym) => {
+            const div = document.createElement('div');
+            div.className = 'sym-dd-item';
+            const display = sym.replace(/_/g, ' ');
+            const hi = display.replace(
+                new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+                m => `<strong>${m}</strong>`
+            );
+            div.innerHTML = hi;
+            div.dataset.value = sym;
+            div.addEventListener('mousedown', e => {
+                e.preventDefault();
+                addSymptom(sym);
+            });
+            dropdown.appendChild(div);
+        });
+
+        dropdown.classList.add('open');
+    }
+
+    function closeDropdown() {
+        dropdown.classList.remove('open');
+        dropdown.innerHTML = '';
+        focusedIdx = -1;
+    }
+
+    function addSymptom(sym) {
+        if (selected.includes(sym)) {
+            closeDropdown();
+            return;
+        }
+        selected.push(sym);
+        searchInput.value = '';
+        closeDropdown();
+        renderChips();
+        syncDescription();
+    }
+
+    function removeSymptom(sym) {
+        selected = selected.filter(s => s !== sym);
+        renderChips();
+        syncDescription();
+    }
+
+    function renderChips() {
+        chipsWrap.querySelectorAll('.sym-chip').forEach(c => c.remove());
+        form.querySelectorAll('input[name="selected_symptoms"]').forEach(i => i.remove());
+
+        if (selected.length === 0) {
+            placeholder.style.display = '';
+            countEl.textContent = '';
+        } else {
+            placeholder.style.display = 'none';
+            selected.forEach(sym => {
+                const chip = document.createElement('span');
+                chip.className = 'sym-chip';
+                chip.innerHTML = `${sym.replace(/_/g, ' ')} <span class="sym-chip-remove" title="Remove">✕</span>`;
+                chip.querySelector('.sym-chip-remove').addEventListener('click', () => removeSymptom(sym));
+                chipsWrap.appendChild(chip);
+
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'selected_symptoms';
+                hidden.value = sym;
+                form.appendChild(hidden);
+            });
+            countEl.textContent = `${selected.length} symptom${selected.length > 1 ? 's' : ''} selected`;
+        }
+    }
+
+    function syncDescription() {
+        descTextarea.value = selected.map(s => s.replace(/_/g, ' ')).join(', ');
+    }
+
+    searchInput.addEventListener('input', function () {
+        fetchSuggestions(this.value.trim());
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+        const items = dropdown.querySelectorAll('.sym-dd-item');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+            items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            focusedIdx = Math.max(focusedIdx - 1, 0);
+            items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (focusedIdx >= 0 && items[focusedIdx]) {
+                addSymptom(items[focusedIdx].dataset.value);
+            }
+        } else if (e.key === 'Escape') {
+            closeDropdown();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.sym-ac-input-wrap')) closeDropdown();
+    });
+
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            if (selected.length === 0) {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.style.borderColor = '#ef4444';
+                searchInput.placeholder = '⚠ Please add at least one symptom';
+                setTimeout(() => {
+                    searchInput.style.borderColor = '';
+                    searchInput.placeholder = 'e.g. fever, headache, fatigue…';
+                }, 2500);
+                return;
+            }
+            syncDescription();
+            renderChips();
+            if (submitBtn) {
+                submitBtn.innerHTML = '⏳ &nbsp;Analyzing…';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+})();
+</script>

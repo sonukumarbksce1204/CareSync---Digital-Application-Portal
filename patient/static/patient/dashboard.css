@@ -117,6 +117,29 @@ body::after {
   color: var(--muted);
 }
 
+/* ── AI Predictor CTA on Hero ── */
+.ai-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 22px;
+  padding: 14px 30px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  box-shadow: 0 10px 30px rgba(124,58,237,0.4);
+  transition: transform 0.22s, box-shadow 0.22s;
+}
+
+.ai-cta-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(124,58,237,0.5);
+}
+
+
 /* ================= SECTIONS ================= */
 
 .section {
@@ -595,4 +618,121 @@ body::after {
     background: #0f172a;
     font-size: 13px;
     color: #9ca3af;
+}
+
+/* ================= AI DIAGNOSIS RESULT CARD ================= */
+
+.ai-result-card {
+  border-left: 5px solid #7c3aed !important;
+  background: linear-gradient(135deg,
+    rgba(237,233,254,0.97),
+    rgba(221,214,254,0.95)) !important;
+  animation: fadeInDown 0.5s ease both;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ai-result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ai-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.ai-result-header h3 {
+  margin: 0;
+  color: #5b21b6;
+  font-size: 20px;
+}
+
+.ai-disease {
+  font-size: 28px;
+  font-weight: 800;
+  color: #4c1d95;
+  margin: 0 0 12px;
+  letter-spacing: 0.5px;
+}
+
+.confidence-bar-wrap {
+  width: 100%;
+  height: 10px;
+  background: rgba(109,40,217,0.15);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.confidence-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #4f46e5);
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+
+.ai-confidence {
+  color: #5b21b6;
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+
+.ai-recognized {
+  font-size: 13px;
+  color: #6d28d9;
+  margin: 0 0 12px;
+  font-style: italic;
+}
+
+.ai-disclaimer {
+  font-size: 12px;
+  color: #7c3aed;
+  background: rgba(109,40,217,0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0;
+  border-left: 3px solid #7c3aed;
+}
+
+/* ================= AI MINI BADGE on History Cards ================= */
+
+.ai-mini-result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg,
+    rgba(237,233,254,0.9),
+    rgba(221,214,254,0.8));
+  border-radius: 10px;
+  border-left: 3px solid #7c3aed;
+  flex-wrap: wrap;
+}
+
+.ai-mini-icon {
+  font-size: 16px;
+}
+
+.ai-mini-label {
+  font-weight: 600;
+  color: #5b21b6;
+  font-size: 13px;
+}
+
+.ai-mini-disease {
+  font-weight: 700;
+  color: #4c1d95;
+  font-size: 13px;
+}
+
+.ai-mini-conf {
+  font-size: 12px;
+  color: #7c3aed;
 }
