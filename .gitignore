@@ -1,0 +1,14 @@
+# Django media (user uploads)
+media/
+
+# Executable files
+*.exe
+
+# Python cache
+__pycache__/
+
+# Environment variables
+.env
+
+# Database (optional for dev)
+*.sqlite3
