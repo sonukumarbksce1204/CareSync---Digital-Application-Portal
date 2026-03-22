@@ -121,3 +121,36 @@ def hospital_patient_detail_view(request, patient_id):
         
     log_hospital_access(hospital, 'PERSONAL', patient=patient)
     return render(request, 'hospital/patient_result.html', {'patient': patient, 'hospital': hospital})
+
+
+from doctor.models import HospitalAffiliation
+from django.utils import timezone
+
+def hospital_affiliations(request):
+    hospital = get_session_hospital(request)
+    if not hospital:
+        request.session.flush()
+        return redirect("hospital_login")
+
+    if request.method == "POST":
+        action = request.POST.get('action')
+        affil_id = request.POST.get('affiliation_id')
+        affil = HospitalAffiliation.objects.filter(id=affil_id, hospital=hospital).first()
+        
+        if affil:
+            if action == 'APPROVE':
+                affil.status = 'APPROVED'
+            elif action == 'REJECT':
+                affil.status = 'REJECTED'
+            affil.responded_at = timezone.now()
+            affil.save()
+            messages.success(request, f"Affiliation request {affil.status.lower()} successfully.")
+
+    pending_requests = HospitalAffiliation.objects.filter(hospital=hospital, status='PENDING')
+    resolved_requests = HospitalAffiliation.objects.filter(hospital=hospital).exclude(status='PENDING').order_by('-responded_at')
+
+    return render(request, "hospital/affiliations.html", {
+        "hospital": hospital,
+        "pending_requests": pending_requests,
+        "resolved_requests": resolved_requests
+    })

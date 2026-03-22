@@ -1,0 +1,54 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+<div class="navbar">
+  <div class="nav-left">
+      <div class="logo">CareSync</div>
+      <div class="tagline">Digital Care. Peaceful Healing.</div>
+  </div>
+  <ul class="nav-links">
+      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'patient_hospitals' %}">Hospitals</a></li>
+      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
+      <li><a href="{% url 'patient_doctors' %}">Doctors</a></li>
+  </ul>
+  <div class="nav-right">
+      <div class="profile">
+          <span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span>
+          <div class="profile-dropdown">
+              <a href="{% url 'patient_profile' %}">View Profile</a>
+              <a href="{% url 'patient_logout' %}">Logout</a>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="dashboard" style="margin-top: 100px;">
+    <div class="section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>Partner Hospitals</h3>
+            <form method="GET" action="{% url 'patient_hospitals' %}" style="display:flex; gap:10px;">
+                <input type="text" name="q" placeholder="Search a hospital..." style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <button type="submit" class="btn primary">Search</button>
+            </form>
+        </div>
+
+        <div class="hospital-grid">
+            {% for hospital in hospitals %}
+                <div class="hospital-card" style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h4 style="color: #4f46e5; margin-bottom: 5px;">{{ hospital.name }}</h4>
+                    <p style="color: #6b7280; font-size: 14px; margin-bottom: 15px;">📍 {{ hospital.city }}, {{ hospital.state }}</p>
+                    <p style="margin-bottom: 15px;"><strong>Type:</strong> {{ hospital.hospital_type }}</p>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{% url 'patient_hospital_detail' hospital.id %}" class="btn secondary" style="flex:1; text-align:center;">View Details</a>
+                        <a href="{% url 'book_appointment' %}?hospital={{ hospital.id }}" class="btn primary" style="flex:1; text-align:center;">Book</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No hospitals found matching your search.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<footer class="footer">...</footer>

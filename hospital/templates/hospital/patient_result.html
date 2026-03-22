@@ -59,13 +59,36 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
 </div>
 
 <div class="card">
-<h3>Medical History & ML Predictions</h3>
+<h3>Medical History, ML Predictions & AI Review</h3>
 {% for symptom in patient.symptoms.all reversed %}
-    <div class="history-item">
-        <p><strong>Date:</strong> {{ symptom.created_at|date:"d M Y" }}</p>
-        <p><strong>Symptoms reported:</strong> {{ symptom.description }}</p>
+    <div class="history-item" style="padding: 20px; background: #fafafa; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eaeaea;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <p><strong>Date:</strong> {{ symptom.created_at|date:"d M Y, h:i A" }}</p>
+            <div>
+                {% if symptom.ai_prediction_status == 'PENDING_REVIEW' %}
+                    <span style="background: #fef08a; color: #854d0e; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px;">⏳ Pending Doctor Review</span>
+                {% elif symptom.ai_prediction_status == 'APPROVED' %}
+                    <span style="background: #bbf7d0; color: #166534; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px;">✅ Verified: Approved</span>
+                {% elif symptom.ai_prediction_status == 'MODIFIED' %}
+                    <span style="background: #bfdbfe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px;">🔄 Verified: Modified</span>
+                {% elif symptom.ai_prediction_status == 'REJECTED' %}
+                    <span style="background: #fecaca; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px;">❌ Verified: Rejected</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <p><strong>Patient Description:</strong> {{ symptom.description }}</p>
+        
         {% if symptom.predicted_disease %}
-            <p style="color:#1FBF8F;font-weight:bold;">↳ AI Predicted: {{ symptom.predicted_disease }} ({{ symptom.prediction_confidence }}%)</p>
+            <p style="color:#1FBF8F;font-weight:bold; margin-top:5px;">↳ AI Suggestion: {{ symptom.predicted_disease }} ({{ symptom.prediction_confidence|floatformat:1 }}% confidence)</p>
+        {% endif %}
+        
+        {% if symptom.ai_prediction_status != 'PENDING_REVIEW' %}
+            <div style="margin-top: 15px; padding: 10px; background: #e0f2fe; border-left: 4px solid #0284c7; border-radius: 4px;">
+                <p><strong>Doctor's Final Diagnosis:</strong> {{ symptom.doctor_final_diagnosis_catalog.name|default:symptom.predicted_disease }}</p>
+                {% if symptom.doctor_diagnosis_notes %}<p><strong>Notes:</strong> {{ symptom.doctor_diagnosis_notes }}</p>{% endif %}
+                <p style="font-size:12px; margin-top:5px; color:#64748b;">Verified by Dr. {{ symptom.verified_by_doctor.full_name }} on {{ symptom.verified_at|date:"d M Y" }}</p>
+            </div>
         {% endif %}
     </div>
 {% empty %}

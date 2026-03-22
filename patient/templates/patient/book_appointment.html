@@ -1,0 +1,49 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+<div class="navbar">
+  <div class="nav-left"><div class="logo">CareSync</div></div>
+  <ul class="nav-links">
+      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
+  </ul>
+  <div class="nav-right">
+      <div class="profile"><span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span></div>
+  </div>
+</div>
+
+<div class="dashboard" style="margin-top: 100px;">
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding:15px; margin-bottom:20px; border-radius:8px; color:#fff; background-color:{% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% else %}#f59e0b{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="section" style="max-width: 600px; margin: 0 auto;">
+        <h3 style="text-align: center; color: #4f46e5; margin-bottom: 20px;">Book an Appointment</h3>
+        <p style="text-align: center; color: #6b7280; margin-bottom: 30px;">Please explicitly select ONE option: either a Doctor OR a Hospital.</p>
+        
+        <form method="POST" action="{% url 'book_appointment' %}" class="symptom-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div style="color: red; margin-bottom: 15px; font-weight:bold;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #4b5563; margin-bottom:5px; display:block;">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red; font-size: 12px; margin-top: 5px;">{{ field.errors.as_text }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn primary" style="width: 100%; margin-top: 20px; padding: 12px;">✅ Request Appointment</button>
+        </form>
+    </div>
+</div>

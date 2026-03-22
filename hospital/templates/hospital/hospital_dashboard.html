@@ -16,13 +16,10 @@
         <h2 class="logo">Care<span>Sync</span></h2>
 
         <ul>
-            <li class="active">Dashboard</li>
-            <li>Doctors</li>
-            <li>Patients</li>
-            <li>Appointments</li>
-            <li>Gallery</li>
-            <li>Settings</li>
-            <li class="logout">Logout</li>
+            <li class="active"><a href="{% url 'hospital_dashboard' %}" style="text-decoration:none; color:inherit;">Dashboard</a></li>
+            <li><a href="{% url 'hospital_search' %}" style="text-decoration:none; color:inherit;">Search Patients</a></li>
+            <li><a href="{% url 'hospital_affiliations' %}" style="text-decoration:none; color:inherit;">Doctor Affiliations</a></li>
+            <li class="logout"><a href="/" style="text-decoration:none; color:white;">Logout</a></li>
         </ul>
     </aside>
 

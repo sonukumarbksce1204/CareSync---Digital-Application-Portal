@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from .forms import PatientSignUpForm, PatientProfileForm, SymptomForm
-from .models import Patient, Family, Symptom
+from django.utils import timezone
+from .forms import PatientSignUpForm, PatientProfileForm, SymptomForm, AppointmentForm, PatientProfileUpdateForm
+from .models import Patient, Family, Symptom, Appointment
 from hospital.models import Hospital
+from doctor.models import Doctor
 
 
 # ── ML setup (SAFE & ORDER-PRESERVING) ─────────────────────────────────────
@@ -169,11 +171,11 @@ def patient_dashboard(request):
     # ── Access control ─────────────────────────
     if patient.family and patient.family.head == patient:
         symptoms = Symptom.objects.filter(
-            patient__family=patient.family
+            patient__family=patient.family, is_archived=False
         ).order_by("-created_at")
     else:
         symptoms = Symptom.objects.filter(
-            patient=patient
+            patient=patient, is_archived=False
         ).order_by("-created_at")
 
     return render(request, "patient/patient_dashboard.html", {
@@ -368,6 +370,121 @@ def member_history_view(request, member_id):
     if not can_view_patient(request.user, target):
         return HttpResponseForbidden("You do not have permission to view this medical record. Only the Family Head can view this.")
         
-    symptoms = target.symptoms.all().order_by('-created_at')
+    symptoms = target.symptoms.filter(is_archived=False).order_by('-created_at')
     return render(request, 'patient/member_history.html', {'member': target, 'symptoms': symptoms})
 
+# ==============================
+# PATIENT PROFILE & INFO
+# ==============================
+def patient_profile(request):
+    import django.contrib.messages as messages
+    patient = Patient.objects.filter(user=request.user).first()
+    if request.method == 'POST':
+        form = PatientProfileUpdateForm(request.POST, instance=patient)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('patient_profile')
+    else:
+        form = PatientProfileUpdateForm(instance=patient)
+    return render(request, 'patient/profile.html', {'patient': patient, 'form': form})
+
+def privacy_policy(request):
+    return render(request, 'patient/privacy_policy.html', {'patient': Patient.objects.filter(user=request.user).first()})
+
+def contact_page(request):
+    return render(request, 'patient/contact.html', {'patient': Patient.objects.filter(user=request.user).first()})
+
+# ==============================
+# DISCOVERY (HOSPITALS & DOCTORS)
+# ==============================
+def hospitals_list(request):
+    hospitals = Hospital.objects.all()
+    q = request.GET.get('q')
+    if q: hospitals = hospitals.filter(name__icontains=q)
+    return render(request, 'patient/hospitals.html', {'hospitals': hospitals, 'patient': Patient.objects.filter(user=request.user).first()})
+
+def hospital_detail(request, hospital_id):
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+    return render(request, 'patient/hospital_detail.html', {'hospital': hospital, 'patient': Patient.objects.filter(user=request.user).first()})
+
+def doctors_list(request):
+    doctors = Doctor.objects.filter(verification_status='verified')
+    return render(request, 'patient/doctors.html', {'doctors': doctors, 'patient': Patient.objects.filter(user=request.user).first()})
+
+def doctor_detail(request, doc_id):
+    doctor = get_object_or_404(Doctor, doctor_id=doc_id)
+    return render(request, 'patient/doctor_detail.html', {'doctor': doctor, 'patient': Patient.objects.filter(user=request.user).first()})
+
+# ==============================
+# APPOINTMENTS
+# ==============================
+def appointments_view(request):
+    patient = Patient.objects.filter(user=request.user).first()
+    apps = patient.appointments.all()
+    upcoming = apps.filter(status__in=['REQUESTED', 'APPROVED'], preferred_date__gte=timezone.now().date())
+    past = apps.filter(status='COMPLETED') | apps.filter(preferred_date__lt=timezone.now().date()).exclude(status__in=['CANCELLED', 'REJECTED'])
+    cancelled = apps.filter(status__in=['CANCELLED', 'REJECTED'])
+    return render(request, 'patient/appointments.html', {
+        'patient': patient, 'upcoming': upcoming, 'past': past, 'cancelled': cancelled
+    })
+
+def book_appointment(request):
+    import django.contrib.messages as messages
+    patient = Patient.objects.filter(user=request.user).first()
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            dup = Appointment.objects.filter(
+                patient=patient, preferred_date=form.cleaned_data['preferred_date'], 
+                doctor=form.cleaned_data['doctor'], hospital=form.cleaned_data['hospital'],
+                status__in=['REQUESTED', 'APPROVED']
+            ).exists()
+            if dup:
+                messages.error(request, 'You already have an active appointment request for this date/target.')
+            else:
+                apt = form.save(commit=False)
+                apt.patient = patient
+                apt.save()
+                messages.success(request, 'Appointment requested successfully.')
+                return redirect('patient_appointments')
+    else:
+        doc_id = request.GET.get('doctor')
+        hosp_id = request.GET.get('hospital')
+        form = AppointmentForm(initial={'doctor': doc_id, 'hospital': hosp_id})
+    return render(request, 'patient/book_appointment.html', {'form': form, 'patient': patient})
+
+def cancel_appointment(request, apt_id):
+    import django.contrib.messages as messages
+    patient = Patient.objects.filter(user=request.user).first()
+    apt = get_object_or_404(Appointment, id=apt_id, patient=patient)
+    if apt.status in ['REQUESTED', 'APPROVED']:
+        apt.status = 'CANCELLED'
+        apt.save()
+        messages.success(request, 'Appointment cancelled.')
+    else:
+        messages.error(request, 'Cannot cancel this appointment.')
+    return redirect('patient_appointments')
+
+# ==============================
+# MEDICAL HISTORY
+# ==============================
+def symptom_detail(request, symptom_id):
+    patient = Patient.objects.filter(user=request.user).first()
+    symptom = get_object_or_404(Symptom, id=symptom_id)
+    if symptom.patient != patient:
+        if not (symptom.patient.family and symptom.patient.family.head == patient):
+            return HttpResponseForbidden("Not authorized.")
+    return render(request, 'patient/symptom_detail.html', {'symptom': symptom, 'patient': patient})
+
+def delete_symptom(request, symptom_id):
+    import django.contrib.messages as messages
+    patient = Patient.objects.filter(user=request.user).first()
+    symptom = get_object_or_404(Symptom, id=symptom_id, patient=patient)
+    if symptom.ai_prediction_status == 'PENDING_REVIEW':
+        symptom.is_archived = True
+        symptom.save()
+        messages.success(request, 'Record archived successfully.')
+    else:
+        messages.error(request, 'Cannot archive a verified medical record.')
+    return redirect('patient_dashboard')

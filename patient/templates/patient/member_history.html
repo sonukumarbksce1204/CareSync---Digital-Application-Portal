@@ -27,9 +27,29 @@
 
 <div class="dashboard">
 
+    <div class="section" style="margin-bottom: 40px;">
+        <h3 style="color:#0f172a; margin-bottom: 10px;">Past Consultations & Prescriptions</h3>
+        <p class="info-text" style="margin-bottom: 20px;">Doctor's clinical notes and digital prescriptions.</p>
+
+        <div class="history-grid">
+            {% for consult in member.consultations.all reversed %}
+                <div class="history-card" style="border-left: 4px solid #3b82f6; background: #f8fafc;">
+                    <small style="color: #64748b;">{{ consult.created_at|date:"d M Y, h:i A" }}</small>
+                    <p style="margin-top:10px;"><strong>Doctor:</strong> Dr. {{ consult.doctor.full_name }}</p>
+                    <p style="margin-top:5px;"><strong>Clinical Notes:</strong> {{ consult.notes }}</p>
+                    {% if consult.prescription_document %}
+                    <a href="{{ consult.prescription_document.url }}" target="_blank" style="display:inline-block; margin-top:15px; padding:8px 14px; background:#e0f2fe; color:#0284c7; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">📄 Download Prescription</a>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p style="color: #64748b; font-size: 14px;">No doctor consultation records available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
     <div class="section">
-        <h3>Full History</h3>
-        <p class="info-text">You are securely viewing this record as the Head of the Family.</p>
+        <h3>Full Symptom History</h3>
+        <p class="info-text">Symptom timeline and AI predictions securely viewed as Family Head.</p>
 
         <div class="history-grid">
             {% for symptom in symptoms %}

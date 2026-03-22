@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Patient, Symptom
-
+from .models import Patient, Symptom, Appointment
+from doctor.models import Doctor
+from hospital.models import Hospital
+from django.utils import timezone
 
 # ==============================
 # USER SIGNUP FORM
@@ -221,3 +223,49 @@ class RequestJoinFamilyForm(forms.Form):
             self.add_error('custom_relationship', "Please specify your relationship if selecting 'Other'.")
 
         return cleaned_data
+
+# ==============================
+# APPOINTMENT FORM
+# ==============================
+class AppointmentForm(forms.ModelForm):
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.filter(verification_status='verified'), required=False, empty_label="Select Doctor (Optional)")
+    hospital = forms.ModelChoiceField(queryset=Hospital.objects.all(), required=False, empty_label="Select Hospital (Optional)")
+    
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'hospital', 'preferred_date', 'reason', 'note']
+        widgets = {
+            'preferred_date': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
+            'reason': forms.Textarea(attrs={'rows': 3, 'class': 'input-field', 'placeholder': 'Symptoms or reason...'}),
+            'note': forms.Textarea(attrs={'rows': 2, 'class': 'input-field', 'placeholder': 'Optional instructions...'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        doctor = cleaned_data.get('doctor')
+        hospital = cleaned_data.get('hospital')
+        pref_date = cleaned_data.get('preferred_date')
+
+        if (not doctor and not hospital) or (doctor and hospital):
+            raise forms.ValidationError("You must select exactly one: either a Doctor OR a Hospital.")
+            
+        if pref_date and pref_date < timezone.now().date():
+            raise forms.ValidationError("Preferred date cannot be in the past.")
+
+        return cleaned_data
+
+# ==============================
+# PATIENT PROFILE UPDATE FORM
+# ==============================
+class PatientProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Patient
+        fields = ['age', 'gender', 'blood_group', 'phone', 'emergency_contact', 'address']
+        widgets = {
+            'age': forms.NumberInput(attrs={'class': 'input-field'}),
+            'gender': forms.Select(attrs={'class': 'input-field'}),
+            'blood_group': forms.TextInput(attrs={'class': 'input-field'}),
+            'phone': forms.TextInput(attrs={'class': 'input-field'}),
+            'emergency_contact': forms.TextInput(attrs={'class': 'input-field'}),
+            'address': forms.Textarea(attrs={'rows': 3, 'class': 'input-field'}),
+        }

@@ -1,0 +1,26 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+<div class="navbar">
+  <div class="nav-left"><div class="logo">CareSync</div></div>
+  <ul class="nav-links">
+      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+  </ul>
+</div>
+
+<div class="dashboard" style="margin-top: 100px;">
+    <div class="section" style="max-width: 800px; margin: 0 auto;">
+        <h2 style="color: #4f46e5; margin-bottom: 20px;">Privacy Policy</h2>
+        
+        <p style="margin-bottom: 15px; line-height:1.6;">At CareSync, your medical privacy is our absolute priority. This policy outlines how we protect and manage your Personal Health ID and family records.</p>
+        
+        <h4 style="margin-top: 20px; margin-bottom: 10px;">1. AI Verifications & Immutability</h4>
+        <p style="margin-bottom: 15px; line-height:1.6;">Once a medical record's AI diagnosis is reviewed by a licensed doctor, the record becomes a permanent medical artifact. It cannot be edited or deleted by the patient, ensuring data consistency for hospitals.</p>
+        
+        <h4 style="margin-top: 20px; margin-bottom: 10px;">2. Doctor Access Logs</h4>
+        <p style="margin-bottom: 15px; line-height:1.6;">Doctors can only view your records if you grant them access via your Personal or Family Health ID. Every access request is securely logged in the system.</p>
+        
+        <h4 style="margin-top: 20px; margin-bottom: 10px;">3. Data Archival</h4>
+        <p style="margin-bottom: 15px; line-height:1.6;">Records that have not been verified by a doctor can be archived ("soft-deleted") by the patient. Archival removes the record from your immediate view but preserves system integrity.</p>
+    </div>
+</div>

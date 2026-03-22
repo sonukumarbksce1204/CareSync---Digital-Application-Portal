@@ -130,10 +130,38 @@ class Symptom(models.Model):
     predicted_disease = models.CharField(max_length=200, null=True, blank=True)
     prediction_confidence = models.FloatField(null=True, blank=True)
 
+    is_archived = models.BooleanField(default=False)
+    
+    AI_STATUS_CHOICES = [
+        ('PENDING_REVIEW', 'Pending Review'),
+        ('APPROVED', 'Approved by Doctor'),
+        ('MODIFIED', 'Modified by Doctor'),
+        ('REJECTED', 'Rejected by Doctor')
+    ]
+    ai_prediction_status = models.CharField(max_length=20, choices=AI_STATUS_CHOICES, default='PENDING_REVIEW')
+    doctor_final_diagnosis_catalog = models.ForeignKey('patient.DiseaseCatalog', on_delete=models.SET_NULL, null=True, blank=True)
+    doctor_diagnosis_notes = models.CharField(max_length=255, null=True, blank=True)
+    verified_by_doctor = models.ForeignKey('doctor.Doctor', on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_symptoms')
+    verified_at = models.DateTimeField(null=True, blank=True)
+    verification_note = models.TextField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.patient.user.username} - {self.created_at}"
+
+
+class ConsultationRecord(models.Model):
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='consultations')
+    doctor = models.ForeignKey('doctor.Doctor', on_delete=models.SET_NULL, null=True, related_name='consultations')
+    appointment = models.OneToOneField('Appointment', on_delete=models.SET_NULL, null=True, blank=True, related_name='consultation')
+    
+    notes = models.TextField(help_text="Clinical observations and advice.")
+    prescription_document = models.FileField(upload_to='prescriptions/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Consultation on {self.created_at.date()} for {self.patient.patient_id}"
 
 
 class DiseaseCatalog(models.Model):
@@ -228,3 +256,36 @@ class HospitalAccessLog(models.Model):
 
     def __str__(self):
         return f"{self.hospital} accessed {self.access_method}"
+
+class AIReviewLog(models.Model):
+    symptom = models.ForeignKey(Symptom, on_delete=models.CASCADE, related_name='review_logs')
+    doctor = models.ForeignKey('doctor.Doctor', on_delete=models.CASCADE)
+    previous_status = models.CharField(max_length=20)
+    new_status = models.CharField(max_length=20)
+    note = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Dr. {self.doctor} changed {self.symptom} to {self.new_status}"
+
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ('REQUESTED', 'Requested'),
+        ('APPROVED', 'Approved'),
+        ('COMPLETED', 'Completed'),
+        ('CANCELLED', 'Cancelled'),
+        ('REJECTED', 'Rejected'),
+    ]
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='appointments')
+    doctor = models.ForeignKey('doctor.Doctor', on_delete=models.SET_NULL, null=True, blank=True, related_name='appointments')
+    hospital = models.ForeignKey('hospital.Hospital', on_delete=models.SET_NULL, null=True, blank=True, related_name='appointments')
+    
+    preferred_date = models.DateField()
+    reason = models.TextField()
+    note = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='REQUESTED')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Apt: {self.patient} on {self.preferred_date}"

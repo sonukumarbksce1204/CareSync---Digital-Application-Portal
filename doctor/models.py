@@ -63,6 +63,22 @@ class Qualification(models.Model):
         return f"{self.degree} - {self.doctor.full_name}"
 
 
+class HospitalAffiliation(models.Model):
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    )
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='affiliations')
+    hospital = models.ForeignKey('hospital.Hospital', on_delete=models.CASCADE, related_name='affiliated_doctors')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDING')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('doctor', 'hospital')
+
+
 class DoctorVerification(models.Model):
     doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, related_name='verification')
 

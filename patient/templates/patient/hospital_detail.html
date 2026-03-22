@@ -1,0 +1,44 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+<div class="navbar">
+  <div class="nav-left"><div class="logo">CareSync</div></div>
+  <ul class="nav-links">
+      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
+  </ul>
+  <div class="nav-right">
+      <div class="profile">
+          <span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span>
+          <div class="profile-dropdown">
+              <a href="{% url 'patient_profile' %}">Profile</a>
+              <a href="{% url 'patient_logout' %}">Logout</a>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="dashboard" style="margin-top: 100px;">
+    <div class="section">
+        <h3>{{ hospital.name }}</h3>
+        <p style="color: #6b7280; font-size: 16px; margin-bottom: 20px;">📍 {{ hospital.address }}, {{ hospital.city }} - {{ hospital.pincode }}</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div style="padding: 20px; background: #f3f4f6; border-radius: 10px;">
+                <p><strong>Registration ID:</strong> {{ hospital.registration_number }}</p>
+                <p><strong>Type:</strong> {{ hospital.hospital_type }}</p>
+                <p><strong>Total Beds:</strong> {{ hospital.total_beds }}</p>
+                <p><strong>Emergency:</strong> {% if hospital.emergency_services %}Available ✅{% else %}Not Available ❌{% endif %}</p>
+            </div>
+            <div style="padding: 20px; background: #f3f4f6; border-radius: 10px;">
+                <p><strong>Phone:</strong> {{ hospital.contact_number }}</p>
+                <p><strong>Email:</strong> {{ hospital.email }}</p>
+                <p><strong>Website:</strong> <a href="{{ hospital.website }}" target="_blank">{{ hospital.website }}</a></p>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{% url 'book_appointment' %}?hospital={{ hospital.id }}" class="btn primary" style="font-size: 18px; padding: 15px 40px;">📅 Book an Appointment Here</a>
+        </div>
+    </div>
+</div>

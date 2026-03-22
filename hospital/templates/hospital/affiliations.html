@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ hospital.name }} - Doctor Affiliations</title>
+    <link rel="stylesheet" href="{% static 'hospital/style2.css' %}">
+    <style>
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px;}
+        .table th, .table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left;}
+        .table th { background-color: #f4f4f4;}
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold;}
+        .btn-approve { background-color: #10b981;}
+        .btn-reject { background-color: #ef4444;}
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <h2 class="logo">Care<span>Sync</span></h2>
+        <ul>
+            <li><a href="{% url 'hospital_dashboard' %}" style="text-decoration:none; color:inherit;">Dashboard</a></li>
+            <li><a href="{% url 'hospital_search' %}" style="text-decoration:none; color:inherit;">Search Patients</a></li>
+            <li class="active">Doctor Affiliations</li>
+            <li class="logout"><a href="/" style="text-decoration:none; color:white;">Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <section class="hero" style="background: linear-gradient(135deg, #10b981, #047857);">
+            <h1>Doctor Affiliations</h1>
+            <p>Manage verified doctor connections for your hospital.</p>
+        </section>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 15px; background: #bbf7d0; color: #166534; border-radius: 8px; margin: 20px 0;">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <section class="info-card" style="margin-top:20px;">
+            <h2>Pending Requests</h2>
+            <table class="table">
+                <tr>
+                    <th>Doctor Name</th>
+                    <th>Email</th>
+                    <th>Requested At</th>
+                    <th>Actions</th>
+                </tr>
+                {% for req in pending_requests %}
+                <tr>
+                    <td><strong>Dr. {{ req.doctor.full_name }}</strong></td>
+                    <td>{{ req.doctor.email }}</td>
+                    <td>{{ req.requested_at|date:"d M Y" }}</td>
+                    <td style="display:flex; gap:10px;">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="affiliation_id" value="{{ req.id }}">
+                            <input type="hidden" name="action" value="APPROVE">
+                            <button type="submit" class="btn btn-approve">Approve</button>
+                        </form>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="affiliation_id" value="{{ req.id }}">
+                            <input type="hidden" name="action" value="REJECT">
+                            <button type="submit" class="btn btn-reject">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center; padding:20px;">No pending affiliation requests.</td></tr>
+                {% endfor %}
+            </table>
+        </section>
+
+        <section class="info-card" style="margin-top:20px;">
+            <h2>Resolved Requests</h2>
+            <table class="table">
+                <tr>
+                    <th>Doctor Name</th>
+                    <th>Status</th>
+                    <th>Responded At</th>
+                </tr>
+                {% for req in resolved_requests %}
+                <tr>
+                    <td><strong>Dr. {{ req.doctor.full_name }}</strong></td>
+                    <td>
+                        {% if req.status == 'APPROVED' %}<span style="color: green; font-weight: bold;">APPROVED</span>{% endif %}
+                        {% if req.status == 'REJECTED' %}<span style="color: red; font-weight: bold;">REJECTED</span>{% endif %}
+                    </td>
+                    <td>{{ req.responded_at|date:"d M Y, h:i A" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" style="text-align:center; padding:20px;">No resolved affiliation requests yet.</td></tr>
+                {% endfor %}
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

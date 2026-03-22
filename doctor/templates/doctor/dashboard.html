@@ -106,13 +106,13 @@ color:#555;
 <div class="logo" onclick="window.location.href='/'">CareSync</div>
 
 <div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+<a href="{% url 'doctor_dashboard' %}" style="font-weight: 600;">Dashboard</a>
 <a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="#">Appointments</a>
-<a href="#">Patients</a>
-<a href="#">Hospitals</a>
-<a href="#">Emergency</a>
-<a href="{% url 'doctor_profile' %}"> View Profile</a>
+<a href="{% url 'doctor_appointments' %}">Appointments {% if pending_appointments %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_appointments }}</span>{% endif %}</a>
+<a href="{% url 'pending_reviews' %}">Pending AI Reviews {% if pending_reviews_count %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_reviews_count }}</span>{% endif %}</a>
+<a href="{% url 'my_patients' %}">My Patients</a>
+<a href="{% url 'hospital_affiliations' %}">Hospital Affiliations</a>
+<a href="{% url 'doctor_profile' %}">Profile Settings</a>
 </div>
 
 <div class="logout">
@@ -125,25 +125,46 @@ color:#555;
 
 <div class="top">
 Welcome Dr. {{ doctor.full_name }}
+<p style="font-size: 14px; font-weight: normal; color: #555; margin-top: 5px;">Clinical Workspace Overview</p>
 </div>
 
 <div class="cards">
 
 <div class="card">
-<h3>Profile Status</h3>
-<p>Your account is {{ doctor.verification_status }}</p>
+<h3>My Patients</h3>
+<p style="font-size: 28px; font-weight: 600; color: #1FBF8F;">{{ my_patients_count }}</p>
+<p>Total patients accessed.</p>
 </div>
 
 <div class="card">
-<h3>Hospitals</h3>
-<p>You are not connected to any hospital yet.</p>
+<h3>Pending AI Reviews</h3>
+<p style="font-size: 28px; font-weight: 600; color: #1FBF8F;">{{ pending_reviews_count }}</p>
+<p>Awaiting doctor verification.</p>
 </div>
 
 <div class="card">
 <h3>Appointments</h3>
-<p>No appointments scheduled.</p>
+<p style="color: #666; margin-top:10px;">
+    <strong>{{ pending_appointments }}</strong> requests<br>
+    <strong>{{ upcoming_appointments }}</strong> upcoming
+</p>
 </div>
 
+</div>
+
+<div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+    <a href="{% url 'doctor_search' %}" style="background: white; padding: 20px; border-radius: 12px; text-decoration: none; color: #333; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <h4 style="margin-bottom: 10px; color: #1FBF8F;">🔍 Search Health ID</h4>
+        <p style="font-size: 13px; color: #666;">Find new patients and grant access.</p>
+    </a>
+    <a href="{% url 'my_patients' %}" style="background: white; padding: 20px; border-radius: 12px; text-decoration: none; color: #333; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <h4 style="margin-bottom: 10px; color: #1FBF8F;">👥 My Patients List</h4>
+        <p style="font-size: 13px; color: #666;">Quickly return to a patient's medical history.</p>
+    </a>
+    <a href="{% url 'doctor_appointments' %}" style="background: white; padding: 20px; border-radius: 12px; text-decoration: none; color: #333; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <h4 style="margin-bottom: 10px; color: #1FBF8F;">📅 Manage Appointments</h4>
+        <p style="font-size: 13px; color: #666;">Approve or complete consultation requests.</p>
+    </a>
 </div>
 
 </div>

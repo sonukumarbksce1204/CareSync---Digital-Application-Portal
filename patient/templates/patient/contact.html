@@ -1,0 +1,22 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+<div class="navbar">
+  <div class="nav-left"><div class="logo">CareSync</div></div>
+  <ul class="nav-links">
+      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+  </ul>
+</div>
+
+<div class="dashboard" style="margin-top: 100px; text-align: center;">
+    <div class="section" style="max-width: 600px; margin: 0 auto; display: inline-block;">
+        <h2 style="color: #4f46e5; margin-bottom: 20px;">Contact Us</h2>
+        <p style="margin-bottom: 20px; font-size: 16px;">We are here to help. Reach out to the CareSync support team for any technical or medical inquiries.</p>
+        
+        <div style="text-align: left; background: #f3f4f6; padding: 20px; border-radius: 8px;">
+            <p style="margin-bottom: 10px;"><strong>Email:</strong> support@caresync.com</p>
+            <p style="margin-bottom: 10px;"><strong>Phone:</strong> +91 98765 43210</p>
+            <p><strong>Address:</strong> Jalandhar, Punjab, India</p>
+        </div>
+    </div>
+</div>

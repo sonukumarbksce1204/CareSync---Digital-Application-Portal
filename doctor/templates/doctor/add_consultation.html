@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Consultation • CareSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;display:flex;}
+.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
+.logo{font-size:28px;font-weight:600;margin-bottom:40px;cursor:pointer;}
+.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
+.main{flex:1;padding:40px;overflow-y:auto;}
+.top{font-size:24px;font-weight:600;margin-bottom:30px;}
+.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;}
+.btn { display: inline-block; background: #1FBF8F; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; text-decoration: none;}
+.btn:hover { background: #189b74;}
+.form-group { margin-bottom: 20px; }
+label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="logo">CareSync</div>
+<div class="nav">
+<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+<a href="{% url 'doctor_search' %}">Search Records</a>
+<a href="{% url 'doctor_appointments' %}">Appointments</a>
+<a href="{% url 'my_patients' %}">My Patients</a>
+<a href="{% url 'doctor_patient_detail' patient.patient_id %}">← Back to Patient</a>
+</div>
+</div>
+<div class="main">
+<div class="top">Add Clinical Consultation</div>
+
+<div class="card" style="max-width: 800px;">
+    <h3>Patient: {{ patient.user.get_full_name|default:patient.user.username }} ({{ patient.patient_id }})</h3>
+    <p style="margin-bottom: 20px; color: #555;">Fill out clinical notes, attach a prescription, and map an active disease to update the patient's medical history.</p>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% if appointments %}
+        <div class="form-group" style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+            <label>Link to Appointment (Optional)</label>
+            <select name="appointment_id" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <option value="">-- No specific appointment --</option>
+                {% for apt in appointments %}
+                <option value="{{ apt.id }}">[{{ apt.get_status_display }}] {{ apt.preferred_date }} - {{ apt.reason }}</option>
+                {% endfor %}
+            </select>
+            <p style="font-size: 12px; color: #666; margin-top: 5px;">If linked, the appointment status will automatically be marked as COMPLETED upon saving.</p>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label>{{ form.disease_catalog.label }}</label>
+            {{ form.disease_catalog }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.notes.label }}</label>
+            {{ form.notes }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.prescription_document.label }}</label>
+            {{ form.prescription_document }}
+        </div>
+
+        <button type="submit" class="btn">Save Consultation Record</button>
+    </form>
+</div>
+</div>
+</body>
+</html>

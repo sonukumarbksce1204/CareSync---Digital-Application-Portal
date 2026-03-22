@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Patients • CareSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;display:flex;}
+.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
+.logo{font-size:28px;font-weight:600;cursor:pointer;}
+.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
+.main{flex:1;padding:40px;overflow-y:auto;}
+.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;}
+.btn { display: inline-block; background: #1FBF8F; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 13px; text-decoration: none;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="logo" onclick="window.location.href='/'">CareSync</div>
+<div class="nav" style="margin-top:40px;">
+<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+<a href="{% url 'doctor_search' %}">Search Records</a>
+<a href="{% url 'doctor_appointments' %}">Appointments</a>
+<a href="{% url 'pending_reviews' %}">Pending AI Reviews</a>
+<a href="{% url 'my_patients' %}" style="font-weight: 600;">My Patients</a>
+</div>
+</div>
+<div class="main">
+<h2 style="margin-bottom:20px;">My Patients</h2>
+
+<form method="GET" style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <input type="text" name="q" placeholder="Search by name or Health ID..." value="{{ request.GET.q|default:'' }}" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 300px;">
+    <button type="submit" class="btn">Search</button>
+</form>
+
+<div class="card">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="border-bottom: 2px solid #eee;">
+                <th style="padding: 12px;">Health ID</th>
+                <th style="padding: 12px;">Patient Name</th>
+                <th style="padding: 12px;">Age / Gender</th>
+                <th style="padding: 12px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in patients %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;"><strong>{{ p.patient_id }}</strong></td>
+                <td style="padding: 12px;">{{ p.user.get_full_name|default:p.user.username }}</td>
+                <td style="padding: 12px;">{{ p.age|default:"--" }} / {{ p.gender|default:"--" }}</td>
+                <td style="padding: 12px;">
+                    <a href="{% url 'doctor_patient_detail' p.patient_id %}" class="btn">View Record</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="padding: 20px; text-align: center; color: #666;">No patients found in your assigned roster.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</div>
+</body>
+</html>

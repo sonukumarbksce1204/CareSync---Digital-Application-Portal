@@ -1,0 +1,51 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+<div class="navbar">
+  <div class="nav-left"><div class="logo">CareSync</div></div>
+  <ul class="nav-links">
+      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'patient_doctors' %}">Doctors</a></li>
+  </ul>
+  <div class="nav-right">
+      <div class="profile"><span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span></div>
+  </div>
+</div>
+
+<div class="dashboard" style="margin-top: 100px;">
+    <div class="section" style="max-width: 800px; margin: 0 auto;">
+        <div style="display:flex; gap: 30px; align-items: flex-start;">
+            {% if doctor.profile_image %}
+                <img src="{{ doctor.profile_image.url }}" style="width: 150px; height: 150px; border-radius: 10px; object-fit: cover;">
+            {% else %}
+                <div style="width: 150px; height: 150px; border-radius: 10px; background: #e0e7ff; display:flex; align-items:center; justify-content:center; font-size: 50px;">👨‍⚕️</div>
+            {% endif %}
+            
+            <div style="flex: 1;">
+                <h2 style="color: #4f46e5; margin-bottom: 10px;">Dr. {{ doctor.full_name }}</h2>
+                <span style="background: #bbf7d0; color: #166534; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display:inline-block; margin-bottom: 15px;">✅ Verified Medical Professional</span>
+                
+                <p style="margin-bottom: 5px;"><strong>Experience:</strong> {{ doctor.experience_years }} years</p>
+                <div style="margin-bottom: 20px;">
+                    <strong>Specializations:</strong>
+                    {% for spec in doctor.specializations.all %}
+                        <span style="background: #e0e7ff; color: #4f46e5; padding: 3px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px;">{{ spec.name }}</span>
+                    {% endfor %}
+                </div>
+
+                <a href="{% url 'book_appointment' %}?doctor={{ doctor.doctor_id }}" class="btn primary" style="font-size: 16px; padding: 12px 30px;">📅 Book an Appointment</a>
+            </div>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+        <h3>Qualifications</h3>
+        <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+            {% for qual in doctor.qualifications.all %}
+                <li><strong>{{ qual.degree }}</strong> - {{ qual.institution }} ({{ qual.year_completed }})</li>
+            {% empty %}
+                <li>No formal qualifications listed yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

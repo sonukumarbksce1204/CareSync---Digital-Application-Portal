@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Appointments • CareSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;display:flex;}
+.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
+.logo{font-size:28px;font-weight:600;cursor:pointer;}
+.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
+.main{flex:1;padding:40px;overflow-y:auto;}
+.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;}
+.btn { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 13px; text-decoration: none; border:none; cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="logo" onclick="window.location.href='/'">CareSync</div>
+<div class="nav" style="margin-top:40px;">
+<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+<a href="{% url 'doctor_appointments' %}" style="font-weight: 600;">Appointments</a>
+<a href="{% url 'pending_reviews' %}">Pending AI Reviews</a>
+<a href="{% url 'my_patients' %}">My Patients</a>
+</div>
+</div>
+<div class="main">
+<h2 style="margin-bottom:20px;">Appointment Management</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <div style="padding: 15px; background: #bbf7d0; color: #166534; border-radius: 8px; margin-bottom: 20px;">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<div class="card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin-bottom:15px;">Pending Requests</h3>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <tr style="border-bottom: 2px solid #eee;">
+            <th style="padding: 12px;">Date</th>
+            <th style="padding: 12px;">Patient</th>
+            <th style="padding: 12px;">Reason & Note</th>
+            <th style="padding: 12px;">Actions</th>
+        </tr>
+        {% for apt in requested %}
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 12px;"><strong>{{ apt.preferred_date }}</strong></td>
+            <td style="padding: 12px;"><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none; color:#1FBF8F; font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a></td>
+            <td style="padding: 12px;">{{ apt.reason }}<br><span style="font-size:12px; color:#666;">{{ apt.additional_notes }}</span></td>
+            <td style="padding: 12px; display:flex; gap:10px;">
+                <form method="POST" action="{% url 'update_appointment_status' apt.id 'APPROVED' %}">{% csrf_token %}<button type="submit" class="btn" style="background:#22c55e; color:white;">Approve</button></form>
+                <form method="POST" action="{% url 'update_appointment_status' apt.id 'REJECTED' %}">{% csrf_token %}<button type="submit" class="btn" style="background:#ef4444; color:white;">Reject</button></form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #666;">No pending appointment requests.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin-bottom:15px;">Upcoming / Approved</h3>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <tr style="border-bottom: 2px solid #eee;">
+            <th style="padding: 12px;">Date</th>
+            <th style="padding: 12px;">Patient</th>
+            <th style="padding: 12px;">Reason</th>
+            <th style="padding: 12px;">Actions</th>
+        </tr>
+        {% for apt in upcoming %}
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 12px;"><strong>{{ apt.preferred_date }}</strong></td>
+            <td style="padding: 12px;"><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none; color:#1FBF8F; font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a></td>
+            <td style="padding: 12px;">{{ apt.reason }}</td>
+            <td style="padding: 12px; display:flex; gap:10px;">
+                <form method="POST" action="{% url 'update_appointment_status' apt.id 'COMPLETED' %}">{% csrf_token %}<button type="submit" class="btn" style="background:#3b82f6; color:white;">Mark Completed</button></form>
+                <form method="POST" action="{% url 'update_appointment_status' apt.id 'CANCELLED' %}">{% csrf_token %}<button type="submit" class="btn" style="background:#ef4444; color:white;">Cancel</button></form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #666;">No upcoming appointments.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom:15px; color:#666;">Past / Completed / Cancelled</h3>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        {% for apt in past_completed %}
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 12px; width:150px; color:#666;">{{ apt.preferred_date }}</td>
+            <td style="padding: 12px;">{{ apt.patient.patient_id }}</td>
+            <td style="padding: 12px;"><span style="background:#e0f2fe; color:#0284c7; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:12px;">COMPLETED</span></td>
+        </tr>
+        {% endfor %}
+        {% for apt in cancelled %}
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 12px; width:150px; color:#666;">{{ apt.preferred_date }}</td>
+            <td style="padding: 12px;">{{ apt.patient.patient_id }}</td>
+            <td style="padding: 12px;"><span style="background:#fecaca; color:#991b1b; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:12px;">{{ apt.status }}</span></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</div>
+</body>
+</html>

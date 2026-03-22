@@ -1,0 +1,85 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+<div class="navbar">
+  <div class="nav-left"><div class="logo">CareSync</div></div>
+  <ul class="nav-links">
+      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'patient_hospitals' %}">Hospitals</a></li>
+      <li><a href="{% url 'patient_doctors' %}">Doctors</a></li>
+  </ul>
+  <div class="nav-right">
+      <div class="profile"><span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span></div>
+  </div>
+</div>
+
+<div class="dashboard" style="margin-top: 100px;">
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding:15px; margin-bottom:20px; border-radius:8px; color:#fff; background-color:{% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% else %}#f59e0b{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="section" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="color: #4f46e5;">My Appointments</h2>
+        <a href="{% url 'book_appointment' %}" class="btn primary">➕ Book New Appointment</a>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="section">
+        <h3>Upcoming Appointments</h3>
+        <div class="hospital-grid">
+            {% for app in upcoming %}
+                <div class="hospital-card" style="padding: 15px; border-radius: 8px; border-left: 5px solid #3b82f6;">
+                    <p><strong>Date:</strong> {{ app.preferred_date }}</p>
+                    {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
+                    {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    <p><strong>Status:</strong> <span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
+                    
+                    <form method="POST" action="{% url 'cancel_appointment' app.id %}" style="margin-top: 10px;" onsubmit="return confirm('Cancel this appointment?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn secondary" style="padding: 5px 10px; font-size:12px; background:#fecaca; color:#991b1b; border:none;">Cancel Appointment</button>
+                    </form>
+                </div>
+            {% empty %}
+                <p>No upcoming appointments.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Past -->
+    <div class="section">
+        <h3>Past Appointments</h3>
+        <div class="hospital-grid">
+            {% for app in past %}
+                <div class="hospital-card" style="padding: 15px; border-radius: 8px; border-left: 5px solid #22c55e;">
+                    <p><strong>Date:</strong> {{ app.preferred_date }}</p>
+                    {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
+                    {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    <p><strong>Status:</strong> <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
+                </div>
+            {% empty %}
+                <p>No past appointments.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Cancelled -->
+    <div class="section">
+        <h3>Cancelled / Rejected</h3>
+        <div class="hospital-grid">
+            {% for app in cancelled %}
+                <div class="hospital-card" style="padding: 15px; border-radius: 8px; border-left: 5px solid #ef4444; opacity: 0.7;">
+                    <p><strong>Date:</strong> {{ app.preferred_date }}</p>
+                    {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
+                    {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    <p><strong>Status:</strong> <span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
+                </div>
+            {% empty %}
+                <p>No cancelled appointments.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>

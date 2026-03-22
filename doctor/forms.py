@@ -21,3 +21,58 @@ class DoctorSignupForm(forms.ModelForm):
 class DoctorLoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
+
+from patient.models import Symptom
+
+class AIReviewForm(forms.ModelForm):
+    class Meta:
+        model = Symptom
+        fields = ['ai_prediction_status', 'doctor_final_diagnosis_catalog', 'doctor_diagnosis_notes', 'verification_note']
+        widgets = {
+            'verification_note': forms.Textarea(attrs={'rows': 3, 'class': 'input-field'}),
+            'doctor_diagnosis_notes': forms.TextInput(attrs={'class': 'input-field'}),
+            'ai_prediction_status': forms.Select(attrs={'class': 'input-field'}),
+            'doctor_final_diagnosis_catalog': forms.Select(attrs={'class': 'input-field'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        status = cleaned_data.get('ai_prediction_status')
+        catalog = cleaned_data.get('doctor_final_diagnosis_catalog')
+        notes = cleaned_data.get('doctor_diagnosis_notes')
+        v_note = cleaned_data.get('verification_note')
+
+        if status == 'MODIFIED' and not catalog and not notes:
+            raise forms.ValidationError("If modified, a final diagnosis (catalog or note) must be provided.")
+        if status in ['MODIFIED', 'REJECTED'] and not v_note:
+            raise forms.ValidationError("A verification note is required when modifying or rejecting.")
+            
+        return cleaned_data
+
+from patient.models import ConsultationRecord, DiseaseCatalog
+
+class ConsultationForm(forms.ModelForm):
+    disease_catalog = forms.ModelChoiceField(
+        queryset=DiseaseCatalog.objects.all(),
+        required=False,
+        label="Diagnose Disease (Optional)",
+        widget=forms.Select(attrs={'class': 'input-field', 'style': 'width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;'})
+    )
+
+    class Meta:
+        model = ConsultationRecord
+        fields = ['notes', 'prescription_document']
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 4, 'class': 'input-field', 'placeholder': 'Enter clinical notes here...', 'style': 'width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;'}),
+            'prescription_document': forms.FileInput(attrs={'class': 'input-field', 'style': 'width: 100%; padding: 10px;'}),
+        }
+
+class DoctorProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = ['phone', 'experience_years', 'profile_image']
+        widgets = {
+            'phone': forms.TextInput(attrs={'class': 'input-field', 'style': 'width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;'}),
+            'experience_years': forms.NumberInput(attrs={'class': 'input-field', 'style': 'width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;'}),
+            'profile_image': forms.FileInput(attrs={'class': 'input-field', 'style': 'width: 100%; padding: 10px;'}),
+        }
