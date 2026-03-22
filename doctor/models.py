@@ -74,3 +74,38 @@ class DoctorVerification(models.Model):
 
     def __str__(self):
         return self.license_number
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
+
+@receiver(post_save, sender=DoctorVerification)
+def sync_doctor_verification(sender, instance, created, **kwargs):
+    if instance.verified_by_admin:
+        if instance.doctor.verification_status != 'verified':
+            instance.doctor.verification_status = 'verified'
+            instance.doctor.save(update_fields=['verification_status'])
+        if not instance.verified_at:
+            DoctorVerification.objects.filter(id=instance.id).update(verified_at=timezone.now())
+    else:
+        if instance.doctor.verification_status != 'pending':
+            instance.doctor.verification_status = 'pending'
+            instance.doctor.save(update_fields=['verification_status'])
+        if instance.verified_at:
+            DoctorVerification.objects.filter(id=instance.id).update(verified_at=None)
+
+@receiver(post_save, sender=Doctor)
+def sync_doctor_to_verification(sender, instance, created, **kwargs):
+    if hasattr(instance, 'verification'):
+        if instance.verification_status == 'verified':
+            if not instance.verification.verified_by_admin:
+                DoctorVerification.objects.filter(id=instance.verification.id).update(
+                    verified_by_admin=True,
+                    verified_at=timezone.now() if not instance.verification.verified_at else instance.verification.verified_at
+                )
+        elif instance.verification_status in ['pending', 'rejected']:
+            if instance.verification.verified_by_admin:
+                DoctorVerification.objects.filter(id=instance.verification.id).update(
+                    verified_by_admin=False,
+                    verified_at=None
+                )
