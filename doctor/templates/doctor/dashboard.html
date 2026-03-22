@@ -106,7 +106,8 @@ color:#555;
 <div class="logo" onclick="window.location.href='/'">CareSync</div>
 
 <div class="nav">
-<a href="#">Dashboard</a>
+<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+<a href="{% url 'doctor_search' %}">Search Records</a>
 <a href="#">Appointments</a>
 <a href="#">Patients</a>
 <a href="#">Hospitals</a>

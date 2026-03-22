@@ -1,0 +1,96 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+
+<div class="navbar">
+  <div class="nav-left">
+      <div class="logo">CareSync</div>
+      <div class="tagline">Digital Care. Peaceful Healing.</div>
+  </div>
+  <div class="nav-right">
+      <div class="profile">
+          <span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span>
+          <div class="profile-dropdown">
+              <a href="{% url 'patient_dashboard' %}">Back to Dashboard</a>
+              <a href="{% url 'patient_logout' %}">Logout</a>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="hero-section">
+    <strong><h1 style="color: rgb(43, 33, 33);">Family Health Hub</h1></strong>
+    <div class="patient-id-box">
+        <p><strong style="color: black;">Family Health ID:</strong> <span class="highlight-id" style="color: black;">{{ family.family_id }}</span></p>
+        <p><strong style="color: black;">Family Head:</strong> <span style="color: black;">{{ family.head.user.get_full_name|default:family.head.user.username }}</span></p>
+    </div>
+    {% if is_head %}
+    <a href="{% url 'change_family_head' %}" class="btn primary" style="margin-top:15px; display:inline-block;">⚙️ Manage Head of Family</a>
+    {% endif %}
+</div>
+
+<div class="dashboard">
+
+    <!-- FAMILY SUMMARY (Hereditary logic) -->
+    <div class="section">
+        <h3>Family Health Indicators</h3>
+        <p class="info-text">Aggregated insights for genetic & chronic risks within your family.</p>
+        <div class="hospital-grid">
+            {% for item in summary %}
+                <div class="hospital-card" style="border-left: 4px solid #b91c1c;">
+                    <h4>{{ item.disease__name }}</h4>
+                    <p>⚠️ Detected in {{ item.occurrences }} member(s)</p>
+                </div>
+            {% empty %}
+                <div class="hospital-card" style="border-left: 4px solid #10b981;">
+                    <h4>Healthy Profile</h4>
+                    <p>No hereditary flags tracked.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- PENDING REQUESTS -->
+    {% if is_head and pending_requests %}
+    <div class="section" style="border-left: 6px solid #f59e0b;">
+        <h3>Pending Join Requests</h3>
+        {% for req in pending_requests %}
+            <div class="hospital-card" style="margin-bottom: 15px;">
+                <p><strong>{{ req.patient.user.get_full_name|default:req.patient.user.username }}</strong> wants to join as <strong>{{ req.get_requested_relationship_display }}</strong>.</p>
+                <a href="{% url 'review_join_request' req.id 'APPROVE' %}" class="btn primary" style="padding: 5px 10px; font-size: 12px; margin-top: 10px;">Approve</a>
+                <a href="{% url 'review_join_request' req.id 'REJECT' %}" class="btn secondary" style="padding: 5px 10px; font-size: 12px; margin-top: 10px; background-color: #ef4444; border-color: #ef4444; color: white;">Reject</a>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- MEMBERS LIST -->
+    <div class="section">
+        <h3>Family Members ({{ members.count }})</h3>
+        {% if is_head %}
+            <p class="info-text">As Family Head, you have full access to view each member's medical history.</p>
+        {% else %}
+            <p class="info-text">For privacy, you can only see the member list. Full records are restricted to the Family Head.</p>
+        {% endif %}
+
+        <div class="history-grid">
+            {% for member in members %}
+                <div class="history-card">
+                    <p><strong>Name:</strong> {{ member.user.get_full_name|default:member.user.username }}</p>
+                    <p><strong>Relationship:</strong> {{ member.get_family_relationship_display|default:"Unknown" }}</p>
+                    <p><strong>Personal ID:</strong> {{ member.patient_id }}</p>
+                    
+                    {% if member.is_deceased %}
+                        <p style="color: red; font-weight: bold;">[Deceased]</p>
+                    {% endif %}
+
+                    {% if is_head %}
+                        <hr>
+                        <a href="{% url 'member_history_view' member.id %}" class="btn secondary" style="padding: 5px 10px; font-size: 12px; margin-top: 5px;">View Full History</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>

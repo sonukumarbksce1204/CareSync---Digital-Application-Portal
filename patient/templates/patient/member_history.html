@@ -1,0 +1,61 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
+<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
+
+<div class="navbar">
+  <div class="nav-left">
+      <div class="logo">CareSync</div>
+      <div class="tagline">Digital Care. Peaceful Healing.</div>
+  </div>
+  <div class="nav-right">
+      <div class="profile">
+          <span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span>
+          <div class="profile-dropdown">
+              <a href="{% url 'patient_family_hub' %}">Back to Family Hub</a>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="hero-section">
+    <strong><h1 style="color: rgb(43, 33, 33);">Medical History: {{ member.user.get_full_name|default:member.user.username }}</h1></strong>
+    <div class="patient-id-box">
+        <p><strong style="color: black;">Personal ID:</strong> <span class="highlight-id" style="color: black;">{{ member.patient_id }}</span></p>
+        <p><strong style="color: black;">Relationship:</strong> <span style="color: black;">{{ member.get_family_relationship_display }}</span></p>
+    </div>
+</div>
+
+<div class="dashboard">
+
+    <div class="section">
+        <h3>Full History</h3>
+        <p class="info-text">You are securely viewing this record as the Head of the Family.</p>
+
+        <div class="history-grid">
+            {% for symptom in symptoms %}
+                <div class="history-card">
+                    <small>{{ symptom.created_at|date:"d M Y, h:i A" }}</small>
+                    <p><strong>Description:</strong> {{ symptom.description }}</p>
+                    {% if symptom.duration_days %}<p><strong>Duration:</strong> {{ symptom.duration_days }} days</p>{% endif %}
+                    {% if symptom.medicines_taken %}<p><strong>Medicines:</strong> {{ symptom.medicines_taken }}</p>{% endif %}
+                    {% if symptom.improvement %}<p><strong>Status:</strong> {{ symptom.get_improvement_display }}</p>{% endif %}
+
+                    {% if symptom.image %}
+                        <img src="{{ symptom.image.url }}" alt="Symptom Image" style="max-width:100%; border-radius:8px; margin-top:10px;">
+                    {% endif %}
+
+                    {% if symptom.predicted_disease %}
+                    <div class="ai-mini-result" style="margin-top:10px; padding:10px; background:#f0fdf4; border-left:4px solid #10b981; border-radius:4px;">
+                        <span class="ai-mini-icon">🤖</span>
+                        <span class="ai-mini-label">AI Prediction:</span>
+                        <span class="ai-mini-disease" style="font-weight:bold; color:#047857;">{{ symptom.predicted_disease }}</span>
+                        <span class="ai-mini-conf">({{ symptom.prediction_confidence|floatformat:1 }}%)</span>
+                    </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>No records available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>

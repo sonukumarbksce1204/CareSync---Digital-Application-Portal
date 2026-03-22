@@ -57,6 +57,9 @@
                 <strong style="color: black;">Your Family ID:</strong>
                 <span class="highlight-id" style="color: black;">{{ patient.family.family_id }}</span>
             </p>
+            <a href="{% url 'patient_family_hub' %}" class="btn secondary" style="margin-top: 10px; display: inline-block;">
+                🏥 &nbsp; Enter Family Hub
+            </a>
         {% endif %}
     </div>
 
@@ -77,11 +80,25 @@
         {% endif %}
 
         <!-- Join Family -->
-        <form method="POST" action="{% url 'patient_dashboard' %}" class="family-form">
+        {% if not patient.family %}
+        <form method="POST" action="{% url 'request_join_family' %}" class="family-form">
             {% csrf_token %}
             <input type="text" name="family_id" placeholder="Enter Family ID" required>
-            <button type="submit" name="join_family" class="btn secondary">
-                Connect Family
+            <select name="relationship" required style="padding: 10px; border-radius: 5px; margin-bottom: 10px; width: 100%; border: 2px solid #e0e7ff; background: #fff;">
+                <option value="SPOUSE">Spouse</option>
+                <option value="SON">Son</option>
+                <option value="DAUGHTER">Daughter</option>
+                <option value="FATHER">Father</option>
+                <option value="MOTHER">Mother</option>
+                <option value="BROTHER">Brother</option>
+                <option value="SISTER">Sister</option>
+                <option value="GRANDFATHER">Grandfather</option>
+                <option value="GRANDMOTHER">Grandmother</option>
+                <option value="GUARDIAN">Guardian</option>
+                <option value="OTHER">Other</option>
+            </select>
+            <button type="submit" class="btn secondary">
+                Request to Join Family
             </button>
         </form>
 
@@ -94,6 +111,7 @@
                 Generate New Family ID
             </button>
         </form>
+        {% endif %}
 
         {% if patient.family %}
             <div class="family-info">

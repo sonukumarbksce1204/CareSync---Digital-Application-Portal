@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Result • CareSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;display:flex;}
+.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
+.logo{font-size:28px;font-weight:600;margin-bottom:40px;cursor:pointer;}
+.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
+.logout{margin-top:auto;}
+.logout a{color:white;text-decoration:none;font-weight:500;}
+.main{flex:1;padding:40px;overflow-y:auto;}
+.top{font-size:24px;font-weight:600;margin-bottom:30px;}
+.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;}
+.member-card { background: #f9f9f9; padding: 15px; margin-top: 15px; border-left: 5px solid #1FBF8F; border-radius: 4px; }
+.btn-mini { background: #3EC7A6; color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-size: 13px; display: inline-block; margin-top: 10px;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="logo">CareSync</div>
+<div class="nav">
+<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+<a href="{% url 'doctor_search' %}">Search Records</a>
+<a href="{% url 'doctor_profile' %}">View Profile</a>
+</div>
+<div class="logout"><a href="{% url 'doctor_logout' %}">Logout</a></div>
+</div>
+
+<div class="main">
+<div class="top">Family Record ({{ family.family_id }})</div>
+
+<div class="card">
+<h3>Family Health Insights</h3>
+<br>
+{% for item in summary %}
+    <p style="color:#b91c1c; font-weight:bold;">⚠️ {{ item.disease__name }} detected in {{ item.occurrences }} member(s)</p>
+{% empty %}
+    <p style="color:#10b981; font-weight:bold;">✓ No major hereditary or catalogued chronic diseases flagged.</p>
+{% endfor %}
+</div>
+
+<div class="card">
+<h3>Family Members</h3>
+<p>Head of Family: {{ family.head.user.get_full_name|default:family.head.user.username }}</p>
+
+{% for member in family.members.all %}
+    <div class="member-card">
+        <h4>{{ member.user.get_full_name|default:member.user.username }} ({{ member.patient_id }})</h4>
+        <p>Relationship: {{ member.get_family_relationship_display|default:"Attached" }}</p>
+        {% if member.is_deceased %}<p style="color:red">[Deceased]</p>{% endif %}
+        <a href="?q={{ member.patient_id }}&type=personal" class="btn-mini">View Individual Record</a>
+    </div>
+{% endfor %}
+</div>
+
+</div>
+</body>
+</html>

@@ -164,5 +164,37 @@ class SymptomForm(forms.ModelForm):
             raise forms.ValidationError(
                 f"Invalid symptoms detected: {', '.join(invalid)}"
             )
-
         return selected
+
+
+# ==============================
+# FAMILY HEAD CHANGE FORM
+# ==============================
+class ChangeFamilyHeadForm(forms.Form):
+    new_head = forms.ModelChoiceField(queryset=Patient.objects.none(), empty_label="Select New Head")
+    reason = forms.CharField(widget=forms.Textarea(attrs={
+        "class": "input-field", "placeholder": "Reason for transfer", "rows": 3
+    }), required=True)
+
+    def __init__(self, *args, **kwargs):
+        family = kwargs.pop('family', None)
+        super().__init__(*args, **kwargs)
+        self.fields['new_head'].widget.attrs.update({'class': 'input-field'})
+
+
+# ==============================
+# FAMILY JOIN REQUEST FORM
+# ==============================
+class RequestJoinFamilyForm(forms.Form):
+    family_id = forms.CharField(max_length=6, widget=forms.TextInput(attrs={
+        "class": "input-field", "placeholder": "Enter 6-digit Family ID"
+    }))
+    relationship = forms.ChoiceField(
+        choices=[
+            ('SPOUSE', 'Spouse'), ('SON', 'Son'), ('DAUGHTER', 'Daughter'),
+            ('FATHER', 'Father'), ('MOTHER', 'Mother'), ('BROTHER', 'Brother'), ('SISTER', 'Sister'),
+            ('GRANDFATHER', 'Grandfather'), ('GRANDMOTHER', 'Grandmother'),
+            ('GUARDIAN', 'Guardian'), ('OTHER', 'Other')
+        ], 
+        widget=forms.Select(attrs={"class": "input-field"})
+    )

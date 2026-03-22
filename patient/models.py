@@ -53,6 +53,18 @@ class Patient(models.Model):
         related_name="members"
     )
 
+    family_relationship = models.CharField(
+        max_length=20,
+        choices=[
+            ('HEAD', 'Head'), ('SPOUSE', 'Spouse'), ('SON', 'Son'), ('DAUGHTER', 'Daughter'),
+            ('FATHER', 'Father'), ('MOTHER', 'Mother'), ('BROTHER', 'Brother'), ('SISTER', 'Sister'),
+            ('GRANDFATHER', 'Grandfather'), ('GRANDMOTHER', 'Grandmother'),
+            ('GUARDIAN', 'Guardian'), ('OTHER', 'Other')
+        ],
+        blank=True, null=True
+    )
+    is_deceased = models.BooleanField(default=False)
+
     age = models.IntegerField(blank=True, null=True)
 
     gender = models.CharField(
@@ -122,3 +134,73 @@ class Symptom(models.Model):
 
     def __str__(self):
         return f"{self.patient.user.username} - {self.created_at}"
+
+
+class DiseaseCatalog(models.Model):
+    name = models.CharField(max_length=150)
+    is_hereditary = models.BooleanField(default=False)
+    icd_code = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class PatientDisease(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='diseases')
+    disease = models.ForeignKey(DiseaseCatalog, on_delete=models.CASCADE)
+    diagnosed_date = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+
+class DoctorAccessLog(models.Model):
+    ACCESS_TYPES = [
+        ('PERSONAL', 'Personal ID'),
+        ('FAMILY', 'Family ID'),
+        ('EXPANDED', 'Expanded from Personal')
+    ]
+    doctor = models.ForeignKey('doctor.Doctor', on_delete=models.CASCADE, related_name='doctor_accesses')
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True)
+    family = models.ForeignKey(Family, on_delete=models.SET_NULL, null=True, blank=True)
+    access_method = models.CharField(max_length=20, choices=ACCESS_TYPES)
+    accessed_at = models.DateTimeField(auto_now_add=True)
+
+
+class FamilyHeadChangeLog(models.Model):
+    family = models.ForeignKey(Family, on_delete=models.CASCADE)
+    old_head = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, related_name='old_head_logs')
+    new_head = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, related_name='new_head_logs')
+    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    reason = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class FamilyJoinRequest(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected')
+    ]
+    
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='sent_join_requests')
+    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name='join_requests')
+    
+    requested_relationship = models.CharField(
+        max_length=20, 
+        choices=[
+            ('HEAD', 'Head'), ('SPOUSE', 'Spouse'), ('SON', 'Son'), ('DAUGHTER', 'Daughter'),
+            ('FATHER', 'Father'), ('MOTHER', 'Mother'), ('BROTHER', 'Brother'), ('SISTER', 'Sister'),
+            ('GRANDFATHER', 'Grandfather'), ('GRANDMOTHER', 'Grandmother'),
+            ('GUARDIAN', 'Guardian'), ('OTHER', 'Other')
+        ]
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    
+    requested_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_join_requests')
+
+    class Meta:
+        unique_together = ('patient', 'family', 'status')
+
+    def __str__(self):
+        return f"{self.patient.user.username} -> {self.family.family_id} ({self.status})"

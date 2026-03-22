@@ -122,22 +122,10 @@ def patient_dashboard(request):
     if request.method == "POST":
 
         # ── Family logic ─────────────────────────
-        if "join_family" in request.POST:
-            fam = Family.objects.filter(
-                family_id=request.POST.get("family_id")
-            ).first()
-            if fam:
-                patient.family = fam
-                patient.save()
-                message = "Connected to family successfully."
-            else:
-                message = "Invalid Family ID."
-
-        elif "generate_family" in request.POST:
+        if "generate_family" in request.POST:
             if not patient.family:
-                fam = Family.objects.create(head=patient)
-                patient.family = fam
-                patient.save()
+                from .services.family_service import create_family_for_patient
+                create_family_for_patient(patient)
                 message = "New Family created successfully."
             else:
                 message = "You are already connected to a family."
@@ -268,3 +256,97 @@ def symptom_suggestions(request):
         [s for s in symptoms if q in s.replace("_", " ").lower()][:15],
         safe=False,
     )
+
+
+# ==============================
+# HEALTH ID: FAMILY HUB
+# ==============================
+from .services.family_service import change_family_head, get_family_disease_summary
+from .forms import ChangeFamilyHeadForm
+
+def family_hub_view(request):
+    if not request.user.is_authenticated:
+        return redirect("patient_login")
+        
+    patient = Patient.objects.filter(user=request.user).first()
+    if not patient or not patient.family:
+        return redirect('patient_dashboard')
+        
+    family = patient.family
+    is_head = (family.head == patient)
+    members = family.members.all()
+    summary = get_family_disease_summary(family)
+    
+    from .models import FamilyJoinRequest
+    pending_requests = FamilyJoinRequest.objects.filter(family=family, status='PENDING') if is_head else []
+    
+    return render(request, 'patient/family_hub.html', {
+        'family': family, 'is_head': is_head, 'members': members, 'summary': summary, 'patient': patient, 'pending_requests': pending_requests
+    })
+
+def change_head_view(request):
+    if not request.user.is_authenticated:
+        return redirect("patient_login")
+        
+    patient = Patient.objects.filter(user=request.user).first()
+    if not patient or not patient.family:
+        return redirect('patient_dashboard')
+        
+    family = patient.family
+    if family.head != patient:
+        return redirect('patient_family_hub')
+
+    form = ChangeFamilyHeadForm(request.POST or None, family=family)
+    if request.method == 'POST' and form.is_valid():
+        try:
+            change_family_head(family, form.cleaned_data['new_head'], request.user, form.cleaned_data['reason'])
+            return redirect('patient_family_hub')
+        except ValueError as e:
+            return render(request, 'patient/change_head.html', {'form': form, 'error': str(e), 'patient': patient})
+        
+    return render(request, 'patient/change_head.html', {'form': form, 'patient': patient})
+
+
+from .models import FamilyJoinRequest
+from .services.access_service import can_view_patient, can_manage_family
+from .services.family_service import process_join_request, create_family_for_patient
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+
+def request_join_family(request):
+    if not request.user.is_authenticated: return redirect("patient_login")
+    if request.method == "POST":
+        patient = getattr(request.user, 'patient', None)
+        if not patient or patient.family: return redirect('patient_dashboard')
+        
+        family_id = request.POST.get("family_id")
+        relationship = request.POST.get("relationship")
+        family = Family.objects.filter(family_id=family_id).first()
+        
+        if family:
+            FamilyJoinRequest.objects.get_or_create(
+                patient=patient, family=family, status='PENDING',
+                defaults={'requested_relationship': relationship}
+            )
+    return redirect('patient_dashboard')
+
+def review_join_request(request, req_id, action):
+    if not request.user.is_authenticated: return redirect("patient_login")
+    join_req = get_object_or_404(FamilyJoinRequest, id=req_id)
+    if not can_manage_family(request.user, join_req.family): 
+        return HttpResponseForbidden("You are not the Head of this Family.")
+    
+    if action in ['APPROVE', 'REJECT']:
+        process_join_request(join_req, getattr(request.user, 'patient', None), action)
+    return redirect('patient_family_hub')
+
+def member_history_view(request, member_id):
+    if not request.user.is_authenticated: return redirect("patient_login")
+    target = get_object_or_404(Patient, id=member_id)
+    
+    if not can_view_patient(request.user, target):
+        return HttpResponseForbidden("You do not have permission to view this medical record. Only the Family Head can view this.")
+        
+    symptoms = target.symptoms.all().order_by('-created_at')
+    return render(request, 'patient/member_history.html', {'member': target, 'symptoms': symptoms})
+
