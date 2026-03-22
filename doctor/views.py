@@ -105,13 +105,16 @@ def doctor_login(request):
     return render(request, "doctor/login.html")
 
 
-def doctor_dashboard(request):
+def get_session_doctor(request):
     doctor_id = request.session.get("doctor_id")
+    if not doctor_id: return None
+    return Doctor.objects.filter(doctor_id=doctor_id).first()
 
-    if not doctor_id:
+def doctor_dashboard(request):
+    doctor = get_session_doctor(request)
+    if not doctor:
+        request.session.flush()
         return redirect("doctor_login")
-
-    doctor = Doctor.objects.get(doctor_id=doctor_id)
 
     return render(request, "doctor/dashboard.html", {"doctor": doctor})
 
@@ -122,12 +125,10 @@ def doctor_logout(request):
 
 
 def doctor_profile(request):
-    doctor_id = request.session.get("doctor_id")
-
-    if not doctor_id:
+    doctor = get_session_doctor(request)
+    if not doctor:
+        request.session.flush()
         return redirect("doctor_login")
-
-    doctor = Doctor.objects.get(doctor_id=doctor_id)
 
     if request.method == "POST":
         image = request.FILES.get("profile_image")
@@ -150,11 +151,10 @@ from patient.models import Patient, Family
 from patient.services.family_service import get_family_disease_summary
 
 def doctor_search_view(request):
-    doctor_id = request.session.get("doctor_id")
-    if not doctor_id:
+    doctor = get_session_doctor(request)
+    if not doctor:
+        request.session.flush()
         return redirect("doctor_login")
-        
-    doctor = Doctor.objects.get(doctor_id=doctor_id)
     query = request.GET.get('q', '').strip()
     search_type = request.GET.get('type')
     
@@ -176,8 +176,28 @@ def doctor_search_view(request):
                     summary = get_family_disease_summary(patient.family)
                     return render(request, 'doctor/family_result.html', {'family': patient.family, 'summary': summary, 'doctor': doctor})
                 
-                return render(request, 'doctor/patient_result.html', {'patient': patient, 'doctor': doctor})
+                return redirect('doctor_patient_detail', patient_id=patient.patient_id)
 
-        return render(request, 'doctor/search.html', {'error': 'ID not found. Please verify and try again.', 'doctor': doctor})
-
+        if search_type == 'personal':
+            messages.error(request, "Personal Health ID not found. Please verify the 4-character ID.")
+        elif search_type == 'family':
+            messages.error(request, "Family Health ID not found. Please verify the 6-digit code.")
+        else:
+            messages.error(request, "Invalid search type. Please select Personal ID or Family ID.")
+        return redirect('doctor_search')
+    
     return render(request, 'doctor/search.html', {'doctor': doctor})
+
+def doctor_patient_detail_view(request, patient_id):
+    doctor = get_session_doctor(request)
+    if not doctor:
+        request.session.flush()
+        return redirect("doctor_login")
+        
+    patient = Patient.objects.filter(patient_id=patient_id).first()
+    if not patient:
+        messages.error(request, "Personal Health ID not found.")
+        return redirect('doctor_search')
+        
+    log_doctor_access(doctor, 'PERSONAL', patient=patient)
+    return render(request, 'doctor/patient_result.html', {'patient': patient, 'doctor': doctor})

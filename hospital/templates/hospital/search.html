@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Doctor Search • CareSync</title>
+<title>Hospital Search • CareSync</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -26,13 +26,11 @@ button { padding: 12px 20px; background: #1FBF8F; color: white; border: none; bo
 <div class="sidebar">
 <div class="logo">CareSync</div>
 <div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="{% url 'doctor_profile' %}">View Profile</a>
+<a href="{% url 'hospital_dashboard' %}">Dashboard</a>
+<a href="{% url 'hospital_search' %}">Search Records</a>
 </div>
-<div class="logout"><a href="{% url 'doctor_logout' %}">Logout</a></div>
+<div class="logout"><form method="POST" action="/"><button type="submit" style="background:none; border:none; color:white; font-size:15px; font-weight:500; padding:0; text-align:left;">Return Home</button></form></div>
 </div>
-
 <div class="main">
 {% if messages %}
     {% for message in messages %}
@@ -42,9 +40,7 @@ button { padding: 12px 20px; background: #1FBF8F; color: white; border: none; bo
 <div class="top">Patient Record Lookup</div>
 <div class="card">
 <h3>Enter ID to Search</h3><br>
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
-
-<form method="GET" action="{% url 'doctor_search' %}">
+<form method="GET" action="{% url 'hospital_search' %}">
 <label>Search Type</label>
 <select name="type" required>
     <option value="personal">Personal Health ID</option>
@@ -54,7 +50,6 @@ button { padding: 12px 20px; background: #1FBF8F; color: white; border: none; bo
 <input type="text" name="q" placeholder="Enter ID here..." required>
 <button type="submit">Search Records</button>
 </form>
-
 </div>
 </div>
 </body>

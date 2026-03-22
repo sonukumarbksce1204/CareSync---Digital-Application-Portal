@@ -313,31 +313,52 @@ from .services.family_service import process_join_request, create_family_for_pat
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 
+
+from django.contrib import messages
+from .forms import RequestJoinFamilyForm
+
 def request_join_family(request):
     if not request.user.is_authenticated: return redirect("patient_login")
     if request.method == "POST":
         patient = getattr(request.user, 'patient', None)
-        if not patient or patient.family: return redirect('patient_dashboard')
-        
-        family_id = request.POST.get("family_id")
-        relationship = request.POST.get("relationship")
-        family = Family.objects.filter(family_id=family_id).first()
-        
-        if family:
-            FamilyJoinRequest.objects.get_or_create(
-                patient=patient, family=family, status='PENDING',
-                defaults={'requested_relationship': relationship}
-            )
+        form = RequestJoinFamilyForm(request.POST)
+        if form.is_valid() and patient and not patient.family:
+            family_id = form.cleaned_data['family_id']
+            family = Family.objects.filter(family_id=family_id).first()
+            if family:
+                obj, created = FamilyJoinRequest.objects.get_or_create(
+                    patient=patient, family=family, status='PENDING',
+                    defaults={
+                        'requested_relationship': form.cleaned_data['relationship'],
+                        'custom_relationship': form.cleaned_data.get('custom_relationship', '')
+                    }
+                )
+                if created:
+                    messages.success(request, f"Request sent to Family {family.family_id}.")
+                else:
+                    messages.warning(request, "You already have a pending request for this family.")
+        else:
+            for error in form.errors.values():
+                messages.error(request, error[0])
+            if not form.errors:
+                messages.error(request, "Invalid submission or already in a family.")
     return redirect('patient_dashboard')
 
 def review_join_request(request, req_id, action):
+    if request.method != 'POST':
+        return HttpResponseForbidden("Method not allowed.")
     if not request.user.is_authenticated: return redirect("patient_login")
     join_req = get_object_or_404(FamilyJoinRequest, id=req_id)
     if not can_manage_family(request.user, join_req.family): 
-        return HttpResponseForbidden("You are not the Head of this Family.")
+        messages.error(request, "You are not the Head of this Family.")
+        return redirect('patient_family_hub')
     
     if action in ['APPROVE', 'REJECT']:
-        process_join_request(join_req, getattr(request.user, 'patient', None), action)
+        try:
+            process_join_request(join_req, getattr(request.user, 'patient', None), action)
+            messages.success(request, f"Request {action.lower()} successfully.")
+        except Exception as e:
+            messages.error(request, str(e))
     return redirect('patient_family_hub')
 
 def member_history_view(request, member_id):

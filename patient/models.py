@@ -164,6 +164,10 @@ class DoctorAccessLog(models.Model):
     access_method = models.CharField(max_length=20, choices=ACCESS_TYPES)
     accessed_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Dr. {self.doctor} accessed {self.access_method}"
+
+
 
 class FamilyHeadChangeLog(models.Model):
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
@@ -172,6 +176,9 @@ class FamilyHeadChangeLog(models.Model):
     changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     reason = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Head changed to {self.new_head}"
 
 
 class FamilyJoinRequest(models.Model):
@@ -193,6 +200,7 @@ class FamilyJoinRequest(models.Model):
             ('GUARDIAN', 'Guardian'), ('OTHER', 'Other')
         ]
     )
+    custom_relationship = models.CharField(max_length=50, blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     
     requested_at = models.DateTimeField(auto_now_add=True)
@@ -204,3 +212,19 @@ class FamilyJoinRequest(models.Model):
 
     def __str__(self):
         return f"{self.patient.user.username} -> {self.family.family_id} ({self.status})"
+
+
+class HospitalAccessLog(models.Model):
+    ACCESS_TYPES = [
+        ('PERSONAL', 'Personal ID'),
+        ('FAMILY', 'Family ID'),
+        ('EXPANDED', 'Expanded from Personal')
+    ]
+    hospital = models.ForeignKey('hospital.Hospital', on_delete=models.CASCADE, related_name='hospital_accesses')
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True)
+    family = models.ForeignKey(Family, on_delete=models.SET_NULL, null=True, blank=True)
+    access_method = models.CharField(max_length=20, choices=ACCESS_TYPES)
+    accessed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.hospital} accessed {self.access_method}"

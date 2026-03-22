@@ -179,6 +179,8 @@ class ChangeFamilyHeadForm(forms.Form):
     def __init__(self, *args, **kwargs):
         family = kwargs.pop('family', None)
         super().__init__(*args, **kwargs)
+        if family:
+            self.fields['new_head'].queryset = Patient.objects.filter(family=family, is_deceased=False).exclude(id=family.head.id)
         self.fields['new_head'].widget.attrs.update({'class': 'input-field'})
 
 
@@ -196,5 +198,26 @@ class RequestJoinFamilyForm(forms.Form):
             ('GRANDFATHER', 'Grandfather'), ('GRANDMOTHER', 'Grandmother'),
             ('GUARDIAN', 'Guardian'), ('OTHER', 'Other')
         ], 
-        widget=forms.Select(attrs={"class": "input-field"})
+        widget=forms.Select(attrs={"class": "input-field", "id": "id_relationship"})
     )
+    custom_relationship = forms.CharField(
+        max_length=50, required=False, 
+        widget=forms.TextInput(attrs={"class": "input-field", "placeholder": "Please specify relationship", "id": "id_custom_relationship"})
+    )
+
+    def clean_family_id(self):
+        family_id = self.cleaned_data.get('family_id')
+        from patient.models import Family
+        if not Family.objects.filter(family_id=family_id).exists():
+            raise forms.ValidationError("Invalid Family ID")
+        return family_id
+
+    def clean(self):
+        cleaned_data = super().clean()
+        relationship = cleaned_data.get('relationship')
+        custom_relationship = cleaned_data.get('custom_relationship')
+
+        if relationship == 'OTHER' and not custom_relationship:
+            self.add_error('custom_relationship', "Please specify your relationship if selecting 'Other'.")
+
+        return cleaned_data

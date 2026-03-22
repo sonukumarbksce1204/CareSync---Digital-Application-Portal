@@ -24,11 +24,10 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
 <div class="sidebar">
 <div class="logo">CareSync</div>
 <div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="{% url 'doctor_profile' %}">View Profile</a>
+<a href="{% url 'hospital_dashboard' %}">Dashboard</a>
+<a href="{% url 'hospital_search' %}">Search Records</a>
 </div>
-<div class="logout"><a href="{% url 'doctor_logout' %}">Logout</a></div>
+<div class="logout"><form method="POST" action="/"><button type="submit" style="background:none; border:none; color:white; font-size:15px; font-weight:500; padding:0; text-align:left;">Return Home</button></form></div>
 </div>
 
 <div class="main">

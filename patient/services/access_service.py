@@ -36,3 +36,15 @@ def log_doctor_access(doctor, access_method, patient=None, family=None):
         patient=patient, 
         family=family
     )
+
+def log_hospital_access(hospital, access_method, patient=None, family=None):
+    """
+    Audits hospital searches via Personal or Family ID streams.
+    """
+    from patient.models import HospitalAccessLog
+    return HospitalAccessLog.objects.create(
+        hospital=hospital, 
+        access_method=access_method, 
+        patient=patient, 
+        family=family
+    )

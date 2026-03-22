@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Family, Patient, Symptom, DiseaseCatalog, PatientDisease, DoctorAccessLog, FamilyHeadChangeLog, FamilyJoinRequest
+from .models import Family, Patient, Symptom, DiseaseCatalog, PatientDisease, DoctorAccessLog, FamilyHeadChangeLog, FamilyJoinRequest, HospitalAccessLog
 
 @admin.register(Family)
 class FamilyAdmin(admin.ModelAdmin):
@@ -41,3 +41,7 @@ class FamilyJoinRequestAdmin(admin.ModelAdmin):
     list_filter = ('status', 'requested_relationship')
     search_fields = ('patient__user__username', 'family__family_id')
 
+@admin.register(HospitalAccessLog)
+class HospitalAccessLogAdmin(admin.ModelAdmin):
+    list_display = ('hospital', 'access_method', 'patient', 'family', 'accessed_at')
+    list_filter = ('access_method', 'accessed_at')

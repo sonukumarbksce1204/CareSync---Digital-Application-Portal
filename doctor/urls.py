@@ -8,7 +8,7 @@
 #     # path('logout/', views.doctor_logout, name='doctor_logout'),
 # ]
 from django.urls import path
-from .views import doctor_profile, doctor_signup, doctor_login, doctor_dashboard, doctor_logout, doctor_search_view
+from .views import doctor_profile, doctor_signup, doctor_login, doctor_dashboard, doctor_logout, doctor_search_view, doctor_patient_detail_view
 
 urlpatterns = [
     path("signup/", doctor_signup, name="doctor_signup"),
@@ -17,4 +17,5 @@ urlpatterns = [
     path("logout/", doctor_logout, name="doctor_logout"),
     path("profile/", doctor_profile, name="doctor_profile"),
     path("search/", doctor_search_view, name="doctor_search"),
+    path("patient/<str:patient_id>/", doctor_patient_detail_view, name="doctor_patient_detail"),
 ]
