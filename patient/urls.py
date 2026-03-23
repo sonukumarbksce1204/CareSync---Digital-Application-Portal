@@ -24,6 +24,7 @@ urlpatterns = [
     path('appointments/cancel/<int:apt_id>/', views.cancel_appointment, name='cancel_appointment'),
     path('history/<int:symptom_id>/', views.symptom_detail, name='symptom_detail'),
     path('history/<int:symptom_id>/delete/', views.delete_symptom, name='delete_symptom'),
+    path('medical-history/', views.medical_history_view, name='patient_medical_history'),
     path('privacy/', views.privacy_policy, name='privacy_policy'),
     path('contact/', views.contact_page, name='contact'),
 ]

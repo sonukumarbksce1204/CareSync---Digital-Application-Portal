@@ -7,7 +7,8 @@
 <a href="{% url 'doctor_appointments' %}" class="{% if request.resolver_match.url_name == 'doctor_appointments' %}active{% endif %}">Appointments {% if pending_appointments %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_appointments }}</span>{% endif %}</a>
 <a href="{% url 'pending_reviews' %}" class="{% if request.resolver_match.url_name == 'pending_reviews' %}active{% endif %}">Pending AI Reviews {% if pending_reviews_count %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_reviews_count }}</span>{% endif %}</a>
 <a href="{% url 'my_patients' %}" class="{% if request.resolver_match.url_name == 'my_patients' %}active{% endif %}">My Patients</a>
-<a href="{% url 'hospital_affiliations' %}" class="{% if request.resolver_match.url_name == 'hospital_affiliations' %}active{% endif %}">Hospital Affiliations</a>
+<a href="{% url 'doctor_hospital_affiliations' %}" class="{% if request.resolver_match.url_name == 'doctor_hospital_affiliations' %}active{% endif %}">Hospital Affiliations</a>
+<a href="{% url 'doctor_disease_catalog' %}" class="{% if request.resolver_match.url_name == 'doctor_disease_catalog' %}active{% endif %}">Disease Catalog</a>
 <a href="{% url 'doctor_profile' %}" class="{% if request.resolver_match.url_name == 'doctor_profile' %}active{% endif %}">Profile Settings</a>
 </div>
 

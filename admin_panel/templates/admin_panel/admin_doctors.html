@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Management • CareSync Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
+.main{flex:1;padding:40px;overflow-y:auto;}
+h1{color:white;font-size:26px;font-weight:700;margin-bottom:6px;}
+.subtitle{color:#64748b;font-size:14px;margin-bottom:28px;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;}
+.search-bar{margin-bottom:24px;}
+.search-bar input{padding:10px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:white;width:320px;font-size:14px;font-family:'Poppins',sans-serif;}
+.search-bar input::placeholder{color:#6b7280;}
+table{width:100%;border-collapse:collapse;}
+th{color:#64748b;font-size:11px;font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);text-transform:uppercase;letter-spacing:0.5px;}
+td{color:#cbd5e1;font-size:14px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-pending{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.2);}
+.badge-verified{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.2);}
+.badge-rejected{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+.actions-form{display:inline;}
+.btn-verify{background:linear-gradient(135deg,#1FBF8F,#3EC7A6);color:white;border:none;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-reject{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-verify:hover{opacity:0.9;}
+.btn-reject:hover{background:rgba(239,68,68,0.25);}
+.messages{margin-bottom:20px;}
+.msg{padding:12px 16px;border-radius:8px;margin-bottom:8px;font-size:13px;}
+.msg-success{background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);}
+.avatar{width:36px;height:36px;border-radius:50%;background:#1FBF8F;color:white;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-right:10px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">CareSync <span>Admin Panel</span></div>
+    <nav class="nav">
+        <a href="{% url 'admin_dashboard' %}">🏠 Dashboard</a>
+        <a href="{% url 'admin_doctors' %}" class="active">👨‍⚕️ Doctors</a>
+        <a href="{% url 'admin_hospitals' %}">🏥 Hospitals</a>
+    </nav>
+    <a href="{% url 'admin_logout' %}" class="logout-btn">⬅ Logout</a>
+</div>
+<div class="main">
+    <h1>👨‍⚕️ Doctor Management</h1>
+    <p class="subtitle">Review, verify, or reject registered doctors.</p>
+
+    {% if messages %}
+    <div class="messages">{% for m in messages %}<div class="msg msg-success">{{ m }}</div>{% endfor %}</div>
+    {% endif %}
+
+    <div class="card">
+        <table>
+            <tr>
+                <th>Doctor</th>
+                <th>Email</th>
+                <th>Specializations</th>
+                <th>Experience</th>
+                <th>License</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            {% for doc in doctors %}
+            <tr>
+                <td>
+                    <span class="avatar">{{ doc.full_name|first }}</span>
+                    <span style="font-weight:600;">{{ doc.full_name }}</span>
+                    {% if doc.qualifications.all %}<br><span style="font-size:11px;color:#64748b;margin-left:46px;">{{ doc.qualifications.all.0.degree }}</span>{% endif %}
+                </td>
+                <td style="color:#64748b;font-size:13px;">{{ doc.email }}</td>
+                <td style="font-size:13px;">{{ doc.specializations.all|join:", "|default:"—" }}</td>
+                <td style="font-size:13px;">{{ doc.experience_years }} yr</td>
+                <td style="font-size:12px;color:#64748b;">
+                    {% if doc.verification.license_document %}
+                    <a href="{{ doc.verification.license_document.url }}" target="_blank" style="color:#1FBF8F;text-decoration:none;">View Doc</a>
+                    {% else %}—{% endif %}
+                </td>
+                <td>
+                    {% if doc.verification_status == 'verified' %}<span class="badge badge-verified">✓ Verified</span>
+                    {% elif doc.verification_status == 'rejected' %}<span class="badge badge-rejected">✗ Rejected</span>
+                    {% else %}<span class="badge badge-pending">⏳ Pending</span>{% endif %}
+                </td>
+                <td>
+                    <form method="POST" class="actions-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="doctor_id" value="{{ doc.id }}">
+                        <input type="hidden" name="action" value="VERIFY">
+                        <button type="submit" class="btn-verify">Verify</button>
+                    </form>
+                    &nbsp;
+                    <form method="POST" class="actions-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="doctor_id" value="{{ doc.id }}">
+                        <input type="hidden" name="action" value="REJECT">
+                        <button type="submit" class="btn-reject">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;color:#64748b;padding:30px;">No doctors registered yet.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</body>
+</html>

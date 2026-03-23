@@ -7,52 +7,67 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;display:flex;}
-.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
+body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh;display:flex;}
+.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;min-height:100vh;}
 .logo{font-size:28px;font-weight:600;margin-bottom:40px;cursor:pointer;}
 .nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
 .main{flex:1;padding:40px;overflow-y:auto;}
 .top{font-size:24px;font-weight:600;margin-bottom:30px;}
-.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;}
-.btn { display: inline-block; background: #1FBF8F; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; text-decoration: none;}
-.btn:hover { background: #189b74;}
-.form-group { margin-bottom: 20px; }
-label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
+.card{background:white;border-radius:16px;padding:30px;box-shadow:0 10px 30px rgba(0,0,0,0.05);margin-bottom:20px;}
+.btn{display:inline-block;background:#1FBF8F;color:white;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;font-size:15px;cursor:pointer;text-decoration:none;transition:background 0.2s;}
+.btn:hover{background:#189b74;}
+.form-group{margin-bottom:22px;}
+label{font-weight:600;display:block;margin-bottom:6px;color:#374151;}
+.help-text{font-size:12px;color:#6b7280;margin-top:4px;}
+.hereditary-banner{display:none;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:14px;margin-top:10px;color:#92400e;font-size:14px;}
 </style>
 </head>
 <body>
 {% include 'doctor/_sidebar.html' %}
 <div class="main">
-<div class="top">Add Clinical Consultation</div>
+<div class="top">📋 Add Clinical Consultation</div>
 
-<div class="card" style="max-width: 800px;">
-    <h3>Patient: {{ patient.user.get_full_name|default:patient.user.username }} ({{ patient.patient_id }})</h3>
-    <p style="margin-bottom: 20px; color: #555;">Fill out clinical notes, attach a prescription, and map an active disease to update the patient's medical history.</p>
-    
+<div class="card" style="max-width:820px;">
+    <h3 style="margin-bottom:4px;">{{ patient.user.get_full_name|default:patient.user.username }}</h3>
+    <p style="color:#6b7280;margin-bottom:20px;font-size:14px;">Patient ID: {{ patient.patient_id }} &nbsp;|&nbsp; Fill out clinical notes and optionally attach a prescription.</p>
+
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        
+
         {% if appointments %}
-        <div class="form-group" style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+        <div class="form-group" style="background:#f8fafc;padding:15px;border-radius:8px;border-left:4px solid #3b82f6;">
             <label>Link to Appointment (Optional)</label>
-            <select name="appointment_id" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <select name="appointment_id" id="id_appointment_id" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-family:'Poppins',sans-serif;">
                 <option value="">-- No specific appointment --</option>
                 {% for apt in appointments %}
-                <option value="{{ apt.id }}">[{{ apt.get_status_display }}] {{ apt.preferred_date }} - {{ apt.reason }}</option>
+                <option value="{{ apt.id }}" {% if apt.id|stringformat:"s" == preselected_apt_id %}selected{% endif %}>
+                    [{{ apt.get_status_display }}] {{ apt.preferred_date }} {% if apt.appointment_time %}at {{ apt.appointment_time }}{% endif %} — {{ apt.reason }}
+                </option>
                 {% endfor %}
             </select>
-            <p style="font-size: 12px; color: #666; margin-top: 5px;">If linked, the appointment status will automatically be marked as COMPLETED upon saving.</p>
+            <p class="help-text">Linking to an appointment will mark it as COMPLETED upon save.</p>
         </div>
         {% endif %}
 
         <div class="form-group">
+            <label>Visit Type</label>
+            {{ form.consultation_type }}
+            {% if form.consultation_type.errors %}<p style="color:red;font-size:12px;">{{ form.consultation_type.errors|join:", " }}</p>{% endif %}
+        </div>
+
+        <div class="form-group">
             <label>{{ form.disease_catalog.label }}</label>
             {{ form.disease_catalog }}
+            <p class="help-text">{{ form.disease_catalog.help_text }}</p>
+            <div id="hereditary-banner" class="hereditary-banner">
+                🧬 <strong>Hereditary Disease Alert:</strong> The selected disease is flagged as hereditary. Please review the patient's family history and consider advising family members. This will be noted in the patient's disease record.
+            </div>
         </div>
 
         <div class="form-group">
             <label>{{ form.diagnosis_text.label }}</label>
             {{ form.diagnosis_text }}
+            {% if form.diagnosis_text.errors %}<p style="color:red;font-size:12px;">{{ form.diagnosis_text.errors|join:", " }}</p>{% endif %}
         </div>
 
         <div class="form-group">
@@ -63,21 +78,53 @@ label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
         <div class="form-group">
             <label>{{ form.doctor_instructions.label }}</label>
             {{ form.doctor_instructions }}
+            <p class="help-text">These instructions will be visible to the patient.</p>
         </div>
 
-        <div class="form-group">
-            <label>{{ form.follow_up_date.label }}</label>
-            {{ form.follow_up_date }}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="form-group">
+                <label>{{ form.follow_up_date.label }}</label>
+                {{ form.follow_up_date }}
+            </div>
+            <div class="form-group">
+                <label>{{ form.follow_up_note.label }}</label>
+                {{ form.follow_up_note }}
+            </div>
         </div>
 
         <div class="form-group">
             <label>{{ form.prescription_document.label }}</label>
             {{ form.prescription_document }}
+            <p class="help-text">Upload a prescription PDF or image (optional).</p>
         </div>
 
-        <button type="submit" class="btn">Save Consultation Record</button>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+            {{ form.visible_to_patient }}
+            <label style="font-weight:normal;margin-bottom:0;">Make this consultation visible to patient</label>
+        </div>
+
+        <button type="submit" class="btn" style="width:100%;margin-top:10px;font-size:16px;">💾 Save Consultation Record</button>
     </form>
 </div>
 </div>
+
+<script>
+const diseasesJson = {{ diseases_json|safe }};
+const catalogSelect = document.getElementById('id_disease_catalog');
+const banner = document.getElementById('hereditary-banner');
+
+if (catalogSelect && banner) {
+    function checkHereditary() {
+        const val = catalogSelect.value;
+        if (val && diseasesJson[val]) {
+            banner.style.display = 'block';
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+    catalogSelect.addEventListener('change', checkHereditary);
+    checkHereditary();
+}
+</script>
 </body>
 </html>

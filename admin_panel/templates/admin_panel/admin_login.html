@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login • CareSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{min-height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f4c3a 100%);display:flex;align-items:center;justify-content:center;}
+.login-card{background:rgba(255,255,255,0.07);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:24px;padding:50px 40px;width:100%;max-width:420px;box-shadow:0 25px 50px rgba(0,0,0,0.4);}
+.logo{text-align:center;margin-bottom:30px;}
+.logo h1{font-size:32px;font-weight:700;color:#1FBF8F;letter-spacing:-0.5px;}
+.logo p{color:#94a3b8;font-size:14px;margin-top:4px;}
+.badge{display:inline-block;background:rgba(31,191,143,0.15);color:#1FBF8F;border:1px solid rgba(31,191,143,0.3);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;margin-bottom:24px;}
+h2{color:white;font-size:22px;font-weight:600;margin-bottom:24px;}
+.form-group{margin-bottom:18px;}
+label{color:#cbd5e1;font-size:13px;font-weight:500;display:block;margin-bottom:6px;}
+input[type=text],input[type=password]{width:100%;padding:13px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'Poppins',sans-serif;transition:border-color 0.2s;}
+input[type=text]:focus,input[type=password]:focus{outline:none;border-color:#1FBF8F;}
+input::placeholder{color:#6b7280;}
+.btn{width:100%;background:linear-gradient(135deg,#1FBF8F,#3EC7A6);color:white;border:none;padding:14px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.2s;}
+.btn:hover{opacity:0.9;}
+.messages{margin-bottom:16px;}
+.msg{padding:12px;border-radius:8px;font-size:13px;margin-bottom:8px;}
+.msg-error{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);}
+</style>
+</head>
+<body>
+<div class="login-card">
+    <div class="logo">
+        <h1>CareSync</h1>
+        <p>Digital Application Portal</p>
+    </div>
+    <div style="text-align:center;">
+        <span class="badge">🔐 Admin Access</span>
+    </div>
+    <h2>Sign In</h2>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="msg msg-error">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter admin username" required autofocus>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn">Sign In to Admin Panel</button>
+    </form>
+</div>
+</body>
+</html>

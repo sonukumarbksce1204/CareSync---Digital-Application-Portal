@@ -36,12 +36,48 @@
                     <p><strong>Date & Time:</strong> {{ app.preferred_date }} at {{ app.appointment_time|default:"TBD" }}</p>
                     {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
                     {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    {% if app.meeting_link_or_address %}<p style="margin-top: 4px; color: #4b5563;"><strong>Location / Link:</strong> {{ app.meeting_link_or_address }}</p>{% endif %}
                     <p><strong>Status:</strong> <span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
                     
                     <form method="POST" action="{% url 'cancel_appointment' app.id %}" style="margin-top: 10px;" onsubmit="return confirm('Cancel this appointment?');">
                         {% csrf_token %}
                         <button type="submit" class="btn secondary" style="padding: 5px 10px; font-size:12px; background:#fecaca; color:#991b1b; border:none;">Cancel Appointment</button>
                     </form>
+                        <div style="margin-top: 10px; display: flex; gap: 5px; flex-wrap: wrap;">
+                        {% if app.reschedule_requested_by == 'DOCTOR' or app.reschedule_requested_by == 'HOSPITAL' %}
+                            <div style="width: 100%; margin-bottom: 5px; background: #e0e7ff; padding: 8px; border-radius: 6px; font-size: 12px; color: #3730a3;">
+                                <strong>Reschedule Proposed:</strong><br>
+                                {{ app.reschedule_date }} at {{ app.reschedule_time }}<br>
+                                <em>"{{ app.reschedule_reason }}"</em>
+                            </div>
+                            <form method="POST" action="{% url 'patient_appointments' %}" style="display:inline;">{% csrf_token %}
+                                <input type="hidden" name="reschedule_action" value="ACCEPT">
+                                <input type="hidden" name="apt_id" value="{{ app.id }}">
+                                <button type="submit" class="btn" style="padding: 5px 10px; font-size:12px; background:#8b5cf6; color:white; border:none; cursor:pointer;">Accept</button>
+                            </form>
+                            <form method="POST" action="{% url 'patient_appointments' %}" style="display:inline;">{% csrf_token %}
+                                <input type="hidden" name="reschedule_action" value="REJECT">
+                                <input type="hidden" name="apt_id" value="{{ app.id }}">
+                                <button type="submit" class="btn" style="padding: 5px 10px; font-size:12px; background:#6b7280; color:white; border:none; cursor:pointer;">Reject</button>
+                            </form>
+                        {% elif app.reschedule_requested_by == 'PATIENT' %}
+                            <div style="width: 100%; margin-bottom: 5px; background: #fef3c7; padding: 8px; border-radius: 6px; font-size: 12px; color: #92400e;">
+                                Waiting for clinic to accept reschedule.
+                            </div>
+                        {% else %}
+                            <button type="button" class="btn" style="padding: 5px 10px; font-size:12px; background:#8b5cf6; color:white; border:none; cursor:pointer;" onclick="document.getElementById('reschedule-{{ app.id }}').style.display='block'">Request Reschedule</button>
+                        {% endif %}
+                        </div>
+                        <div id="reschedule-{{ app.id }}" style="display: none; margin-top: 10px;">
+                            <form method="POST" action="{% url 'patient_appointments' %}">{% csrf_token %}
+                                <input type="hidden" name="reschedule_action" value="REQUEST">
+                                <input type="hidden" name="apt_id" value="{{ app.id }}">
+                                <input type="date" name="reschedule_date" required style="width: 100%; padding: 5px; margin-bottom: 5px; border:1px solid #ccc; border-radius:4px;">
+                                <input type="time" name="reschedule_time" style="width: 100%; padding: 5px; margin-bottom: 5px; border:1px solid #ccc; border-radius:4px;">
+                                <textarea name="reschedule_reason" rows="2" placeholder="Reason..." required style="width: 100%; padding: 5px; border:1px solid #ccc; border-radius:4px;"></textarea>
+                                <button type="submit" class="btn" style="padding: 5px 10px; font-size:12px; background:#7c3aed; color:white; border:none; width: 100%; cursor:pointer; margin-top:5px;">Submit Request</button>
+                            </form>
+                        </div>
                 </div>
             {% empty %}
                 <p>No upcoming appointments.</p>
@@ -58,10 +94,14 @@
                     <p><strong>Date & Time:</strong> {{ app.preferred_date }} at {{ app.appointment_time|default:"TBD" }}</p>
                     {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
                     {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    {% if app.meeting_link_or_address %}<p style="margin-top: 4px; color: #4b5563;"><strong>Location / Link:</strong> {{ app.meeting_link_or_address }}</p>{% endif %}
                     {% if app.doctor_instructions %}
                         <p style="margin-top:5px; background: #f0fdf4; padding: 8px; border-radius: 4px; border-left: 2px solid #22c55e;"><strong>Instructions:</strong> {{ app.doctor_instructions }}</p>
                     {% endif %}
                     <p><strong>Status:</strong> <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
+                    {% if app.consultation %}
+                        <p style="margin-top: 8px;"><a href="{% url 'patient_medical_history'|default:'#' %}" style="color: #2563eb; text-decoration: underline; font-size: 13px;">View Consultation Notes & Recipe</a></p>
+                    {% endif %}
                 </div>
             {% empty %}
                 <p>No past appointments.</p>
@@ -78,6 +118,7 @@
                     <p><strong>Date & Time:</strong> {{ app.preferred_date }} at {{ app.appointment_time|default:"TBD" }}</p>
                     {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
                     {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    {% if app.meeting_link_or_address %}<p style="margin-top: 4px; color: #4b5563;"><strong>Location / Link:</strong> {{ app.meeting_link_or_address }}</p>{% endif %}
                     {% if app.rejection_reason %}
                         <p><strong>Reason:</strong> {{ app.rejection_reason }}</p>
                     {% endif %}

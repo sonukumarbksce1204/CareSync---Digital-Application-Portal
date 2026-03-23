@@ -327,6 +327,12 @@ class Appointment(models.Model):
     cancellation_reason = models.TextField(null=True, blank=True)
     visit_mode = models.CharField(max_length=50, null=True, blank=True, choices=[('IN_PERSON', 'In Person'), ('ONLINE', 'Online')])
     
+    meeting_link_or_address = models.TextField(null=True, blank=True)
+    reschedule_requested_by = models.CharField(max_length=20, null=True, blank=True, choices=[('PATIENT', 'Patient'), ('DOCTOR', 'Doctor')])
+    reschedule_date = models.DateField(null=True, blank=True)
+    reschedule_time = models.TimeField(null=True, blank=True)
+    reschedule_reason = models.TextField(null=True, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

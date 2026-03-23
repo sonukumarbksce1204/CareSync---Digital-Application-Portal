@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ hospital.name }} - Appointments</title>
+    <link rel="stylesheet" href="{% static 'hospital/style2.css' %}">
+    <style>
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px;}
+        .table th, .table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left;}
+        .table th { background-color: #f4f4f4;}
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold;}
+        .btn-approve { background-color: #10b981;}
+        .btn-reject { background-color: #ef4444;}
+        select { padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 200px;}
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <h2 class="logo">Care<span>Sync</span></h2>
+        <ul>
+            <li><a href="{% url 'hospital_dashboard' %}" style="text-decoration:none; color:inherit;">Dashboard</a></li>
+            <li><a href="{% url 'hospital_search' %}" style="text-decoration:none; color:inherit;">Search Patients</a></li>
+            <li><a href="{% url 'hospital_affiliations' %}" style="text-decoration:none; color:inherit;">Doctor Affiliations</a></li>
+            <li class="active">Appointments</li>
+            <li class="logout"><a href="{% url 'hospital_logout' %}" style="text-decoration:none; color:white;">Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <section class="hero" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+            <h1>Appointment Allocation</h1>
+            <p>Manage incoming patient appointments and allocate them to your affiliated doctors.</p>
+        </section>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 15px; background: #bbf7d0; color: #166534; border-radius: 8px; margin: 20px 0;">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <section class="info-card" style="margin-top:20px;">
+            <h2>Requested Appointments (Needs Allocation)</h2>
+            <table class="table">
+                <tr>
+                    <th>Patient</th>
+                    <th>Date & Time</th>
+                    <th>Reason</th>
+                    <th>Allocate To Doctor</th>
+                    <th>Actions</th>
+                </tr>
+                {% for apt in requested %}
+                <tr>
+                    <td>{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</td>
+                    <td>{{ apt.preferred_date }}{% if apt.appointment_time %} at {{ apt.appointment_time }}{% endif %}</td>
+                    <td style="font-size: 13px;">{{ apt.reason|truncatechars:50 }}</td>
+                    <td colspan="2">
+                        <form method="POST" style="display:flex; gap:10px; align-items:center;">
+                            {% csrf_token %}
+                            <input type="hidden" name="appointment_id" value="{{ apt.id }}">
+                            <select name="doctor_id" required>
+                                <option value="" disabled selected>-- Select Doctor --</option>
+                                {% for affil in affiliated_doctors %}
+                                    <option value="{{ affil.doctor.doctor_id }}">Dr. {{ affil.doctor.full_name }} ({{ affil.doctor.specializations.first.name|default:"General" }})</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" name="action" value="APPROVE" class="btn btn-approve">Allocate & Approve</button>
+                            <button type="submit" name="action" value="REJECT" class="btn btn-reject">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center; padding:20px;">No pending appointments.</td></tr>
+                {% endfor %}
+            </table>
+        </section>
+
+        <section class="info-card" style="margin-top:20px;">
+            <h2>Allocated & Approved</h2>
+            <table class="table">
+                <tr>
+                    <th>Patient</th>
+                    <th>Assigned Doctor</th>
+                    <th>Date & Time</th>
+                    <th>Actions</th>
+                </tr>
+                {% for apt in approved %}
+                <tr>
+                    <td>{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</td>
+                    <td><strong>Dr. {{ apt.doctor.full_name }}</strong></td>
+                    <td>{{ apt.preferred_date }}</td>
+                    <td>
+                        {% if apt.reschedule_requested_by == 'PATIENT' %}
+                            <div style="background:#fef3c7; color:#92400e; padding:8px; border-radius:6px; font-size:12px; margin-bottom:5px;">
+                                <strong>Patient requests reschedule:</strong><br>
+                                {{ apt.reschedule_date }}{% if apt.reschedule_time %} at {{ apt.reschedule_time }}{% endif %}<br>
+                                "{{ apt.reschedule_reason }}"
+                            </div>
+                            <form method="POST" style="display:inline;">{% csrf_token %}
+                                <input type="hidden" name="action" value="RESCHEDULE_ACCEPT">
+                                <input type="hidden" name="appointment_id" value="{{ apt.id }}">
+                                <button type="submit" class="btn" style="background:#10b981; padding:5px 10px; font-size:12px;">Accept</button>
+                            </form>
+                            <form method="POST" style="display:inline;">{% csrf_token %}
+                                <input type="hidden" name="action" value="RESCHEDULE_REJECT">
+                                <input type="hidden" name="appointment_id" value="{{ apt.id }}">
+                                <button type="submit" class="btn" style="background:#6b7280; padding:5px 10px; font-size:12px;">Reject</button>
+                            </form>
+                        {% elif apt.reschedule_requested_by == 'HOSPITAL' or apt.reschedule_requested_by == 'DOCTOR' %}
+                            <span style="font-size:12px; color:#6b7280;">Waiting for patient to accept reschedule...</span>
+                        {% else %}
+                            <button type="button" class="btn" style="background:#3b82f6; padding:5px 10px; font-size:12px;" onclick="document.getElementById('reschedule-{{ apt.id }}').style.display='block'">Propose Reschedule</button>
+                            <div id="reschedule-{{ apt.id }}" style="display:none; margin-top:10px;">
+                                <form method="POST">{% csrf_token %}
+                                    <input type="hidden" name="action" value="RESCHEDULE_PROPOSE">
+                                    <input type="hidden" name="appointment_id" value="{{ apt.id }}">
+                                    <input type="date" name="reschedule_date" required style="width:100%; padding:5px; margin-bottom:5px; border:1px solid #ccc; border-radius:4px;">
+                                    <input type="time" name="reschedule_time" style="width:100%; padding:5px; margin-bottom:5px; border:1px solid #ccc; border-radius:4px;">
+                                    <textarea name="reschedule_reason" rows="2" placeholder="Reason..." required style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></textarea>
+                                    <button type="submit" class="btn" style="background:#1d4ed8; padding:5px 10px; font-size:12px; width:100%; margin-top:5px;">Send Proposal</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center; padding:20px;">No approved appointments.</td></tr>
+                {% endfor %}
+            </table>
+        </section>
+
+        <section class="info-card" style="margin-top:20px;">
+            <h2>Completed Consultations</h2>
+            <table class="table">
+                <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date Completed</th>
+                </tr>
+                {% for apt in completed %}
+                <tr>
+                    <td>{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</td>
+                    <td>Dr. {{ apt.doctor.full_name }}</td>
+                    <td>{{ apt.completed_at|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" style="text-align:center; padding:20px;">No completed consultations.</td></tr>
+                {% endfor %}
+            </table>
+        </section>
+
+    </main>
+</div>
+</body>
+</html>

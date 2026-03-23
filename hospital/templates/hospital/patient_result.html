@@ -25,9 +25,11 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
 <div class="logo">CareSync</div>
 <div class="nav">
 <a href="{% url 'hospital_dashboard' %}">Dashboard</a>
-<a href="{% url 'hospital_search' %}">Search Records</a>
+<a href="{% url 'hospital_search' %}" style="color: #1FBF8F;">Search Records</a>
+<a href="{% url 'hospital_affiliations' %}">Doctor Affiliations</a>
+<a href="{% url 'hospital_appointments' %}">Appointments</a>
 </div>
-<div class="logout"><form method="POST" action="/"><button type="submit" style="background:none; border:none; color:white; font-size:15px; font-weight:500; padding:0; text-align:left;">Return Home</button></form></div>
+<div class="logout"><a href="{% url 'hospital_logout' %}">Logout</a></div>
 </div>
 
 <div class="main">

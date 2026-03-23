@@ -21,8 +21,9 @@
         <ul>
             <li><a href="{% url 'hospital_dashboard' %}" style="text-decoration:none; color:inherit;">Dashboard</a></li>
             <li><a href="{% url 'hospital_search' %}" style="text-decoration:none; color:inherit;">Search Patients</a></li>
-            <li class="active">Doctor Affiliations</li>
-            <li class="logout"><a href="/" style="text-decoration:none; color:white;">Logout</a></li>
+            <li class="active"><a href="{% url 'hospital_affiliations' %}" style="text-decoration:none; color:inherit;">Doctor Affiliations</a></li>
+            <li><a href="{% url 'hospital_appointments' %}" style="text-decoration:none; color:inherit;">Appointments</a></li>
+            <li class="logout"><a href="{% url 'hospital_logout' %}" style="text-decoration:none; color:white;">Logout</a></li>
         </ul>
     </aside>
 

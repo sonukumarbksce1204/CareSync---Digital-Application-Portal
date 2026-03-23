@@ -429,6 +429,39 @@ def doctor_detail(request, doc_id):
 # ==============================
 def appointments_view(request):
     patient = Patient.objects.filter(user=request.user).first()
+    
+    if request.method == "POST" and "reschedule_action" in request.POST:
+        import django.contrib.messages as messages
+        apt_id = request.POST.get("apt_id")
+        action = request.POST.get("reschedule_action")
+        apt = get_object_or_404(Appointment, id=apt_id, patient=patient)
+        
+        if action == 'REQUEST':
+            apt.reschedule_requested_by = 'PATIENT'
+            apt.reschedule_date = request.POST.get('reschedule_date') or None
+            apt.reschedule_time = request.POST.get('reschedule_time') or None
+            apt.reschedule_reason = request.POST.get('reschedule_reason')
+            apt.save()
+            messages.success(request, "Reschedule request sent to clinic/doctor.")
+        elif action == 'ACCEPT' and apt.reschedule_requested_by in ['DOCTOR', 'HOSPITAL']:
+            apt.preferred_date = apt.reschedule_date
+            if apt.reschedule_time:
+                apt.appointment_time = apt.reschedule_time
+            apt.reschedule_requested_by = None
+            apt.reschedule_date = None
+            apt.reschedule_time = None
+            apt.reschedule_reason = None
+            apt.save()
+            messages.success(request, "Reschedule proposal accepted.")
+        elif action == 'REJECT' and apt.reschedule_requested_by in ['DOCTOR', 'HOSPITAL']:
+            apt.reschedule_requested_by = None
+            apt.reschedule_date = None
+            apt.reschedule_time = None
+            apt.reschedule_reason = None
+            apt.save()
+            messages.success(request, "Reschedule proposal rejected.")
+        return redirect('patient_appointments')
+
     apps = patient.appointments.all().order_by('-created_at')
     
     upcoming = apps.filter(status__in=['REQUESTED', 'APPROVED', 'IN_CONSULTATION'])
@@ -467,15 +500,43 @@ def book_appointment(request):
 
 def cancel_appointment(request, apt_id):
     import django.contrib.messages as messages
+    from django.utils import timezone as tz
+    if request.method != 'POST':
+        return redirect('patient_appointments')
     patient = Patient.objects.filter(user=request.user).first()
     apt = get_object_or_404(Appointment, id=apt_id, patient=patient)
     if apt.status in ['REQUESTED', 'APPROVED']:
         apt.status = 'CANCELLED'
+        apt.cancelled_at = tz.now()
+        apt.cancellation_reason = request.POST.get('cancellation_reason', '').strip() or None
         apt.save()
         messages.success(request, 'Appointment cancelled.')
     else:
         messages.error(request, 'Cannot cancel this appointment.')
     return redirect('patient_appointments')
+
+
+# ==============================
+# MEDICAL HISTORY TIMELINE
+# ==============================
+def medical_history_view(request):
+    if not request.user.is_authenticated:
+        return redirect('patient_login')
+    from .models import ConsultationRecord, PatientDisease
+    patient = Patient.objects.filter(user=request.user).first()
+    if not patient:
+        return redirect('patient_signup')
+
+    symptoms = patient.symptoms.filter(is_archived=False).order_by('-created_at')
+    consultations = patient.consultations.filter(visible_to_patient=True).order_by('-created_at')
+    diseases = patient.diseases.select_related('disease').order_by('-diagnosed_date')
+
+    return render(request, 'patient/medical_history.html', {
+        'patient': patient,
+        'symptoms': symptoms,
+        'consultations': consultations,
+        'diseases': diseases,
+    })
 
 # ==============================
 # MEDICAL HISTORY

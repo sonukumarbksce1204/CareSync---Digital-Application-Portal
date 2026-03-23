@@ -19,7 +19,8 @@
             <li class="active"><a href="{% url 'hospital_dashboard' %}" style="text-decoration:none; color:inherit;">Dashboard</a></li>
             <li><a href="{% url 'hospital_search' %}" style="text-decoration:none; color:inherit;">Search Patients</a></li>
             <li><a href="{% url 'hospital_affiliations' %}" style="text-decoration:none; color:inherit;">Doctor Affiliations</a></li>
-            <li class="logout"><a href="/" style="text-decoration:none; color:white;">Logout</a></li>
+            <li><a href="{% url 'hospital_appointments' %}" style="text-decoration:none; color:inherit;">Appointments</a></li>
+            <li class="logout"><a href="{% url 'hospital_logout' %}" style="text-decoration:none; color:white;">Logout</a></li>
         </ul>
     </aside>
 
@@ -68,28 +69,25 @@
             <p><strong>Email:</strong> {{ hospital.email }}</p>
         </section>
 
-        <!-- DOCTOR SECTION -->
+        <!-- AFFILIATED DOCTORS (real data) -->
         <section class="doctor-section">
-            <h2>Our Doctors</h2>
+            <h2>Affiliated Doctors <span style="font-size:14px;font-weight:400;color:#64748b;">({{ stats.affiliated_doctors_count }} approved{% if stats.pending_affiliations %} · {{ stats.pending_affiliations }} pending{% endif %})</span></h2>
 
             <div class="doctor-grid">
-                <div class="doctor-card">
-                    <img src="{% static 'hospital/doctor1.jpg' %}">
-                    <h3>Dr. Anil Sharma</h3>
-                    <p>Cardiologist</p>
+                {% for affil in affiliated_doctors %}
+                <div class="doctor-card" style="text-align:center;padding:20px;">
+                    {% if affil.doctor.profile_image %}
+                    <img src="{{ affil.doctor.profile_image.url }}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;margin-bottom:10px;">
+                    {% else %}
+                    <div style="width:70px;height:70px;border-radius:50%;background:#1FBF8F;color:white;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;margin:0 auto 10px;">{{ affil.doctor.full_name|first }}</div>
+                    {% endif %}
+                    <h3>Dr. {{ affil.doctor.full_name }}</h3>
+                    <p>{{ affil.doctor.specializations.all|join:", "|default:"General" }}</p>
+                    <p style="font-size:12px;color:#9ca3af;margin-top:4px;">{{ affil.doctor.experience_years }} yr exp.</p>
                 </div>
-
-                <div class="doctor-card">
-                    <img src="{% static 'hospital/doctor2.jpg' %}">
-                    <h3>Dr. Sneha Kapoor</h3>
-                    <p>Neurologist</p>
-                </div>
-
-                <div class="doctor-card">
-                    <img src="{% static 'hospital/doctor3.jpg' %}">
-                    <h3>Dr. Pooja Singh</h3>
-                    <p>Orthopedic</p>
-                </div>
+                {% empty %}
+                <p style="color:#64748b;padding:20px 0;">No affiliated doctors yet. Approve affiliation requests from the <a href="{% url 'hospital_affiliations' %}">Affiliations</a> page.</p>
+                {% endfor %}
             </div>
         </section>
 
@@ -115,7 +113,7 @@
 
         </section>
 
-        <!-- APPOINTMENTS (STATIC EXAMPLE) -->
+        <!-- REAL UPCOMING APPOINTMENTS -->
         <section class="appointment-section">
             <h2>Upcoming Appointments</h2>
 
@@ -123,23 +121,19 @@
                 <tr>
                     <th>Patient</th>
                     <th>Doctor</th>
-                    <th>Time</th>
+                    <th>Date &amp; Time</th>
                     <th>Status</th>
                 </tr>
-
+                {% for apt in recent_appointments %}
                 <tr>
-                    <td>Rahul Mehta</td>
-                    <td>Dr. Anil Sharma</td>
-                    <td>10:00 AM</td>
-                    <td class="status green">Confirmed</td>
+                    <td>{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</td>
+                    <td>{% if apt.doctor %}Dr. {{ apt.doctor.full_name }}{% else %}&mdash;{% endif %}</td>
+                    <td>{{ apt.preferred_date }}{% if apt.appointment_time %} at {{ apt.appointment_time }}{% endif %}</td>
+                    <td class="status {% if apt.status == 'APPROVED' %}green{% else %}blue{% endif %}">{{ apt.get_status_display }}</td>
                 </tr>
-
-                <tr>
-                    <td>Priya Gupta</td>
-                    <td>Dr. Sneha Kapoor</td>
-                    <td>11:30 AM</td>
-                    <td class="status blue">Pending</td>
-                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center;padding:20px;color:#64748b;">No upcoming appointments.</td></tr>
+                {% endfor %}
             </table>
         </section>
 
@@ -149,3 +143,4 @@
 
 </body>
 </html>
+
