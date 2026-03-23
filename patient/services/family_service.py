@@ -67,11 +67,25 @@ def change_family_head(family, new_head, changed_by_user, reason):
 
 def get_family_disease_summary(family):
     """
-    Aggregates hereditary diseases strictly within the provided family context.
-    Returns a queryset with disease__name and an 'occurrences' count.
+    Groups hereditary diseases strictly within the provided family context,
+    returning a list of dictionaries containing affected patient names and occurrence counts.
     """
-    return PatientDisease.objects.filter(
+    diseases = PatientDisease.objects.filter(
         patient__family=family,
         disease__is_hereditary=True,
         is_active=True
-    ).values('disease__name').annotate(occurrences=Count('patient')).order_by('-occurrences')
+    ).select_related('disease', 'patient__user')
+    
+    summary_dict = {}
+    for pd in diseases:
+        d_name = pd.disease.name
+        if d_name not in summary_dict:
+            summary_dict[d_name] = {'disease_name': d_name, 'patients': [], 'occurrences': 0}
+            
+        patient_name = pd.patient.user.get_full_name() or pd.patient.user.username
+        summary_dict[d_name]['patients'].append(f"{patient_name} ({pd.patient.patient_id})")
+        summary_dict[d_name]['occurrences'] += 1
+        
+    summary_list = list(summary_dict.values())
+    summary_list.sort(key=lambda x: x['occurrences'], reverse=True)
+    return summary_list

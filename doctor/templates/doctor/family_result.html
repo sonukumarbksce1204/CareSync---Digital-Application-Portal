@@ -30,7 +30,8 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
 <h3>Family Health Insights</h3>
 <br>
 {% for item in summary %}
-    <p style="color:#b91c1c; font-weight:bold;">⚠️ {{ item.disease__name }} detected in {{ item.occurrences }} member(s)</p>
+    <p style="color:#b91c1c; font-weight:bold;">⚠️ {{ item.disease_name }} detected in {{ item.occurrences }} member(s)</p>
+    <p style="color:#b91c1c; font-size: 13px; margin-left: 25px; margin-bottom: 10px;">Affected: {{ item.patients|join:", " }}</p>
 {% empty %}
     <p style="color:#10b981; font-weight:bold;">✓ No major hereditary or catalogued chronic diseases flagged.</p>
 {% endfor %}

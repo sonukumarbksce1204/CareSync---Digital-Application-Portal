@@ -566,16 +566,68 @@ def doctor_disease_catalog(request):
     from patient.models import DiseaseCatalog
     
     if request.method == "POST":
-        disease_id = request.POST.get("disease_id")
         action = request.POST.get("action")
         
-        disease = DiseaseCatalog.objects.filter(id=disease_id).first()
-        if disease:
-            if action == 'toggle_hereditary':
+        if action == 'toggle_hereditary':
+            disease_id = request.POST.get("disease_id")
+            disease = DiseaseCatalog.objects.filter(id=disease_id).first()
+            if disease:
                 disease.is_hereditary = not disease.is_hereditary
                 disease.save()
                 status = "hereditary" if disease.is_hereditary else "non-hereditary"
                 messages.success(request, f"Marked {disease.name} as {status}.")
+                
+        elif action == 'add_disease':
+            name = request.POST.get("disease_name", "").strip()
+            icd_code = request.POST.get("icd_code", "").strip()
+            is_hereditary = request.POST.get("is_hereditary") == "on"
+            
+            if name:
+                if not DiseaseCatalog.objects.filter(name__iexact=name).exists():
+                    DiseaseCatalog.objects.create(
+                        name=name,
+                        icd_code=icd_code if icd_code else None,
+                        is_hereditary=is_hereditary
+                    )
+                    messages.success(request, f"Added {name} to the system disease catalog.")
+                else:
+                    messages.error(request, f"Disease '{name}' already exists in the catalog.")
+            else:
+                messages.error(request, "Disease name is required.")
+                
+        elif action == 'flag_patient':
+            disease_id = request.POST.get("disease_id")
+            patient_id = request.POST.get("patient_id", "").strip()
+            
+            disease = DiseaseCatalog.objects.filter(id=disease_id).first()
+            from patient.models import Patient, PatientDisease, DoctorAccessLog, Appointment
+            patient = Patient.objects.filter(patient_id=patient_id).first()
+            
+            if disease and patient:
+                has_access = DoctorAccessLog.objects.filter(doctor=doctor, patient=patient).exists()
+                has_apt = Appointment.objects.filter(doctor=doctor, patient=patient, status__in=['APPROVED', 'COMPLETED']).exists()
+                
+                if not (has_access or has_apt):
+                    messages.error(request, "You are not authorized to flag this patient.")
+                else:
+                    pd, created = PatientDisease.objects.get_or_create(
+                        patient=patient,
+                        disease=disease,
+                        defaults={'diagnosed_date': timezone.now().date(), 'is_active': True}
+                    )
+                    if created:
+                        messages.success(request, f"Successfully flagged {patient.user.get_full_name() or patient.patient_id} with {disease.name}.")
+                    else:
+                        if not pd.is_active:
+                            pd.is_active = True
+                            pd.diagnosed_date = timezone.now().date()
+                            pd.save()
+                            messages.success(request, f"Re-activated {disease.name} for {patient.user.get_full_name() or patient.patient_id}.")
+                        else:
+                            messages.info(request, f"Patient is already flagged with {disease.name}.")
+            else:
+                messages.error(request, "Invalid Disease or Personal Health ID.")
+                
         return redirect('doctor_disease_catalog')
         
     diseases = DiseaseCatalog.objects.all().order_by('name')

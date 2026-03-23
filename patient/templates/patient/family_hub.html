@@ -45,9 +45,10 @@
         <p class="info-text">Aggregated insights for genetic & chronic risks within your family.</p>
         <div class="hospital-grid">
             {% for item in summary %}
-                <div class="hospital-card" style="border-left: 4px solid #b91c1c;">
-                    <h4>{{ item.disease__name }}</h4>
+                <div class="hospital-card" style="border-left: 4px solid #b91c1c; padding-bottom: 10px;">
+                    <h4>{{ item.disease_name }}</h4>
                     <p>⚠️ Detected in {{ item.occurrences }} member(s)</p>
+                    <p style="font-size: 13px; color: #b91c1c; margin-top: 5px;"><strong>Affected:</strong> {{ item.patients|join:", " }}</p>
                 </div>
             {% empty %}
                 <div class="hospital-card" style="border-left: 4px solid #10b981;">

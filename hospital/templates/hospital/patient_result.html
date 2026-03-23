@@ -53,7 +53,7 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
 <h3>Diagnosed Diseases</h3>
 <ul>
 {% for pd in patient.diseases.all %}
-    <li><strong>{{ pd.disease.name }}</strong> (Diagnosed: {{ pd.diagnosed_date|default:"Unknown" }}) - {% if pd.is_active %}<span style="color:red">Active</span>{% else %}<span style="color:green">Resolved</span>{% endif %}</li>
+    <li><strong>{{ pd.disease.name }}</strong> (Diagnosed: {{ pd.diagnosed_date|default:"Unknown" }}) - {% if pd.is_active %}<span style="color:red; font-weight: 500;">Active{% if pd.disease.is_hereditary %} Hereditary Disease{% endif %}</span>{% else %}<span style="color:green; font-weight: 500;">Resolved{% if pd.disease.is_hereditary %} Hereditary Disease{% endif %}</span>{% endif %}</li>
 {% empty %}
     <p>No chronic or catalogued diseases recorded.</p>
 {% endfor %}
