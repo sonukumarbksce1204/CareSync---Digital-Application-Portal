@@ -21,15 +21,7 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
 </style>
 </head>
 <body>
-<div class="sidebar">
-<div class="logo">CareSync</div>
-<div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="{% url 'doctor_profile' %}">View Profile</a>
-</div>
-<div class="logout"><a href="{% url 'doctor_logout' %}">Logout</a></div>
-</div>
+{% include 'doctor/_sidebar.html' %}
 
 <div class="main">
 <div class="top">Patient Record ({{ patient.patient_id }})</div>
@@ -44,7 +36,7 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
     <br><hr><br>
     <h4>Family Link Access</h4>
     <p>This patient is linked to Family ID: <strong>{{ patient.family.family_id }}</strong></p>
-    <a href="?q={{ patient.patient_id }}&type=personal&expand=true" class="expand-btn">View Full Family Record</a>
+    <a href="{% url 'doctor_search' %}?q={{ patient.patient_id }}&type=personal&expand=true" class="expand-btn">View Full Family Record</a>
 {% endif %}
 
 <br><hr style="border:0; border-top:1px solid #eaeaea; margin: 20px 0;"><br>
@@ -90,8 +82,15 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
         
         {% if symptom.ai_prediction_status != 'PENDING_REVIEW' %}
             <div style="margin-top: 15px; padding: 10px; background: #e0f2fe; border-left: 4px solid #0284c7; border-radius: 4px;">
-                <p><strong>Doctor's Final Diagnosis:</strong> {{ symptom.doctor_final_diagnosis_catalog.name|default:symptom.predicted_disease }}</p>
+                {% if symptom.ai_prediction_status == 'MODIFIED' %}
+                    <p><strong>Doctor Modified Diagnosis:</strong> {{ symptom.doctor_modified_diagnosis_text }}</p>
+                {% elif symptom.ai_prediction_status == 'APPROVED' %}
+                    <p><strong>Status:</strong> Approved as correct by doctor.</p>
+                {% else %}
+                    <p><strong>Status:</strong> Rejected by doctor.</p>
+                {% endif %}
                 {% if symptom.doctor_diagnosis_notes %}<p><strong>Notes:</strong> {{ symptom.doctor_diagnosis_notes }}</p>{% endif %}
+                {% if symptom.verification_note %}<p><strong>Verification Note:</strong> {{ symptom.verification_note }}</p>{% endif %}
                 <p style="font-size:12px; margin-top:5px; color:#64748b;">Verified by Dr. {{ symptom.verified_by_doctor.full_name }} on {{ symptom.verified_at|date:"d M Y" }}</p>
             </div>
         {% endif %}
@@ -104,6 +103,29 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
     </div>
 {% empty %}
     <p>No recent symptom history recorded.</p>
+{% endfor %}
+</div>
+
+<div class="card">
+<h3>Past Consultations</h3>
+{% for consult in consultations %}
+    <div class="history-item" style="padding: 20px; background: #fafafa; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eaeaea;">
+        <p><strong>Date:</strong> {{ consult.created_at|date:"d M Y, h:i A" }}</p>
+        <p><strong>Doctor:</strong> Dr. {{ consult.doctor.full_name }}</p>
+        <p><strong>Diagnosis:</strong> {{ consult.diagnosis_text|default:"Refer to notes" }}</p>
+        <p><strong>Clinical Notes:</strong> {{ consult.notes }}</p>
+        {% if consult.doctor_instructions %}
+        <p><strong>Instructions:</strong> {{ consult.doctor_instructions }}</p>
+        {% endif %}
+        {% if consult.follow_up_date %}
+        <p><strong>Follow-Up:</strong> {{ consult.follow_up_date|date:"d M Y" }}</p>
+        {% endif %}
+        {% if consult.prescription_document %}
+        <p style="margin-top:10px;"><a href="{{ consult.prescription_document.url }}" class="expand-btn" style="background:#3b82f6; padding: 6px 12px; font-size:13px; margin-top:5px;" target="_blank">View Prescription</a></p>
+        {% endif %}
+    </div>
+{% empty %}
+    <p>No past consultations recorded.</p>
 {% endfor %}
 </div>
 

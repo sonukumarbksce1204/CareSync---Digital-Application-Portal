@@ -140,6 +140,7 @@ class Symptom(models.Model):
     ]
     ai_prediction_status = models.CharField(max_length=20, choices=AI_STATUS_CHOICES, default='PENDING_REVIEW')
     doctor_final_diagnosis_catalog = models.ForeignKey('patient.DiseaseCatalog', on_delete=models.SET_NULL, null=True, blank=True)
+    doctor_modified_diagnosis_text = models.CharField(max_length=255, null=True, blank=True)
     doctor_diagnosis_notes = models.CharField(max_length=255, null=True, blank=True)
     verified_by_doctor = models.ForeignKey('doctor.Doctor', on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_symptoms')
     verified_at = models.DateTimeField(null=True, blank=True)
@@ -151,13 +152,32 @@ class Symptom(models.Model):
         return f"{self.patient.user.username} - {self.created_at}"
 
 
+def prescription_upload_path(instance, filename):
+    import uuid
+    import os
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return os.path.join('prescriptions', filename)
+
 class ConsultationRecord(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='consultations')
     doctor = models.ForeignKey('doctor.Doctor', on_delete=models.SET_NULL, null=True, related_name='consultations')
     appointment = models.OneToOneField('Appointment', on_delete=models.SET_NULL, null=True, blank=True, related_name='consultation')
     
+    diagnosis_text = models.CharField(max_length=255, null=True, blank=True)
     notes = models.TextField(help_text="Clinical observations and advice.")
-    prescription_document = models.FileField(upload_to='prescriptions/', null=True, blank=True)
+    doctor_instructions = models.TextField(null=True, blank=True)
+    
+    prescription_document = models.FileField(upload_to=prescription_upload_path, null=True, blank=True)
+    
+    follow_up_date = models.DateField(null=True, blank=True)
+    follow_up_note = models.TextField(null=True, blank=True)
+    
+    consultation_type = models.CharField(max_length=50, null=True, blank=True)
+    is_finalized = models.BooleanField(default=True)
+    created_by_ai_review = models.BooleanField(default=False)
+    visible_to_patient = models.BooleanField(default=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -262,6 +282,12 @@ class AIReviewLog(models.Model):
     doctor = models.ForeignKey('doctor.Doctor', on_delete=models.CASCADE)
     previous_status = models.CharField(max_length=20)
     new_status = models.CharField(max_length=20)
+    
+    previous_diagnosis_text = models.CharField(max_length=200, null=True, blank=True)
+    new_diagnosis_text = models.CharField(max_length=200, null=True, blank=True)
+    previous_catalog_id = models.IntegerField(null=True, blank=True)
+    new_catalog_id = models.IntegerField(null=True, blank=True)
+    
     note = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -272,6 +298,7 @@ class Appointment(models.Model):
     STATUS_CHOICES = [
         ('REQUESTED', 'Requested'),
         ('APPROVED', 'Approved'),
+        ('IN_CONSULTATION', 'In Consultation'),
         ('COMPLETED', 'Completed'),
         ('CANCELLED', 'Cancelled'),
         ('REJECTED', 'Rejected'),
@@ -281,9 +308,24 @@ class Appointment(models.Model):
     hospital = models.ForeignKey('hospital.Hospital', on_delete=models.SET_NULL, null=True, blank=True, related_name='appointments')
     
     preferred_date = models.DateField()
+    appointment_time = models.TimeField(null=True, blank=True)
+    
     reason = models.TextField()
     note = models.TextField(blank=True, null=True)
+    
+    doctor_instructions = models.TextField(null=True, blank=True)
+    follow_up_date = models.DateField(null=True, blank=True)
+    
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='REQUESTED')
+    
+    approved_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    rejected_at = models.DateTimeField(null=True, blank=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    
+    rejection_reason = models.TextField(null=True, blank=True)
+    cancellation_reason = models.TextField(null=True, blank=True)
+    visit_mode = models.CharField(max_length=50, null=True, blank=True, choices=[('IN_PERSON', 'In Person'), ('ONLINE', 'Online')])
     
     created_at = models.DateTimeField(auto_now_add=True)
 

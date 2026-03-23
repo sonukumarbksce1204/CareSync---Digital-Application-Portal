@@ -17,15 +17,7 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;dis
 </style>
 </head>
 <body>
-<div class="sidebar">
-<div class="logo" onclick="window.location.href='/'">CareSync</div>
-<div class="nav" style="margin-top:40px;">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_appointments' %}">Appointments</a>
-<a href="{% url 'pending_reviews' %}" style="font-weight: 600;">Pending AI Reviews</a>
-<a href="{% url 'my_patients' %}">My Patients</a>
-</div>
-</div>
+{% include 'doctor/_sidebar.html' %}
 <div class="main">
 <h2 style="margin-bottom:20px;">AI Verification Queue</h2>
 

@@ -233,9 +233,10 @@ class AppointmentForm(forms.ModelForm):
     
     class Meta:
         model = Appointment
-        fields = ['doctor', 'hospital', 'preferred_date', 'reason', 'note']
+        fields = ['doctor', 'hospital', 'preferred_date', 'appointment_time', 'reason', 'note']
         widgets = {
             'preferred_date': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
+            'appointment_time': forms.TimeInput(attrs={'type': 'time', 'class': 'input-field'}),
             'reason': forms.Textarea(attrs={'rows': 3, 'class': 'input-field', 'placeholder': 'Symptoms or reason...'}),
             'note': forms.Textarea(attrs={'rows': 2, 'class': 'input-field', 'placeholder': 'Optional instructions...'}),
         }
@@ -245,12 +246,17 @@ class AppointmentForm(forms.ModelForm):
         doctor = cleaned_data.get('doctor')
         hospital = cleaned_data.get('hospital')
         pref_date = cleaned_data.get('preferred_date')
+        apt_time = cleaned_data.get('appointment_time')
 
         if (not doctor and not hospital) or (doctor and hospital):
             raise forms.ValidationError("You must select exactly one: either a Doctor OR a Hospital.")
             
         if pref_date and pref_date < timezone.now().date():
             raise forms.ValidationError("Preferred date cannot be in the past.")
+            
+        if pref_date == timezone.now().date() and apt_time:
+            if apt_time < timezone.now().time():
+                raise forms.ValidationError("Preferred time cannot be in the past.")
 
         return cleaned_data
 

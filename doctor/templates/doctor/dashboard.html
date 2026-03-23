@@ -101,25 +101,7 @@ color:#555;
 
 <body>
 
-<div class="sidebar">
-
-<div class="logo" onclick="window.location.href='/'">CareSync</div>
-
-<div class="nav">
-<a href="{% url 'doctor_dashboard' %}" style="font-weight: 600;">Dashboard</a>
-<a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="{% url 'doctor_appointments' %}">Appointments {% if pending_appointments %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_appointments }}</span>{% endif %}</a>
-<a href="{% url 'pending_reviews' %}">Pending AI Reviews {% if pending_reviews_count %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_reviews_count }}</span>{% endif %}</a>
-<a href="{% url 'my_patients' %}">My Patients</a>
-<a href="{% url 'hospital_affiliations' %}">Hospital Affiliations</a>
-<a href="{% url 'doctor_profile' %}">Profile Settings</a>
-</div>
-
-<div class="logout">
-<a href="{% url 'doctor_logout' %}">Logout</a>
-</div>
-
-</div>
+{% include 'doctor/_sidebar.html' %}
 
 <div class="main">
 

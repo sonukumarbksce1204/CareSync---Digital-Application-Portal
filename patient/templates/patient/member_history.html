@@ -32,11 +32,18 @@
         <p class="info-text" style="margin-bottom: 20px;">Doctor's clinical notes and digital prescriptions.</p>
 
         <div class="history-grid">
-            {% for consult in member.consultations.all reversed %}
+            {% for consult in consultations %}
                 <div class="history-card" style="border-left: 4px solid #3b82f6; background: #f8fafc;">
                     <small style="color: #64748b;">{{ consult.created_at|date:"d M Y, h:i A" }}</small>
                     <p style="margin-top:10px;"><strong>Doctor:</strong> Dr. {{ consult.doctor.full_name }}</p>
+                    <p><strong>Diagnosis:</strong> {{ consult.diagnosis_text|default:"Refer to clinic notes" }}</p>
                     <p style="margin-top:5px;"><strong>Clinical Notes:</strong> {{ consult.notes }}</p>
+                    {% if consult.doctor_instructions %}
+                        <p><strong>Instructions:</strong> {{ consult.doctor_instructions }}</p>
+                    {% endif %}
+                    {% if consult.follow_up_date %}
+                        <p><strong>Follow-up:</strong> {{ consult.follow_up_date|date:"d M Y" }}</p>
+                    {% endif %}
                     {% if consult.prescription_document %}
                     <a href="{{ consult.prescription_document.url }}" target="_blank" style="display:inline-block; margin-top:15px; padding:8px 14px; background:#e0f2fe; color:#0284c7; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">📄 Download Prescription</a>
                     {% endif %}
@@ -65,11 +72,22 @@
                     {% endif %}
 
                     {% if symptom.predicted_disease %}
-                    <div class="ai-mini-result" style="margin-top:10px; padding:10px; background:#f0fdf4; border-left:4px solid #10b981; border-radius:4px;">
-                        <span class="ai-mini-icon">🤖</span>
-                        <span class="ai-mini-label">AI Prediction:</span>
-                        <span class="ai-mini-disease" style="font-weight:bold; color:#047857;">{{ symptom.predicted_disease }}</span>
-                        <span class="ai-mini-conf">({{ symptom.prediction_confidence|floatformat:1 }}%)</span>
+                    <div style="margin-top:15px; background:#f0f9ff; padding:10px; border-radius:6px; font-size:13px; border-left:4px solid #3b82f6;">
+                        <p><strong>AI Prediction:</strong> {{ symptom.predicted_disease }} ({{ symptom.prediction_confidence|floatformat:1 }}% confidence)</p>
+                        {% if symptom.ai_prediction_status == 'MODIFIED' %}
+                            <p style="color:#1e40af; margin-top:5px;"><strong>Doctor Modified Diagnosis:</strong> {{ symptom.doctor_modified_diagnosis_text }}</p>
+                        {% elif symptom.ai_prediction_status == 'APPROVED' %}
+                            <p style="color:#166534; margin-top:5px;"><strong>Status:</strong> Approved as correct by doctor.</p>
+                        {% endif %}
+                        {% if symptom.ai_prediction_status != 'PENDING_REVIEW' and symptom.doctor_diagnosis_notes %}
+                            <p><strong>Doctor Notes:</strong> {{ symptom.doctor_diagnosis_notes }}</p>
+                        {% endif %}
+                        {% if symptom.verification_note %}
+                            <p><strong>Verification Note:</strong> {{ symptom.verification_note }}</p>
+                        {% endif %}
+                        {% if symptom.verified_by_doctor %}
+                            <p style="color:#64748b; font-size:11px; margin-top:5px;">Verified by Dr. {{ symptom.verified_by_doctor.full_name }} on {{ symptom.verified_at|date:"d M Y" }}</p>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>

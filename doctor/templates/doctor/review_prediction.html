@@ -25,15 +25,7 @@ input, select, textarea{width: 100%; padding: 12px; border: 1px solid #d1d5db; b
 </style>
 </head>
 <body>
-<div class="sidebar">
-<div class="logo">CareSync</div>
-<div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="{% url 'doctor_profile' %}">View Profile</a>
-</div>
-<div class="logout"><a href="{% url 'doctor_logout' %}">Logout</a></div>
-</div>
+{% include 'doctor/_sidebar.html' %}
 
 <div class="main">
 <div class="top"><a href="{% url 'doctor_patient_detail' symptom.patient.patient_id %}" style="text-decoration:none; color: #1FBF8F;">← Back to Patient Record</a></div>
@@ -59,10 +51,10 @@ input, select, textarea{width: 100%; padding: 12px; border: 1px solid #d1d5db; b
         </div>
         
         <div class="form-group">
-            <label>{{ form.doctor_final_diagnosis_catalog.label }}</label>
-            {{ form.doctor_final_diagnosis_catalog }}
-            {{ form.doctor_final_diagnosis_catalog.errors }}
-            <p style="font-size: 12px; color: #6b7280; margin-top: 5px;">Required if Modified. Select the correct diagnosis from the catalog.</p>
+            <label>{{ form.doctor_modified_diagnosis_text.label }}</label>
+            {{ form.doctor_modified_diagnosis_text }}
+            {{ form.doctor_modified_diagnosis_text.errors }}
+            <p style="font-size: 12px; color: #6b7280; margin-top: 5px;">Required if Modified. Type the correct diagnosis explicitly.</p>
         </div>
 
         <div class="form-group">
@@ -81,5 +73,28 @@ input, select, textarea{width: 100%; padding: 12px; border: 1px solid #d1d5db; b
     </form>
 </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const statusSelect = document.getElementById("id_ai_prediction_status");
+    const catalogGroup = document.getElementById("id_doctor_modified_diagnosis_text").parentElement;
+    const notesGroup = document.getElementById("id_doctor_diagnosis_notes").parentElement;
+
+    function toggleFields() {
+        if (statusSelect.value === 'MODIFIED') {
+            catalogGroup.style.display = 'block';
+            notesGroup.style.display = 'block';
+        } else {
+            catalogGroup.style.display = 'none';
+            notesGroup.style.display = 'none';
+        }
+    }
+    
+    if(statusSelect && catalogGroup && notesGroup) {
+        statusSelect.addEventListener("change", toggleFields);
+        toggleFields();
+    }
+});
+</script>
 </body>
 </html>

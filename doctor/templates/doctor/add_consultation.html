@@ -21,16 +21,7 @@ label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
 </style>
 </head>
 <body>
-<div class="sidebar">
-<div class="logo">CareSync</div>
-<div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="{% url 'doctor_appointments' %}">Appointments</a>
-<a href="{% url 'my_patients' %}">My Patients</a>
-<a href="{% url 'doctor_patient_detail' patient.patient_id %}">← Back to Patient</a>
-</div>
-</div>
+{% include 'doctor/_sidebar.html' %}
 <div class="main">
 <div class="top">Add Clinical Consultation</div>
 
@@ -60,8 +51,23 @@ label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
         </div>
 
         <div class="form-group">
+            <label>{{ form.diagnosis_text.label }}</label>
+            {{ form.diagnosis_text }}
+        </div>
+
+        <div class="form-group">
             <label>{{ form.notes.label }}</label>
             {{ form.notes }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.doctor_instructions.label }}</label>
+            {{ form.doctor_instructions }}
+        </div>
+
+        <div class="form-group">
+            <label>{{ form.follow_up_date.label }}</label>
+            {{ form.follow_up_date }}
         </div>
 
         <div class="form-group">

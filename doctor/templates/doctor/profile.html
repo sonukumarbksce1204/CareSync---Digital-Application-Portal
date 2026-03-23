@@ -137,21 +137,7 @@ margin-top:10px;
 
 <body>
 
-<div class="sidebar">
-<div class="logo" onclick="window.location.href='/'">CareSync</div>
-
-<div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_profile' %}">Profile</a>
-<a href="#">Appointments</a>
-<a href="#">Hospitals</a>
-<a href="#">Emergency</a>
-</div>
-
-<div class="logout">
-<a href="{% url 'doctor_logout' %}">Logout</a>
-</div>
-</div>
+{% include 'doctor/_sidebar.html' %}
 
 <div class="main">
 

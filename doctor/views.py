@@ -228,7 +228,12 @@ def doctor_patient_detail_view(request, patient_id):
         return redirect('doctor_search')
         
     log_doctor_access(doctor, 'PERSONAL', patient=patient)
-    return render(request, 'doctor/patient_result.html', {'patient': patient, 'doctor': doctor})
+    
+    # Fetch consultations for the view
+    from patient.models import ConsultationRecord
+    consultations = ConsultationRecord.objects.filter(patient=patient).order_by('-created_at')
+    
+    return render(request, 'doctor/patient_result.html', {'patient': patient, 'doctor': doctor, 'consultations': consultations})
 
 from patient.models import Symptom, DoctorAccessLog, AIReviewLog
 from .forms import AIReviewForm
@@ -264,6 +269,9 @@ def review_prediction(request, symptom_id):
                 doctor=doctor,
                 previous_status=old_status,
                 new_status=sympt.ai_prediction_status,
+                previous_diagnosis_text=sympt.predicted_disease,
+                new_diagnosis_text=sympt.doctor_modified_diagnosis_text if sympt.ai_prediction_status == 'MODIFIED' else sympt.doctor_diagnosis_notes,
+                new_catalog_id=None,
                 note=sympt.verification_note
             )
             messages.success(request, "AI Prediction verified successfully.")
@@ -298,6 +306,9 @@ def doctor_appointments(request):
     })
 
 def update_appointment_status(request, apt_id, target_status):
+    if request.method != "POST":
+        return redirect('doctor_appointments')
+        
     doctor = get_session_doctor(request)
     if not doctor: return redirect("doctor_login")
 
@@ -305,11 +316,20 @@ def update_appointment_status(request, apt_id, target_status):
 
     valid_transitions = {
         'REQUESTED': ['APPROVED', 'REJECTED', 'COMPLETED'],
-        'APPROVED': ['COMPLETED', 'CANCELLED']
+        'APPROVED': ['IN_CONSULTATION', 'COMPLETED', 'CANCELLED'],
+        'IN_CONSULTATION': ['COMPLETED', 'CANCELLED']
     }
 
     if apt.status in valid_transitions and target_status in valid_transitions[apt.status]:
         apt.status = target_status
+        if target_status == 'APPROVED':
+            apt.approved_at = timezone.now()
+        elif target_status == 'COMPLETED':
+            apt.completed_at = timezone.now()
+        elif target_status == 'REJECTED':
+            apt.rejected_at = timezone.now()
+        elif target_status == 'CANCELLED':
+            apt.cancelled_at = timezone.now()
         apt.save()
         messages.success(request, f"Appointment status updated to {target_status}.")
     else:
@@ -382,6 +402,7 @@ def add_consultation(request, patient_id):
                     consult.appointment = apt
                     if apt.status != 'COMPLETED':
                         apt.status = 'COMPLETED'
+                        apt.completed_at = timezone.now()
                         apt.save()
             
             consult.save()

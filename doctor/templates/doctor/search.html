@@ -23,15 +23,7 @@ button { padding: 12px 20px; background: #1FBF8F; color: white; border: none; bo
 </style>
 </head>
 <body>
-<div class="sidebar">
-<div class="logo">CareSync</div>
-<div class="nav">
-<a href="{% url 'doctor_dashboard' %}">Dashboard</a>
-<a href="{% url 'doctor_search' %}">Search Records</a>
-<a href="{% url 'doctor_profile' %}">View Profile</a>
-</div>
-<div class="logout"><a href="{% url 'doctor_logout' %}">Logout</a></div>
-</div>
+{% include 'doctor/_sidebar.html' %}
 
 <div class="main">
 {% if messages %}

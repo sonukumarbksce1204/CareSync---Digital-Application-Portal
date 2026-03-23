@@ -178,10 +178,17 @@ def patient_dashboard(request):
             patient=patient, is_archived=False
         ).order_by("-created_at")
 
+    # ── Timeline Data Fetch ────────────────────────
+    # Fetch consultation records and active diseases to pass to dashboard
+    consultations = patient.consultations.filter(visible_to_patient=True).order_by('-created_at')
+    diagnosed_diseases = patient.diseases.all().order_by('-diagnosed_date')
+
     return render(request, "patient/patient_dashboard.html", {
         "patient": patient,
         "hospitals": hospitals,
         "symptoms": symptoms,
+        "consultations": consultations,
+        "diagnosed_diseases": diagnosed_diseases,
         "symptom_form": SymptomForm(),
         "message": message,
         "prediction": prediction,
@@ -371,7 +378,8 @@ def member_history_view(request, member_id):
         return HttpResponseForbidden("You do not have permission to view this medical record. Only the Family Head can view this.")
         
     symptoms = target.symptoms.filter(is_archived=False).order_by('-created_at')
-    return render(request, 'patient/member_history.html', {'member': target, 'symptoms': symptoms})
+    consultations = target.consultations.order_by('-created_at')
+    return render(request, 'patient/member_history.html', {'member': target, 'symptoms': symptoms, 'consultations': consultations})
 
 # ==============================
 # PATIENT PROFILE & INFO
@@ -421,10 +429,12 @@ def doctor_detail(request, doc_id):
 # ==============================
 def appointments_view(request):
     patient = Patient.objects.filter(user=request.user).first()
-    apps = patient.appointments.all()
-    upcoming = apps.filter(status__in=['REQUESTED', 'APPROVED'], preferred_date__gte=timezone.now().date())
-    past = apps.filter(status='COMPLETED') | apps.filter(preferred_date__lt=timezone.now().date()).exclude(status__in=['CANCELLED', 'REJECTED'])
+    apps = patient.appointments.all().order_by('-created_at')
+    
+    upcoming = apps.filter(status__in=['REQUESTED', 'APPROVED', 'IN_CONSULTATION'])
+    past = apps.filter(status='COMPLETED')
     cancelled = apps.filter(status__in=['CANCELLED', 'REJECTED'])
+    
     return render(request, 'patient/appointments.html', {
         'patient': patient, 'upcoming': upcoming, 'past': past, 'cancelled': cancelled
     })
@@ -437,8 +447,9 @@ def book_appointment(request):
         if form.is_valid():
             dup = Appointment.objects.filter(
                 patient=patient, preferred_date=form.cleaned_data['preferred_date'], 
+                appointment_time=form.cleaned_data['appointment_time'],
                 doctor=form.cleaned_data['doctor'], hospital=form.cleaned_data['hospital'],
-                status__in=['REQUESTED', 'APPROVED']
+                status__in=['REQUESTED', 'APPROVED', 'IN_CONSULTATION']
             ).exists()
             if dup:
                 messages.error(request, 'You already have an active appointment request for this date/target.')

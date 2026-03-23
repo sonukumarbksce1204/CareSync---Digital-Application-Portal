@@ -33,7 +33,7 @@
         <div class="hospital-grid">
             {% for app in upcoming %}
                 <div class="hospital-card" style="padding: 15px; border-radius: 8px; border-left: 5px solid #3b82f6;">
-                    <p><strong>Date:</strong> {{ app.preferred_date }}</p>
+                    <p><strong>Date & Time:</strong> {{ app.preferred_date }} at {{ app.appointment_time|default:"TBD" }}</p>
                     {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
                     {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
                     <p><strong>Status:</strong> <span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
@@ -55,9 +55,12 @@
         <div class="hospital-grid">
             {% for app in past %}
                 <div class="hospital-card" style="padding: 15px; border-radius: 8px; border-left: 5px solid #22c55e;">
-                    <p><strong>Date:</strong> {{ app.preferred_date }}</p>
+                    <p><strong>Date & Time:</strong> {{ app.preferred_date }} at {{ app.appointment_time|default:"TBD" }}</p>
                     {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
                     {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    {% if app.doctor_instructions %}
+                        <p style="margin-top:5px; background: #f0fdf4; padding: 8px; border-radius: 4px; border-left: 2px solid #22c55e;"><strong>Instructions:</strong> {{ app.doctor_instructions }}</p>
+                    {% endif %}
                     <p><strong>Status:</strong> <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
                 </div>
             {% empty %}
@@ -72,9 +75,15 @@
         <div class="hospital-grid">
             {% for app in cancelled %}
                 <div class="hospital-card" style="padding: 15px; border-radius: 8px; border-left: 5px solid #ef4444; opacity: 0.7;">
-                    <p><strong>Date:</strong> {{ app.preferred_date }}</p>
+                    <p><strong>Date & Time:</strong> {{ app.preferred_date }} at {{ app.appointment_time|default:"TBD" }}</p>
                     {% if app.doctor %}<p><strong>Doctor:</strong> Dr. {{ app.doctor.full_name }}</p>{% endif %}
                     {% if app.hospital %}<p><strong>Hospital:</strong> {{ app.hospital.name }}</p>{% endif %}
+                    {% if app.rejection_reason %}
+                        <p><strong>Reason:</strong> {{ app.rejection_reason }}</p>
+                    {% endif %}
+                    {% if app.cancellation_reason %}
+                        <p><strong>Reason:</strong> {{ app.cancellation_reason }}</p>
+                    {% endif %}
                     <p><strong>Status:</strong> <span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size:12px;">{{ app.get_status_display }}</span></p>
                 </div>
             {% empty %}
