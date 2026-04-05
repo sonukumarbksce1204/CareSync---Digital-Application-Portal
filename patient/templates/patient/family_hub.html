@@ -1,113 +1,117 @@
+{% extends 'patient/patient_base.html' %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
-<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
 
-{% if messages %}
-    {% for message in messages %}
-        <div style="padding:15px; margin-bottom:20px; border-radius:8px; color:#fff; background-color:{% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% else %}#f59e0b{% endif %};">
-            {{ message }}
+{% block title %}Family Health Hub | CareSync{% endblock %}
+
+{% block content %}
+<div class="page-header" style="text-align: center; margin-bottom: 40px; padding-bottom: 20px;">
+    <h1 class="page-title">Family Health Hub</h1>
+    <p class="page-subtitle">Manage and monitor health records for your entire family securely.</p>
+    
+    <div style="display: inline-flex; flex-direction: column; gap: 10px; margin-top: 25px; background: #fff; padding: 20px 30px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); text-align: left;">
+        <div style="display: flex; gap: 40px;">
+            <div>
+                <span style="color: var(--text-muted); font-size: 13px; font-weight: 600;">Family Health ID</span>
+                <div style="font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: 1px;">{{ family.family_id }}</div>
+            </div>
+            <div style="width: 1px; background: var(--border-color);"></div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 13px; font-weight: 600;">Family Head</span>
+                <div style="font-size: 18px; font-weight: 700; color: var(--dark);">{{ family.head.user.get_full_name|default:family.head.user.username }}</div>
+            </div>
         </div>
-    {% endfor %}
-{% endif %}
-
-<div class="navbar">
-  <div class="nav-left">
-      <div class="logo">CareSync</div>
-      <div class="tagline">Digital Care. Peaceful Healing.</div>
-  </div>
-  <div class="nav-right">
-      <div class="profile">
-          <span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span>
-          <div class="profile-dropdown">
-              <a href="{% url 'patient_dashboard' %}">Back to Dashboard</a>
-              <a href="{% url 'patient_logout' %}">Logout</a>
-          </div>
-      </div>
-  </div>
+        
+        {% if is_head %}
+        <div style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+            <a href="{% url 'change_family_head' %}" class="premium-btn btn-secondary" style="font-size: 13px; padding: 8px 16px;">Manage Head of Family</a>
+        </div>
+        {% endif %}
+    </div>
 </div>
 
-<div class="hero-section">
-    <strong><h1 style="color: rgb(43, 33, 33);">Family Health Hub</h1></strong>
-    <div class="patient-id-box">
-        <p><strong style="color: black;">Family Health ID:</strong> <span class="highlight-id" style="color: black;">{{ family.family_id }}</span></p>
-        <p><strong style="color: black;">Family Head:</strong> <span style="color: black;">{{ family.head.user.get_full_name|default:family.head.user.username }}</span></p>
+<!-- ================= FAMILY SUMMARY ================= -->
+<div class="glass-panel" style="border-top: 4px solid var(--danger);">
+    <h3 style="color: var(--dark); margin-bottom: 8px;">Family Health Indicators</h3>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">Aggregated insights for genetic & chronic risks within your family.</p>
+    
+    <div class="grid-cards">
+        {% for item in summary %}
+            <div class="premium-card">
+                <h4 style="color: var(--dark); font-size: 16px; font-weight: 700; margin-bottom: 8px;">{{ item.disease_name }}</h4>
+                <div style="margin-bottom: 15px;"><span class="badge badge-danger">Detected in {{ item.occurrences }} member(s)</span></div>
+                <p style="font-size: 14px; color: var(--text-main); margin-bottom: 0; padding: 10px; background: #f8f9fa; border-radius: var(--radius-sm);"><strong>Affected:</strong> {{ item.patients|join:", " }}</p>
+            </div>
+        {% empty %}
+            <div class="premium-card" style="border-left: 4px solid var(--success);">
+                <h4 style="color: var(--dark); font-size: 16px; margin-bottom: 8px;">Healthy Profile</h4>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 0;">No hereditary or chronic flags tracked in the family yet.</p>
+            </div>
+        {% endfor %}
     </div>
-    {% if is_head %}
-    <a href="{% url 'change_family_head' %}" class="btn primary" style="margin-top:15px; display:inline-block;">⚙️ Manage Head of Family</a>
-    {% endif %}
 </div>
 
-<div class="dashboard">
-
-    <!-- FAMILY SUMMARY (Hereditary logic) -->
-    <div class="section">
-        <h3>Family Health Indicators</h3>
-        <p class="info-text">Aggregated insights for genetic & chronic risks within your family.</p>
-        <div class="hospital-grid">
-            {% for item in summary %}
-                <div class="hospital-card" style="border-left: 4px solid #b91c1c; padding-bottom: 10px;">
-                    <h4>{{ item.disease_name }}</h4>
-                    <p>⚠️ Detected in {{ item.occurrences }} member(s)</p>
-                    <p style="font-size: 13px; color: #b91c1c; margin-top: 5px;"><strong>Affected:</strong> {{ item.patients|join:", " }}</p>
-                </div>
-            {% empty %}
-                <div class="hospital-card" style="border-left: 4px solid #10b981;">
-                    <h4>Healthy Profile</h4>
-                    <p>No hereditary flags tracked.</p>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- PENDING REQUESTS -->
-    {% if is_head and pending_requests %}
-    <div class="section" style="border-left: 6px solid #f59e0b;">
-        <h3>Pending Join Requests</h3>
+<!-- ================= PENDING REQUESTS ================= -->
+{% if is_head and pending_requests %}
+<div class="glass-panel" style="border-top: 4px solid var(--warning);">
+    <h3 style="color: var(--dark); margin-bottom: 25px;">Pending Join Requests</h3>
+    
+    <div class="grid-cards">
         {% for req in pending_requests %}
-            <div class="hospital-card" style="margin-bottom: 15px;">
-                <p><strong>{{ req.patient.user.get_full_name|default:req.patient.user.username }}</strong> requested relationship to head: <strong>{{ req.get_requested_relationship_display }}{% if req.requested_relationship == 'OTHER' and req.custom_relationship %} ({{ req.custom_relationship }}){% endif %}</strong>.</p>
-                <div class="actions">
-                    <form method="POST" action="{% url 'review_join_request' req_id=req.id action='APPROVE' %}">
+            <div class="premium-card" style="background: #fffdf5; border-color: #ffe69c;">
+                <p style="font-size: 15px; color: var(--dark); margin-bottom: 15px;">
+                    <strong>{{ req.patient.user.get_full_name|default:req.patient.user.username }}</strong> requested to join as 
+                    <span class="badge badge-warning">{{ req.get_requested_relationship_display }}{% if req.requested_relationship == 'OTHER' and req.custom_relationship %} ({{ req.custom_relationship }}){% endif %}</span>.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <form method="POST" action="{% url 'review_join_request' req_id=req.id action='APPROVE' %}" style="flex:1;">
                         {% csrf_token %}
-                        <button type="submit" class="btn primary" style="padding: 5px 10px; font-size: 12px; margin-top: 10px;">Approve</button>
+                        <button type="submit" class="premium-btn btn-primary" style="width: 100%; padding: 8px; font-size: 13px;">Approve</button>
                     </form>
-                    <form method="POST" action="{% url 'review_join_request' req_id=req.id action='REJECT' %}">
+                    <form method="POST" action="{% url 'review_join_request' req_id=req.id action='REJECT' %}" style="flex:1;">
                         {% csrf_token %}
-                        <button type="submit" class="btn secondary" style="padding: 5px 10px; font-size: 12px; margin-top: 10px; background-color: #ef4444; border-color: #ef4444; color: white;">Reject</button>
+                        <button type="submit" class="premium-btn btn-danger" style="width: 100%; padding: 8px; font-size: 13px;">Reject</button>
                     </form>
                 </div>
             </div>
         {% endfor %}
     </div>
+</div>
+{% endif %}
+
+<!-- ================= MEMBERS LIST ================= -->
+<div class="glass-panel" style="border-top: 4px solid var(--primary);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="color: var(--dark); margin: 0;">Family Members ({{ members.count }})</h3>
+    </div>
+    
+    {% if is_head %}
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">As Family Head, you have full access to view each member's medical history.</p>
+    {% else %}
+        <div class="alert info" style="font-size: 13px; margin-bottom: 25px;">
+            For privacy, you can only see the member list. Full medical records are restricted to the Family Head.
+        </div>
     {% endif %}
 
-    <!-- MEMBERS LIST -->
-    <div class="section">
-        <h3>Family Members ({{ members.count }})</h3>
-        {% if is_head %}
-            <p class="info-text">As Family Head, you have full access to view each member's medical history.</p>
-        {% else %}
-            <p class="info-text">For privacy, you can only see the member list. Full records are restricted to the Family Head.</p>
-        {% endif %}
-
-        <div class="history-grid">
-            {% for member in members %}
-                <div class="history-card">
-                    <p><strong>Name:</strong> {{ member.user.get_full_name|default:member.user.username }}</p>
-                    <p><strong>Relationship:</strong> {{ member.get_family_relationship_display|default:"Not specified" }}</p>
-                    <p><strong>Personal ID:</strong> {{ member.patient_id }}</p>
-                    
+    <div class="grid-cards">
+        {% for member in members %}
+            <div class="premium-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span class="badge badge-gray">{{ member.get_family_relationship_display|default:"Not specified" }}</span>
                     {% if member.is_deceased %}
-                        <p style="color: red; font-weight: bold;">[Deceased]</p>
-                    {% endif %}
-
-                    {% if is_head %}
-                        <hr>
-                        <a href="{% url 'member_history_view' member.id %}" class="btn secondary" style="padding: 5px 10px; font-size: 12px; margin-top: 5px;">View Full History</a>
+                        <span class="badge badge-danger">Deceased</span>
                     {% endif %}
                 </div>
-            {% endfor %}
-        </div>
+                
+                <h4 style="color: var(--dark); font-size: 16px; font-weight: 600; margin-bottom: 4px;">{{ member.user.get_full_name|default:member.user.username }}</h4>
+                <p style="color: var(--text-muted); font-size: 13px; font-weight: 500; margin-bottom: 15px;">ID: {{ member.patient_id }}</p>
+                
+                {% if is_head %}
+                    <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <a href="{% url 'member_history_view' member.id %}" class="premium-btn btn-secondary" style="width: 100%; font-size: 13px; text-align: center;">View Medical History</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
     </div>
-
 </div>
+{% endblock %}

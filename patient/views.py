@@ -167,6 +167,9 @@ def patient_dashboard(request):
                     print("🔍 NO ML CALL - selected empty or ml not available")
 
                 message = "Medical record added successfully."
+            else:
+                print("❌ Symptom Form Validation Failed:", form.errors)
+                message = "Failed to add clinical log. Please check your inputs."
 
     # ── Access control ─────────────────────────
     if patient.family and patient.family.head == patient:
@@ -182,6 +185,7 @@ def patient_dashboard(request):
     # Fetch consultation records and active diseases to pass to dashboard
     consultations = patient.consultations.filter(visible_to_patient=True).order_by('-created_at')
     diagnosed_diseases = patient.diseases.all().order_by('-diagnosed_date')
+    upcoming_appointments = patient.appointments.filter(status__in=['REQUESTED', 'APPROVED', 'IN_CONSULTATION']).order_by('preferred_date', 'appointment_time')
 
     return render(request, "patient/patient_dashboard.html", {
         "patient": patient,
@@ -189,6 +193,7 @@ def patient_dashboard(request):
         "symptoms": symptoms,
         "consultations": consultations,
         "diagnosed_diseases": diagnosed_diseases,
+        "upcoming_appointments": upcoming_appointments,
         "symptom_form": SymptomForm(),
         "message": message,
         "prediction": prediction,

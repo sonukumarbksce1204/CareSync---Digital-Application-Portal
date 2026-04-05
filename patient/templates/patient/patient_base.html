@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CareSync | Digital Health Dashboard{% endblock %}</title>
+    
+    {% load static %}
+    <!-- Senior-level Enterprise Architecture Stylesheet -->
+    <link rel="stylesheet" href="{% static 'patient/patient_premium.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="app-container">
+    
+    <!-- ================= APP SIDEBAR ================= -->
+    <aside class="app-sidebar">
+        <!-- Brand -->
+        <div class="sidebar-header">
+            <a href="{% url 'patient_dashboard' %}" class="sidebar-logo">
+                <i class="fa-solid fa-square-poll-horizontal"></i>
+                <span>CareSync</span>
+            </a>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="sidebar-menu">
+            <div class="menu-label">Main Applications</div>
+            <a href="{% url 'patient_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'patient_dashboard' %}active{% endif %}">
+                <i class="fa-solid fa-house-medical"></i> Overview
+            </a>
+            <a href="{% url 'patient_appointments' %}" class="menu-item {% if request.resolver_match.url_name == 'patient_appointments' %}active{% endif %}">
+                <i class="fa-solid fa-calendar-check"></i> Consultations
+            </a>
+            <a href="{% url 'patient_medical_history' %}" class="menu-item {% if request.resolver_match.url_name == 'patient_medical_history' %}active{% endif %}">
+                <i class="fa-solid fa-folder-open"></i> Health Records
+            </a>
+            
+            <div class="menu-label">Network Directory</div>
+            <a href="{% url 'patient_doctors' %}" class="menu-item {% if request.resolver_match.url_name == 'patient_doctors' %}active{% endif %}">
+                <i class="fa-solid fa-user-doctor"></i> Medical Staff
+            </a>
+            <a href="{% url 'patient_hospitals' %}" class="menu-item {% if request.resolver_match.url_name == 'patient_hospitals' %}active{% endif %}">
+                <i class="fa-solid fa-hospital"></i> Facilities
+            </a>
+            
+            <div class="menu-label">Administration</div>
+            <a href="{% url 'patient_family_hub' %}" class="menu-item {% if request.resolver_match.url_name == 'patient_family_hub' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i> Family Hub
+            </a>
+            <a href="{% url 'patient_profile' %}" class="menu-item {% if request.resolver_match.url_name == 'patient_profile' %}active{% endif %}">
+                <i class="fa-solid fa-address-card"></i> Settings
+            </a>
+        </nav>
+
+        <!-- User Footer profile -->
+        {% if request.user.is_authenticated %}
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">
+                    {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                    <span class="user-role">Verified Patient</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </aside>
+
+    <!-- ================= MAIN CONTENT AREA ================= -->
+    <main class="app-main">
+        
+        <!-- Top Toolbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <form method="GET" action="{% url 'patient_hospitals' %}" class="search-bar">
+                    <button type="submit" style="background:none; border:none; cursor:pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <input type="text" name="q" placeholder="Search conditions, doctors...">
+                </form>
+            </div>
+            
+            <div class="topbar-right">
+                <a href="{% url 'disease_predictor' %}" class="premium-btn btn-primary" style="font-size: 13px; padding: 8px 16px;">
+                    <i class="fa-solid fa-microchip"></i> PredictaCare
+                </a>
+                
+                <div class="icon-btn">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </div>
+                
+                <a href="{% url 'patient_logout' %}" style="margin-left: 10px; color: var(--text-muted);" title="Sign out safely">
+                    <div class="icon-btn" style="background: transparent;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </div>
+                </a>
+            </div>
+        </header>
+        
+        <!-- Content View -->
+        <div class="content-wrapper">
+            <!-- Global Django Messages -->
+            {% if messages %}
+                <div style="margin-bottom: 25px;">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}">
+                        <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}
+            <!-- Dynamic Inject -->
+            {% endblock %}
+        </div>
+        
+    </main>
+</div>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

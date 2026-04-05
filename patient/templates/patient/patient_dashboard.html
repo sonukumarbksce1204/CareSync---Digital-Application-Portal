@@ -1,737 +1,233 @@
+{% extends 'patient/patient_base.html' %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
 
-<!-- Background Slideshow -->
-<div class="background-slideshow">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-</div>
+{% block title %}Patient Control Center | CareSync{% endblock %}
 
-<!-- ================= NAVBAR ================= -->
-<div class="navbar">
-
-  <!-- Left -->
-  <div class="nav-left">
-      <div class="logo">CareSync</div>
-      <div class="tagline">Digital Care. Peaceful Healing.</div>
-  </div>
-
-  <!-- Center -->
-  <ul class="nav-links">
-      <li><a href="{% url 'patient_hospitals' %}">Hospitals</a></li>
-      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
-      <li><a href="{% url 'patient_doctors' %}">Doctors</a></li>
-      <li><a href="{% url 'contact' %}">Contact Us</a></li>
-  </ul>
-
-  <!-- Right -->
-  <div class="nav-right">
-      <div class="profile">
-          <span class="profile-name">
-             <h2><strong>{{ request.user.username }}</strong></h2>
-          </span>
-
-          <div class="profile-dropdown">
-              <a href="{% url 'patient_profile' %}">View Profile</a>
-              <a href="{% url 'patient_logout' %}">Logout</a>
-          </div>
-      </div>
-  </div>
-</div>
-
-<!-- ================= HERO SECTION ================= -->
-<div class="hero-section">
-    <strong><h1 style="color: rgb(43, 33, 33);">Welcome, {{ request.user.username }}</h1></strong>
-
-    <!-- Patient & Family ID Section -->
-    <div class="patient-id-box">
-        <p>
-            <strong style="color: black;">Your Patient ID:</strong>
-            <span class="highlight-id" style="color: black;">{{ patient.patient_id }}</span>
-        </p>
-
-        {% if patient.family %}
-            <p>
-                <strong style="color: black;">Your Family ID:</strong>
-                <span class="highlight-id" style="color: black;">{{ patient.family.family_id }}</span>
-            </p>
-            <a href="{% url 'patient_family_hub' %}" class="btn secondary" style="margin-top: 10px; display: inline-block;">
-                🏥 &nbsp; Enter Family Hub
-            </a>
-        {% endif %}
+{% block content %}
+<!-- Page Header Panel -->
+<div class="page-header" style="margin-bottom: 30px; display: flex; align-items: flex-end; justify-content: space-between;">
+    <div>
+        <h1 class="page-title">Welcome back, {{ request.user.first_name|default:request.user.username }}</h1>
+        <p class="page-subtitle">Personal Health ID: <strong style="color: var(--primary);">{{ patient.patient_id }}</strong></p>
     </div>
-
-    <!-- AI Predictor CTA Button -->
-    <a href="{% url 'disease_predictor' %}" class="ai-cta-btn">
-        🤖 &nbsp; Know Your Disease &nbsp; →
-    </a>
+    <div style="font-size: 14px; font-weight: 500; color: var(--text-muted); background: var(--surface); padding: 8px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+        <i class="fa-regular fa-clock" style="margin-right: 6px;"></i> {% now "l, F j, Y" %}
+    </div>
 </div>
 
-<div class="dashboard">
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding:15px; margin-bottom:20px; border-radius:8px; color:#fff; background-color:{% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% else %}#f59e0b{% endif %};">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <!-- ================= FAMILY MANAGEMENT ================= -->
-    <div class="section">
-        <h3>Family Management</h3>
-
-        {% if message %}
-            <p class="success-message">{{ message }}</p>
-        {% endif %}
-
-        <!-- Join Family -->
-        {% if not patient.family %}
-        <p style="font-size: 13px; color: #555; margin-bottom: 5px;">Select your relationship to the current Head of this Family.</p>
-        <form method="POST" action="{% url 'request_join_family' %}" class="family-form">
-            {% csrf_token %}
-            <input type="text" name="family_id" placeholder="Enter Family ID" required>
-            <select name="relationship" id="id_relationship" required style="padding: 10px; border-radius: 5px; margin-bottom: 10px; width: 100%; border: 2px solid #e0e7ff; background: #fff;">
-                <option value="SPOUSE">Spouse</option>
-                <option value="SON">Son</option>
-                <option value="DAUGHTER">Daughter</option>
-                <option value="FATHER">Father</option>
-                <option value="MOTHER">Mother</option>
-                <option value="BROTHER">Brother</option>
-                <option value="SISTER">Sister</option>
-                <option value="GRANDFATHER">Grandfather</option>
-                <option value="GRANDMOTHER">Grandmother</option>
-                <option value="GUARDIAN">Guardian</option>
-                <option value="OTHER">Other</option>
-            </select>
-            <div id="custom-relationship-wrapper" style="display: none; margin-bottom: 10px;">
-                <input type="text" name="custom_relationship" id="id_custom_relationship" placeholder="Please specify relationship" class="input-field" style="width: 100%;">
-            </div>
-            <button type="submit" class="btn secondary">
-                Request to Join Family
-            </button>
-        </form>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const relSelect = document.getElementById('id_relationship');
-                const wrapper = document.getElementById('custom-relationship-wrapper');
-                if (relSelect) {
-                    relSelect.addEventListener('change', function() {
-                         wrapper.style.display = this.value === 'OTHER' ? 'block' : 'none';
-                    });
-                }
-            });
-        </script>
-
-        <hr class="divider">
-
-        <!-- Generate Family -->
-        <form method="POST" action="{% url 'patient_dashboard' %}">
-            {% csrf_token %}
-            <button type="submit" name="generate_family" class="btn primary">
-                Generate New Family ID
-            </button>
-        </form>
-        {% endif %}
-
-        {% if patient.family %}
-            <div class="family-info">
-                <p><strong>Current Family ID:</strong> {{ patient.family.family_id }}</p>
-
-                {% if patient.family.head == patient %}
-                    <p class="family-badge">You are the Head of this Family</p>
-                {% endif %}
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- ================= TOP HOSPITALS ================= -->
-    <div class="section">
-        <h3>Top Hospitals</h3>
-
-        <div class="hospital-grid">
-            {% for hospital in hospitals %}
-                <div class="hospital-card">
-                    <h4>{{ hospital.name }}</h4>
-                    <p>{{ hospital.city }}</p>
-                </div>
-            {% empty %}
-                <p>No hospitals available</p>
-            {% endfor %}
+<!-- ================= QUICK METRICS ROW ================= -->
+<div class="metric-grid">
+    <div class="metric-card">
+        <div class="metric-icon blue"><i class="fa-solid fa-file-waveform"></i></div>
+        <div class="metric-content">
+            <h4>Total Clinical Logs</h4>
+            <div class="value">{{ patient.symptoms.count|default:"0" }}</div>
         </div>
     </div>
+    
+    <div class="metric-card">
+        <div class="metric-icon teal"><i class="fa-solid fa-calendar-check"></i></div>
+        <div class="metric-content">
+            <h4>Active Consultations</h4>
+            <div class="value">{{ upcoming_appointments.count|default:"0" }}</div>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <div class="metric-icon purple"><i class="fa-solid fa-id-card-clip"></i></div>
+        <div class="metric-content">
+            <h4>Family Network</h4>
+            <div class="value">
+                {% if patient.family %}{{ patient.family.members.count }}{% else %}None{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- ================= ADD MEDICAL RECORD ================= -->
-    <div class="section">
-        <h3>Add Medical Record</h3>
-            <form method="POST"
-                  action="{% url 'patient_dashboard' %}"
-                  enctype="multipart/form-data"
-                  class="symptom-form"
-                  id="medical-record-form">
+<!-- ================= MAIN DASHBOARD GRID ================= -->
+<div style="display: flex; flex-wrap: nowrap; gap: 30px; margin-bottom: 40px; align-items: flex-start; min-width: 900px;">
+    
+    <!-- LEFT COLUMN: AI Tool & Symptom Logger -->
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 30px; min-width: 0;">
+        
+        <!-- EXPLICIT AI PREDICTOR CTA RESTORED -->
+        {% if message %}
+        <div class="alert success" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-circle-check"></i> {{ message }}
+        </div>
+        {% endif %}
 
+        <div class="ai-card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="font-size: 22px; color: #fff; margin-bottom: 8px;"><i class="fa-solid fa-microchip" style="margin-right: 8px; color: var(--primary-light);"></i> PredictaCare</h3>
+                <p style="color: #CBD5E1; font-size: 14px; margin: 0; max-width: 400px;">
+                    <strong style="color: #A7F3D0; display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Where AI Meets Preventive Care</strong>
+                    Use our advanced Machine Learning algorithm to analyze your symptoms and predict potential diagnoses instantly.
+                </p>
+            </div>
+            <a href="{% url 'disease_predictor' %}" class="premium-btn" style="background: #FFFFFF; color: var(--text-dark) !important; padding: 12px 24px; font-weight: 700;">
+                Run PredictaCare &rarr;
+            </a>
+        </div>
+
+        <!-- Inline Symptom Logger -->
+        <div class="glass-panel" style="margin-bottom: 0;">
+            <div class="panel-header">
+                <h3><i class="fa-solid fa-stethoscope"></i> Clinical Symptom Logger</h3>
+            </div>
+            
+            <form method="POST" action="{% url 'patient_dashboard' %}" enctype="multipart/form-data">
                 {% csrf_token %}
-                <input type="hidden" name="form_type" value="add_symptom">
-
-                <!-- ── Symptom Autocomplete ── -->
-                <div class="sym-ac-wrapper">
-                    <label class="sym-ac-label">Symptoms <span class="sym-ac-hint">(type to search, add multiple)</span></label>
-
-                    <div class="sym-ac-input-wrap">
-                        <span class="sym-ac-icon">🔍</span>
-                        <input type="text"
-                               id="sym-search"
-                               class="sym-ac-input"
-                               placeholder="e.g. fever, headache, fatigue…"
-                               autocomplete="off">
-                        <div class="sym-dropdown" id="sym-dropdown"></div>
+                
+                <div class="form-group">
+                    <label>Clinical Observations (Symptoms)</label>
+                    <textarea name="description" placeholder="E.g., Experiencing sharp abdominal pain and mild fever since yesterday..." class="premium-input" rows="3" required></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Symptom Duration (Days)</label>
+                        <input type="number" name="duration_days" class="premium-input" placeholder="e.g. 3">
                     </div>
-
-                    <div class="sym-chips" id="sym-chips">
-                        <span class="sym-chips-placeholder" id="sym-placeholder">Selected symptoms will appear here…</span>
+                    <div class="form-group">
+                        <label>Medications Taken</label>
+                        <input type="text" name="medicines_taken" class="premium-input" placeholder="e.g. Paracetamol">
                     </div>
-
-                    <textarea name="description" id="sym-description" style="display:none" required></textarea>
-                    <div class="sym-count" id="sym-count"></div>
                 </div>
-
-                <!-- ── Address ── -->
-                <div>
-                    <label>Current Address</label>
-                    {{ symptom_form.address }}
+                
+                <div class="form-group" style="padding: 15px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); background: var(--bg-main); margin-bottom: 25px;">
+                    <label style="margin-bottom: 4px;">Attach Medical Support Image (Optional)</label>
+                    <input type="file" name="image" accept="image/*" style="font-size: 13px; font-family: inherit;">
                 </div>
-
-                <!-- ── Duration ── -->
-                <div>
-                    <label>Duration (days)</label>
-                    {{ symptom_form.duration_days }}
-                </div>
-
-                <!-- ── Medicines ── -->
-                <div>
-                    <label>Medicines Taken</label>
-                    {{ symptom_form.medicines_taken }}
-                </div>
-
-                <!-- ── Improvement ── -->
-                <div>
-                    <label>Current Status</label>
-                    {{ symptom_form.improvement }}
-                </div>
-
-                <!-- ── Image ── -->
-                <div>
-                    <label>Symptom Image (optional)</label>
-                    {{ symptom_form.image }}
-                </div>
-
-                <!-- ── Test Report ── -->
-                <div>
-                    <label>Test Report (optional)</label>
-                    {{ symptom_form.test_report }}
-                </div>
-
-                <button type="submit" name="add_symptom" value="1" class="btn primary" id="submit-record-btn">
-                    🔬 &nbsp;Submit &amp; Predict Disease
+                
+                <input type="hidden" name="address" value="{{ patient.address|default:'Not provided' }}">
+                
+                <button type="submit" name="add_symptom" class="premium-btn btn-primary" style="width: 100%;">
+                    Log Symptoms for Doctor Review
                 </button>
             </form>
-    </div>
-
-    <!-- ================= AI DIAGNOSIS RESULT ================= -->
-    {% if prediction %}
-    <div class="section ai-result-card">
-        <div class="ai-result-header">
-            <span class="ai-icon">🤖</span>
-            <h3>AI Diagnosis Result</h3>
         </div>
-        <div class="ai-result-body">
-            <p class="ai-disease">{{ prediction.disease }}</p>
-            <div class="confidence-bar-wrap">
-                <div class="confidence-bar" style="width: {{ prediction.confidence }}%"></div>
+
+        <!-- RECENT CLINICAL LOGS -->
+        {% if symptoms %}
+        <div class="glass-panel" style="margin-bottom: 0;">
+            <div class="panel-header" style="margin-bottom: 15px; padding-bottom: 15px;">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Medical Logs</h3>
             </div>
-            <p class="ai-confidence">Confidence: <strong>{{ prediction.confidence }}%</strong></p>
-            {% if prediction.recognized %}
-                <p class="ai-recognized">Matched symptoms: {{ prediction.recognized|join:", " }}</p>
-            {% endif %}
-            <p class="ai-disclaimer">⚠️ This is an AI suggestion only. Please consult a qualified doctor for diagnosis.</p>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if error %}
-    <div class="section">
-        <p class="error-message">{{ error }}</p>
-    </div>
-    {% endif %}
-
-    <!-- ================= DIAGNOSED DISEASES ================= -->
-    {% if diagnosed_diseases %}
-    <div class="section">
-        <h3>Diagnosed Diseases</h3>
-        <div class="history-grid">
-            {% for pd in diagnosed_diseases %}
-                <div class="history-card" style="border-left: 4px solid #ef4444;">
-                    <small>Diagnosed on: {{ pd.diagnosed_date|date:"d M Y" }}</small>
-                    <h4 style="color:#b91c1c;">{{ pd.disease.name }}</h4>
-                    <div style="margin-top: 10px;">
-                    {% if pd.disease.is_hereditary %}
-                        <span style="background: #fef2f2; color: #b91c1c; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">🧬 Hereditary</span>
-                    {% endif %}
-                    {% if not pd.is_active %}
-                        <span style="background: #f3f4f6; color: #6b7280; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">Resolved</span>
-                    {% endif %}
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                {% for symptom in symptoms|slice:":3" %}
+                <div style="padding: 15px; border-left: 3px solid var(--primary); background: #FFFFFF; border-radius: var(--radius-sm); border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                    <div style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">{{ symptom.description }}</div>
+                    <div style="font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                        <span><i class="fa-regular fa-calendar-plus" style="margin-right: 4px;"></i> {{ symptom.created_at|date:"M d, Y" }}</span>
+                        <span class="badge {% if symptom.ai_prediction_status == 'PENDING_REVIEW' %}badge-warning{% else %}badge-success{% endif %}">
+                            {{ symptom.get_ai_prediction_status_display }}
+                        </span>
                     </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+            {% if symptoms.count > 3 %}
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'patient_medical_history' %}" class="premium-btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">View All Logs</a>
+            </div>
+            {% endif %}
         </div>
-    </div>
-    {% endif %}
-
-    <!-- ================= CONSULTATION RECORDS ================= -->
-    {% if consultations %}
-    <div class="section">
-        <h3>Consultation Records</h3>
-        <div class="history-grid">
-            {% for consult in consultations %}
-                <div class="history-card" style="border-left: 4px solid #3b82f6;">
-                    <small>{{ consult.created_at|date:"d M Y, h:i A" }}</small>
-                    <h4 style="color:#1d4ed8; margin-bottom: 5px;">Dr. {{ consult.doctor.full_name }}</h4>
-                    <p><strong>Diagnosis:</strong> {{ consult.diagnosis_text|default:"Refer to clinic notes" }}</p>
-                    <p><strong>Clinical Notes:</strong> {{ consult.notes }}</p>
-                    {% if consult.doctor_instructions %}
-                        <p><strong>Instructions:</strong> {{ consult.doctor_instructions }}</p>
-                    {% endif %}
-                    {% if consult.follow_up_date %}
-                        <p><strong>Follow-up:</strong> {{ consult.follow_up_date|date:"d M Y" }}</p>
-                    {% endif %}
-                    {% if consult.prescription_document %}
-                        <p style="margin-top:10px;">
-                            <a href="{{ consult.prescription_document.url }}" target="_blank" class="btn secondary" style="font-size: 12px; padding: 5px 10px; display:inline-block; border: 1px solid #ccc;">📄 Download Prescription</a>
-                        </p>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- ================= MEDICAL HISTORY ================= -->
-    <div class="section">
-
-        {% if patient.family and patient.family.head == patient %}
-            <h3>Family Medical History</h3>
-            <p class="info-text">
-                You are viewing all family members' records.
-            </p>
-        {% else %}
-            <h3>Your Medical History</h3>
         {% endif %}
 
-        <div class="history-grid">
-            {% for symptom in symptoms %}
-                <div class="history-card">
-
-                    <small>
-                        {{ symptom.created_at|date:"d M Y, h:i A" }}
-                    </small>
-
-                    {% if patient.family and patient.family.head == patient %}
-                        <p><strong>Patient:</strong> {{ symptom.patient.user.username }}</p>
-                    {% endif %}
-
-                    <p><strong>Description:</strong> {{ symptom.description }}</p>
-                    
-                    <div style="margin-top:10px; margin-bottom:10px;">
-                        {% if symptom.ai_prediction_status == 'PENDING_REVIEW' %}
-                            <span style="background: #fef08a; color: #854d0e; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">⏳ Pending Doctor Review</span>
-                        {% elif symptom.ai_prediction_status == 'APPROVED' %}
-                            <span style="background: #bbf7d0; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">✅ Verified by Doctor</span>
-                        {% elif symptom.ai_prediction_status == 'MODIFIED' %}
-                            <span style="background: #bfdbfe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">🔄 Updated by Doctor</span>
-                        {% elif symptom.ai_prediction_status == 'REJECTED' %}
-                            <span style="background: #fecaca; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">❌ Rejected by Doctor</span>
-                        {% endif %}
-                    </div>
-                    
-                    <a href="{% url 'symptom_detail' symptom.id %}" class="btn secondary" style="font-size: 12px; padding: 5px 10px; display:inline-block; margin-bottom:10px;">🔍 View Details</a>
-
-                    {% if symptom.ai_prediction_status == 'PENDING_REVIEW' and symptom.patient == patient %}
-                        <form method="POST" action="{% url 'delete_symptom' symptom.id %}" style="display:inline;" onsubmit="return confirm('Archive this record?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn secondary" style="font-size: 12px; padding: 5px 10px; background-color:#fecaca; color:#991b1b; border:none; margin-left: 5px; cursor: pointer;">🗑 Archive</button>
-                        </form>
-                    {% endif %}
-
-                    {% if symptom.duration_days %}
-                        <p><strong>Duration:</strong> {{ symptom.duration_days }} days</p>
-                    {% endif %}
-
-                    {% if symptom.medicines_taken %}
-                        <p><strong>Medicines Taken:</strong> {{ symptom.medicines_taken }}</p>
-                    {% endif %}
-
-                    {% if symptom.improvement %}
-                        <p><strong>Status:</strong> {{ symptom.get_improvement_display }}</p>
-                    {% endif %}
-
-                    {% if symptom.image %}
-                        <img src="{{ symptom.image.url }}" alt="Symptom Image">
-                    {% endif %}
-
-                    {% if symptom.test_report %}
-                        <p>
-                            <a href="{{ symptom.test_report.url }}" target="_blank">
-                                View Test Report
-                            </a>
-                        </p>
-                    {% endif %}
-
-                    {% if symptom.predicted_disease %}
-                    <div style="margin-top:15px; background:#f0f9ff; padding:10px; border-radius:6px; font-size:13px; border-left:4px solid #3b82f6;">
-                        <p><strong>AI Prediction:</strong> {{ symptom.predicted_disease }} ({{ symptom.prediction_confidence|floatformat:1 }}% confidence)</p>
-                        {% if symptom.ai_prediction_status == 'MODIFIED' %}
-                            <p style="color:#1e40af; margin-top:5px;"><strong>Doctor Modified Diagnosis:</strong> {{ symptom.doctor_modified_diagnosis_text }}</p>
-                        {% elif symptom.ai_prediction_status == 'APPROVED' %}
-                            <p style="color:#166534; margin-top:5px;"><strong>Status:</strong> Approved as correct by doctor.</p>
-                        {% endif %}
-                        {% if symptom.ai_prediction_status != 'PENDING_REVIEW' and symptom.doctor_diagnosis_notes %}
-                            <p><strong>Doctor Notes:</strong> {{ symptom.doctor_diagnosis_notes }}</p>
-                        {% endif %}
-                        {% if symptom.verification_note %}
-                            <p><strong>Verification Note:</strong> {{ symptom.verification_note }}</p>
-                        {% endif %}
-                        {% if symptom.verified_by_doctor %}
-                            <p style="color:#64748b; font-size:11px; margin-top:5px;">Verified by Dr. {{ symptom.verified_by_doctor.full_name }} on {{ symptom.verified_at|date:"d M Y" }}</p>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-
+    </div>
+    
+    <!-- RIGHT COLUMN: Fast access, upcoming, Family Actions -->
+    <div style="flex: 0 0 360px; display: flex; flex-direction: column; gap: 30px;">
+        
+        <div class="glass-panel" style="margin-bottom: 0; padding: 25px;">
+            <div class="panel-header">
+                <h3><i class="fa-solid fa-users"></i> Family Hub</h3>
+            </div>
+            
+            {% if patient.family %}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: var(--bg-main); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">FAMILY ID</span>
+                    <span style="font-size: 16px; font-weight: 800; color: var(--text-dark); background: #FFFFFF; padding: 4px 10px; border-radius: 4px; box-shadow: var(--shadow-sm);">{{ patient.family.family_id }}</span>
                 </div>
-            {% empty %}
-                <p>No records available yet.</p>
-            {% endfor %}
+                
+                <p style="font-size: 13px; color: var(--text-main); margin-bottom: 15px;">You are linked to <strong>{{ patient.family.members.count }}</strong> members in your family vault.</p>
+                
+                <a href="{% url 'patient_family_hub' %}" class="premium-btn btn-secondary" style="width: 100%;">Manage Family</a>
+            {% else %}
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; text-align: center;">You are not securely linked to any family health network yet.</p>
+                
+                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 15px; background: #FAFAFA; margin-bottom: 20px;">
+                    <h4 style="font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; text-align: center;">Create New Family</h4>
+                    <form method="POST" action="{% url 'patient_dashboard' %}">
+                        {% csrf_token %}
+                        <button type="submit" name="generate_family" class="premium-btn btn-success" style="width: 100%;">
+                            <i class="fa-solid fa-plus" style="margin-right: 6px;"></i> Generate Family ID
+                        </button>
+                    </form>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <span style="font-size: 12px; font-weight: 600; color: #94A3B8; text-transform: uppercase;">or join existing</span>
+                </div>
+                
+                <form method="POST" action="{% url 'request_join_family' %}" class="premium-form">
+                    {% csrf_token %}
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <input type="text" name="family_id" class="premium-input" placeholder="Enter 6-Digit Family ID" required style="text-align: center; letter-spacing: 2px; font-weight: 600;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <select name="relationship" class="premium-input" required>
+                            <option value="">Your Relationship</option>
+                            <option value="SPOUSE">Spouse</option>
+                            <option value="SON">Son</option>
+                            <option value="DAUGHTER">Daughter</option>
+                            <option value="FATHER">Father</option>
+                            <option value="MOTHER">Mother</option>
+                            <option value="BROTHER">Brother</option>
+                            <option value="SISTER">Sister</option>
+                            <option value="GRANDFATHER">Grandfather</option>
+                            <option value="GRANDMOTHER">Grandmother</option>
+                            <option value="GUARDIAN">Guardian</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="premium-btn btn-primary" style="width: 100%;">
+                        Request Access
+                    </button>
+                </form>
+            {% endif %}
         </div>
+
+        <div class="glass-panel" style="margin-bottom: 0; padding: 25px;">
+            <div class="panel-header">
+                <h3><i class="fa-regular fa-clock"></i> Upcoming Consults</h3>
+            </div>
+            
+            {% if upcoming_appointments %}
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {% for appt in upcoming_appointments %}
+                        <div style="padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: #FFFFFF; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 13px; color: var(--text-dark); margin-bottom: 4px;">Dr. {{ appt.doctor.full_name }}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> {{ appt.date|date:"j M" }}, {{ appt.time|time:"g:i A" }}</div>
+                            </div>
+                            <span class="badge badge-warning">Scheduled</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 10px 0;">
+                    <div style="width: 45px; height: 45px; margin: 0 auto 10px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                        <i class="fa-solid fa-calendar-xmark" style="font-size: 18px;"></i>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">No active waitlist or schedules.</p>
+                    <a href="{% url 'book_appointment' %}" class="premium-btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">Book Visit</a>
+                </div>
+            {% endif %}
+        </div>
+        
     </div>
 </div>
 
-<!-- ================= FOOTER ================= -->
-<footer class="footer">
-    <div class="footer-container">
-
-        <div class="footer-section">
-            <h4>About CareSync</h4>
-            <p>
-                CareSync is a digital healthcare management platform designed
-                to simplify medical records, family health tracking, and
-                doctor-patient connectivity in one secure environment.
-            </p>
-        </div>
-
-        <div class="footer-section">
-            <h4>Contact Us</h4>
-            <p>Email: support@caresync.com</p>
-            <p>Phone: +91 98765 43210</p>
-            <p>Address:Jalandhar,Punjab,India</p>
-        </div>
-
-        <div class="footer-section">
-            <h4>Quick Links</h4>
-            <p><a href="{% url 'patient_hospitals' %}">Hospitals</a></p>
-            <p><a href="{% url 'patient_doctors' %}">Doctors</a></p>
-            <p><a href="{% url 'patient_appointments' %}">Appointments</a></p>
-            <p><a href="{% url 'privacy_policy' %}">Privacy Policy</a></p>
-        </div>
-
-    </div>
-
-    <div class="footer-bottom">
-        © 2026 CareSync. All Rights Reserved. <br>
-        Designed & Developed for Capstone Project.
-    </div>
-</footer>
-
-<style>
-.sym-ac-wrapper { display: flex; flex-direction: column; gap: 8px; }
-.sym-ac-label { font-weight: 600; color: #374151; font-size: 14px; }
-.sym-ac-hint { font-weight: 400; color: #94a3b8; font-size: 12px; }
-
-.sym-ac-input-wrap {
-    position: relative;
-}
-.sym-ac-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 17px;
-    pointer-events: none;
-}
-.sym-ac-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 13px 16px 13px 44px;
-    border-radius: 14px;
-    border: 2px solid #e0e7ff;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    outline: none;
-    transition: border-color 0.25s, box-shadow 0.25s;
-    background: #fff;
-}
-.sym-ac-input:focus {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 4px rgba(124,58,237,0.1);
-}
-
-.sym-dropdown {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0; right: 0;
-    background: #fff;
-    border: 2px solid #e0e7ff;
-    border-radius: 14px;
-    box-shadow: 0 12px 36px rgba(79,70,229,0.15);
-    z-index: 200;
-    overflow: hidden;
-    max-height: 240px;
-    overflow-y: auto;
-}
-.sym-dropdown.open { display: block; }
-.sym-dd-item {
-    padding: 11px 16px;
-    font-size: 13px;
-    color: #374151;
-    cursor: pointer;
-    text-transform: capitalize;
-    transition: background 0.15s;
-    border-bottom: 1px solid #f3f4f6;
-}
-.sym-dd-item:last-child { border-bottom: none; }
-.sym-dd-item:hover, .sym-dd-item.focused { background: #ede9fe; color: #5b21b6; }
-.sym-dd-empty { padding: 12px 16px; font-size: 13px; color: #94a3b8; }
-
-.sym-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-radius: 14px;
-    border: 2px dashed #c4b5fd;
-    background: #faf5ff;
-    align-items: center;
-}
-.sym-chips-placeholder { font-size: 13px; color: #a78bfa; font-style: italic; }
-
-.sym-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    color: #fff;
-    padding: 5px 12px;
-    border-radius: 99px;
-    font-size: 12px;
-    font-weight: 500;
-    animation: chipPop 0.15s ease;
-}
-@keyframes chipPop {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-.sym-chip-remove {
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    opacity: 0.8;
-}
-.sym-chip-remove:hover { opacity: 1; }
-
-.sym-count { font-size: 12px; color: #7c3aed; font-weight: 600; min-height: 16px; }
-
-.symptom-form label {
-    display: block;
-    font-weight: 600;
-    font-size: 13px;
-    color: #4b5563;
-    margin-bottom: 6px;
-}
-
-.error-message {
-    color: #b91c1c;
-    font-weight: 600;
-}
-</style>
-
-<script>
-(function () {
-    'use strict';
-
-    const SUGGESTIONS_URL = "{% url 'symptom_suggestions' %}";
-
-    const searchInput = document.getElementById('sym-search');
-    const dropdown = document.getElementById('sym-dropdown');
-    const chipsWrap = document.getElementById('sym-chips');
-    const placeholder = document.getElementById('sym-placeholder');
-    const countEl = document.getElementById('sym-count');
-    const descTextarea = document.getElementById('sym-description');
-    const form = document.getElementById('medical-record-form');
-    const submitBtn = document.getElementById('submit-record-btn');
-
-    if (!searchInput) return;
-
-    let selected = [];
-    let fetchTimer = null;
-    let focusedIdx = -1;
-
-    function fetchSuggestions(q) {
-        clearTimeout(fetchTimer);
-        if (!q) { closeDropdown(); return; }
-        fetchTimer = setTimeout(() => {
-            fetch(`${SUGGESTIONS_URL}?q=${encodeURIComponent(q)}`)
-                .then(r => r.json())
-                .then(data => renderDropdown(data, q))
-                .catch(() => closeDropdown());
-        }, 180);
-    }
-
-    function renderDropdown(items, q) {
-        dropdown.innerHTML = '';
-        focusedIdx = -1;
-
-        const filtered = items.filter(s => !selected.includes(s));
-
-        if (!filtered.length) {
-            dropdown.innerHTML = `<div class="sym-dd-empty">No matches found</div>`;
-            dropdown.classList.add('open');
-            return;
-        }
-
-        filtered.forEach((sym) => {
-            const div = document.createElement('div');
-            div.className = 'sym-dd-item';
-            const display = sym.replace(/_/g, ' ');
-            const hi = display.replace(
-                new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
-                m => `<strong>${m}</strong>`
-            );
-            div.innerHTML = hi;
-            div.dataset.value = sym;
-            div.addEventListener('mousedown', e => {
-                e.preventDefault();
-                addSymptom(sym);
-            });
-            dropdown.appendChild(div);
-        });
-
-        dropdown.classList.add('open');
-    }
-
-    function closeDropdown() {
-        dropdown.classList.remove('open');
-        dropdown.innerHTML = '';
-        focusedIdx = -1;
-    }
-
-    function addSymptom(sym) {
-        if (selected.includes(sym)) {
-            closeDropdown();
-            return;
-        }
-        selected.push(sym);
-        searchInput.value = '';
-        closeDropdown();
-        renderChips();
-        syncDescription();
-    }
-
-    function removeSymptom(sym) {
-        selected = selected.filter(s => s !== sym);
-        renderChips();
-        syncDescription();
-    }
-
-    function renderChips() {
-        chipsWrap.querySelectorAll('.sym-chip').forEach(c => c.remove());
-        form.querySelectorAll('input[name="selected_symptoms"]').forEach(i => i.remove());
-
-        if (selected.length === 0) {
-            placeholder.style.display = '';
-            countEl.textContent = '';
-        } else {
-            placeholder.style.display = 'none';
-            selected.forEach(sym => {
-                const chip = document.createElement('span');
-                chip.className = 'sym-chip';
-                chip.innerHTML = `${sym.replace(/_/g, ' ')} <span class="sym-chip-remove" title="Remove">✕</span>`;
-                chip.querySelector('.sym-chip-remove').addEventListener('click', () => removeSymptom(sym));
-                chipsWrap.appendChild(chip);
-
-                const hidden = document.createElement('input');
-                hidden.type = 'hidden';
-                hidden.name = 'selected_symptoms';
-                hidden.value = sym;
-                form.appendChild(hidden);
-            });
-            countEl.textContent = `${selected.length} symptom${selected.length > 1 ? 's' : ''} selected`;
-        }
-    }
-
-    function syncDescription() {
-        descTextarea.value = selected.map(s => s.replace(/_/g, ' ')).join(', ');
-    }
-
-    searchInput.addEventListener('input', function () {
-        fetchSuggestions(this.value.trim());
-    });
-
-    searchInput.addEventListener('keydown', function (e) {
-        const items = dropdown.querySelectorAll('.sym-dd-item');
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
-            items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            focusedIdx = Math.max(focusedIdx - 1, 0);
-            items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (focusedIdx >= 0 && items[focusedIdx]) {
-                addSymptom(items[focusedIdx].dataset.value);
-            }
-        } else if (e.key === 'Escape') {
-            closeDropdown();
-        }
-    });
-
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('.sym-ac-input-wrap')) closeDropdown();
-    });
-
-    if (form) {
-        form.addEventListener('submit', function (e) {
-            if (selected.length === 0) {
-                e.preventDefault();
-                searchInput.focus();
-                searchInput.style.borderColor = '#ef4444';
-                searchInput.placeholder = '⚠ Please add at least one symptom';
-                setTimeout(() => {
-                    searchInput.style.borderColor = '';
-                    searchInput.placeholder = 'e.g. fever, headache, fatigue…';
-                }, 2500);
-                return;
-            }
-            syncDescription();
-            renderChips();
-            if (submitBtn) {
-                submitBtn.innerHTML = '⏳ &nbsp;Analyzing…';
-                submitBtn.disabled = true;
-            }
-        });
-    }
-})();
-</script>
+{% endblock %}

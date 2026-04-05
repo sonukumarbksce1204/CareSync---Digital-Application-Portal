@@ -1,76 +1,35 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
-<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
-<div class="navbar">
-  <div class="nav-left">
-      <div class="logo">CareSync</div>
-      <div class="tagline">Digital Care. Peaceful Healing.</div>
-  </div>
-  <ul class="nav-links">
-      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
-      <li><a href="{% url 'patient_hospitals' %}">Hospitals</a></li>
-      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
-      <li><a href="{% url 'patient_doctors' %}">Doctors</a></li>
-  </ul>
-  <div class="nav-right">
-      <div class="profile">
-          <span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span>
-          <div class="profile-dropdown">
-              <a href="{% url 'patient_profile' %}">View Profile</a>
-              <a href="{% url 'patient_logout' %}">Logout</a>
-          </div>
-      </div>
-  </div>
+{% extends 'patient/patient_base.html' %}
+
+{% block title %}My Profile | CareSync{% endblock %}
+
+{% block content %}
+<div class="page-header" style="text-align: center; margin-bottom: 40px; padding-bottom: 20px;">
+    <h1 class="page-title">Profile Settings</h1>
+    <p class="page-subtitle">Update your personal and health demographic information.</p>
 </div>
 
-<div class="dashboard" style="margin-top: 100px;">
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding:15px; margin-bottom:20px; border-radius:8px; color:#fff; background-color:{% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% else %}#f59e0b{% endif %};">
-                {{ message }}
+<div class="glass-panel" style="max-width: 600px; margin: 0 auto; border-top: 4px solid var(--primary);">
+    <div style="background: #f8f9fa; padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: var(--text-muted); font-size: 14px; font-weight: 600; text-transform: uppercase;">Personal Health ID:</span>
+        <span style="font-size: 18px; font-weight: 700; color: var(--primary); letter-spacing: 1px;">{{ patient.patient_id }}</span>
+    </div>
+    
+    <form method="POST" action="{% url 'patient_profile' %}" class="premium-form">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: var(--danger); font-size: 13px; margin-top: 5px;">{{ field.errors.as_text }}</div>
+                {% endif %}
             </div>
         {% endfor %}
-    {% endif %}
-
-    <div class="section">
-        <h3>Update Profile</h3>
-        <p style="margin-bottom:20px;">Your Personal Health ID: <strong style="color: black;">{{ patient.patient_id }}</strong></p>
         
-        <form method="POST" action="{% url 'patient_profile' %}" class="symptom-form">
-            {% csrf_token %}
-            {% for field in form %}
-                <div style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; color: #4b5563;">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div style="color: red; font-size: 12px; margin-top: 5px;">{{ field.errors.as_text }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn primary">💾 Save Changes</button>
-        </form>
-    </div>
+        <button type="submit" class="premium-btn btn-primary" style="width: 100%; margin-top: 20px; font-size: 15px; padding: 12px;">
+            Save Information
+        </button>
+    </form>
 </div>
-
-<footer class="footer">
-    <div class="footer-container">
-        <div class="footer-section">
-            <h4>About CareSync</h4>
-            <p>CareSync is a digital healthcare management platform.</p>
-        </div>
-        <div class="footer-section">
-            <h4>Contact Us</h4>
-            <p>Email: support@caresync.com</p>
-        </div>
-        <div class="footer-section">
-            <h4>Quick Links</h4>
-            <p><a href="{% url 'patient_hospitals' %}">Hospitals</a></p>
-            <p><a href="{% url 'patient_doctors' %}">Doctors</a></p>
-            <p><a href="{% url 'patient_appointments' %}">Appointments</a></p>
-            <p><a href="{% url 'privacy_policy' %}">Privacy Policy</a></p>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        © 2026 CareSync. All Rights Reserved. <br> Designed & Developed for Capstone Project.
-    </div>
-</footer>
+{% endblock %}

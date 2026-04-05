@@ -1,51 +1,62 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
-<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
-<div class="navbar">
-  <div class="nav-left"><div class="logo">CareSync</div></div>
-  <ul class="nav-links">
-      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
-      <li><a href="{% url 'patient_doctors' %}">Doctors</a></li>
-  </ul>
-  <div class="nav-right">
-      <div class="profile"><span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span></div>
-  </div>
-</div>
+{% extends 'patient/patient_base.html' %}
 
-<div class="dashboard" style="margin-top: 100px;">
-    <div class="section" style="max-width: 800px; margin: 0 auto;">
-        <div style="display:flex; gap: 30px; align-items: flex-start;">
+{% block title %}Dr. {{ doctor.full_name }} | CareSync{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'patient_doctors' %}" class="premium-btn btn-secondary" style="font-size: 14px; padding: 8px 16px;">&larr; Back to Directory</a>
+    </div>
+
+    <div class="glass-panel" style="border-top: 4px solid var(--primary);">
+        <div style="display:flex; gap: 30px; align-items: flex-start; flex-wrap: wrap;">
             {% if doctor.profile_image %}
-                <img src="{{ doctor.profile_image.url }}" style="width: 150px; height: 150px; border-radius: 10px; object-fit: cover;">
+                <img src="{{ doctor.profile_image.url }}" style="width: 150px; height: 150px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid var(--border-color);">
             {% else %}
-                <div style="width: 150px; height: 150px; border-radius: 10px; background: #e0e7ff; display:flex; align-items:center; justify-content:center; font-size: 50px;">👨‍⚕️</div>
+                <div style="width: 150px; height: 150px; border-radius: var(--radius-md); background: #f8f9fa; color: var(--text-muted); display:flex; align-items:center; justify-content:center; border: 1px solid var(--border-color);">
+                    <span style="font-size: 32px; font-weight: bold; font-family: sans-serif;">DR</span>
+                </div>
             {% endif %}
             
-            <div style="flex: 1;">
-                <h2 style="color: #4f46e5; margin-bottom: 10px;">Dr. {{ doctor.full_name }}</h2>
-                <span style="background: #bbf7d0; color: #166534; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display:inline-block; margin-bottom: 15px;">✅ Verified Medical Professional</span>
+            <div style="flex: 1; min-width: 300px;">
+                <h2 style="color: var(--dark); margin-bottom: 8px; font-size: 28px; font-weight: 700;">Dr. {{ doctor.full_name }}</h2>
+                <div style="margin-bottom: 15px;">
+                    <span class="badge badge-success">Verified Medical Professional</span>
+                </div>
                 
-                <p style="margin-bottom: 5px;"><strong>Experience:</strong> {{ doctor.experience_years }} years</p>
-                <div style="margin-bottom: 20px;">
-                    <strong>Specializations:</strong>
-                    {% for spec in doctor.specializations.all %}
-                        <span style="background: #e0e7ff; color: #4f46e5; padding: 3px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px;">{{ spec.name }}</span>
-                    {% endfor %}
+                <p style="margin-bottom: 8px; color: var(--text-main); font-size: 15px;"><strong>Years of Practice:</strong> {{ doctor.experience_years }}</p>
+                <div style="margin-bottom: 25px;">
+                    <strong style="font-size: 14px; color: var(--dark); display: block; margin-bottom: 8px;">Clinical Specializations:</strong>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        {% for spec in doctor.specializations.all %}
+                            <span class="badge badge-primary">{{ spec.name }}</span>
+                        {% empty %}
+                            <span style="color: var(--text-muted); font-size: 13px;">No specializations listed.</span>
+                        {% endfor %}
+                    </div>
                 </div>
 
-                <a href="{% url 'book_appointment' %}?doctor={{ doctor.doctor_id }}" class="btn primary" style="font-size: 16px; padding: 12px 30px;">📅 Book an Appointment</a>
+                <a href="{% url 'book_appointment' %}?doctor={{ doctor.doctor_id }}" class="premium-btn btn-primary" style="font-size: 15px; padding: 12px 30px;">
+                    Schedule Appointment
+                </a>
             </div>
         </div>
 
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-
-        <h3>Qualifications</h3>
-        <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
-            {% for qual in doctor.qualifications.all %}
-                <li><strong>{{ qual.degree }}</strong> - {{ qual.institution }} ({{ qual.year_completed }})</li>
-            {% empty %}
-                <li>No formal qualifications listed yet.</li>
-            {% endfor %}
-        </ul>
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--border-color);">
+            <h3 style="color: var(--dark); margin-bottom: 20px; font-weight: 600;">Academic Qualifications</h3>
+            
+            <div class="grid-cards" style="grid-template-columns: 1fr;">
+                {% for qual in doctor.qualifications.all %}
+                    <div class="premium-card" style="padding: 15px 20px; border-left: 4px solid var(--secondary);">
+                        <h4 style="color: var(--dark); font-size: 16px; font-weight: 600; margin-bottom: 4px;">{{ qual.degree }}</h4>
+                        <p style="color: var(--text-main); font-size: 14px; margin-bottom: 0;">{{ qual.institution }} <span style="color: var(--text-muted); margin-left: 8px;">({{ qual.year_completed }})</span></p>
+                    </div>
+                {% empty %}
+                    <p style="color: var(--text-muted);">No formal qualifications listed yet.</p>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}

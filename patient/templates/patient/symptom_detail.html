@@ -1,87 +1,93 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
-<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
-<div class="navbar">
-  <div class="nav-left"><div class="logo">CareSync</div></div>
-  <ul class="nav-links">
-      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
-  </ul>
-  <div class="nav-right">
-      <div class="profile"><span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span></div>
-  </div>
-</div>
+{% extends 'patient/patient_base.html' %}
 
-<div class="dashboard" style="margin-top: 100px;">
-    <div class="section" style="max-width: 800px; margin: 0 auto;">
-        <h2 style="color: #4f46e5; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 20px;">Medical Record Detail</h2>
-        
-        <div style="display:flex; justify-content: space-between; margin-bottom: 20px;">
-            <div>
-                <p style="color: #6b7280; font-size: 14px;"><strong>Date:</strong> {{ symptom.created_at|date:"d M Y, h:i A" }}</p>
-                <p style="color: #6b7280; font-size: 14px;"><strong>Patient:</strong> {{ symptom.patient.user.username }}</p>
-            </div>
-            
-            <div>
-                {% if symptom.ai_prediction_status == 'PENDING_REVIEW' %}
-                    <span style="background: #fef08a; color: #854d0e; padding: 6px 12px; border-radius: 4px; font-weight: bold;">⏳ Pending Doctor Review</span>
-                {% elif symptom.ai_prediction_status == 'APPROVED' %}
-                    <span style="background: #bbf7d0; color: #166534; padding: 6px 12px; border-radius: 4px; font-weight: bold;">✅ Verified by Doctor</span>
-                {% elif symptom.ai_prediction_status == 'MODIFIED' %}
-                    <span style="background: #bfdbfe; color: #1e40af; padding: 6px 12px; border-radius: 4px; font-weight: bold;">🔄 Updated by Doctor</span>
-                {% elif symptom.ai_prediction_status == 'REJECTED' %}
-                    <span style="background: #fecaca; color: #991b1b; padding: 6px 12px; border-radius: 4px; font-weight: bold;">❌ Rejected by Doctor</span>
-                {% endif %}
-            </div>
-        </div>
+{% block title %}Medical Record Detail | CareSync{% endblock %}
 
-        <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h4 style="margin-bottom: 10px; color: #374151;">👤 Patient Reported Symptoms</h4>
-            <p style="font-size: 15px; margin-bottom: 10px;">{{ symptom.description }}</p>
-            <p style="font-size: 14px; color: #4b5563;"><strong>Duration:</strong> {{ symptom.duration_days|default:"N/A" }} days | <strong>Meds:</strong> {{ symptom.medicines_taken|default:"None" }}</p>
-        </div>
-
-        <div style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h4 style="margin-bottom: 10px; color: #4338ca;">🤖 AI Suggested Diagnosis</h4>
-            {% if symptom.predicted_disease %}
-                <p style="font-size: 18px; font-weight: bold; color: #4f46e5;">{{ symptom.predicted_disease }}</p>
-                <p style="font-size: 14px; color: #6b7280;">Confidence: {{ symptom.prediction_confidence|floatformat:1 }}%</p>
-            {% else %}
-                <p>No AI suggestion available for this record.</p>
-            {% endif %}
-        </div>
-
-        {% if symptom.ai_prediction_status != 'PENDING_REVIEW' %}
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h4 style="margin-bottom: 15px; color: #166534;">👩‍⚕️ Doctor Verification Result</h4>
-            
-            <p style="margin-bottom: 5px;"><strong>Reviewing Doctor:</strong> Dr. {{ symptom.verified_by_doctor.full_name }}</p>
-            <p style="margin-bottom: 5px; font-size:12px; color:#6b7280;">Verified on: {{ symptom.verified_at|date:"d M Y, h:i A" }}</p>
-            
-            <hr style="margin: 15px 0; border: none; border-top: 1px solid #dcfce7;">
-            
-            <p style="margin-bottom: 5px;"><strong>Final Diagnosis:</strong></p>
-            {% if symptom.doctor_final_diagnosis_catalog %}
-                <p style="font-size: 16px; font-weight: bold; color: #16a34a;">{{ symptom.doctor_final_diagnosis_catalog.name }}</p>
-            {% elif symptom.ai_prediction_status == 'APPROVED' %}
-                <p style="font-size: 16px; font-weight: bold; color: #16a34a;">{{ symptom.predicted_disease }} (Confirmed AI)</p>
-            {% endif %}
-            
-            {% if symptom.doctor_diagnosis_notes %}
-                <p style="font-size: 14px; margin-top: 10px;"><strong>Doctor's Notes:</strong> {{ symptom.doctor_diagnosis_notes }}</p>
-            {% endif %}
-            
-            {% if symptom.verification_note %}
-                <p style="font-size: 14px; margin-top: 10px; color: #991b1b;"><strong>Verification Remark:</strong> {{ symptom.verification_note }}</p>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        {% if symptom.ai_prediction_status == 'PENDING_REVIEW' and symptom.patient == patient %}
-            <form method="POST" action="{% url 'delete_symptom' symptom.id %}" style="margin-top:20px; text-align:right;" onsubmit="return confirm('Archive this record? It will be hidden from your dashboard.');">
-                {% csrf_token %}
-                <button type="submit" class="btn secondary" style="background-color:#fecaca; color:#991b1b; border:none; padding:10px 20px;">🗑 Archive Record</button>
-            </form>
-        {% endif %}
-
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+        <h1 class="page-title">Medical Record Detail</h1>
+        <p class="page-subtitle">Detailed view of symptom log and clinical analysis.</p>
     </div>
+    <a href="{% url 'patient_dashboard' %}" class="premium-btn btn-secondary">&larr; Dashboard</a>
 </div>
+
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto; border-top: 4px solid var(--primary);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+        <div>
+            <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 4px;"><strong>Date:</strong> {{ symptom.created_at|date:"M d, Y - h:i A" }}</div>
+            <div style="color: var(--text-muted); font-size: 14px;"><strong>Patient:</strong> {{ symptom.patient.user.username }}</div>
+        </div>
+        
+        <div>
+            <span class="badge {% if symptom.ai_prediction_status == 'APPROVED' %}badge-success{% elif symptom.ai_prediction_status == 'MODIFIED' %}badge-primary{% elif symptom.ai_prediction_status == 'REJECTED' %}badge-danger{% else %}badge-warning{% endif %}" style="font-size: 13px; padding: 8px 16px;">
+                {% if symptom.ai_prediction_status == 'PENDING_REVIEW' %}Pending Doctor Review
+                {% elif symptom.ai_prediction_status == 'APPROVED' %}Verified by Doctor
+                {% elif symptom.ai_prediction_status == 'MODIFIED' %}Updated by Doctor
+                {% elif symptom.ai_prediction_status == 'REJECTED' %}Rejected by Doctor{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Patient Reported Area -->
+    <div style="background: #f8f9fa; padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 20px;">
+        <h4 style="color: var(--dark); font-size: 15px; margin-bottom: 12px; font-weight: 600;">Patient Reported Symptoms</h4>
+        <p style="font-size: 15px; font-weight: 500; color: var(--text-main); margin-bottom: 12px;">{{ symptom.description }}</p>
+        <div style="display: flex; gap: 20px; font-size: 14px; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 10px;">
+            <span><strong>Duration:</strong> {{ symptom.duration_days|default:"N/A" }} days</span>
+            <span><strong>Meds:</strong> {{ symptom.medicines_taken|default:"None" }}</span>
+        </div>
+    </div>
+
+    <!-- AI Suggestion Area -->
+    <div style="background: #f8f9fa; border: 1px solid var(--border-color); border-left: 4px solid var(--primary); padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+        <h4 style="color: var(--primary); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Algorithmic Screen Result</h4>
+        {% if symptom.predicted_disease %}
+            <p style="font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 6px;">{{ symptom.predicted_disease }}</p>
+            <p style="font-size: 14px; color: var(--text-muted);">Confidence Score: {{ symptom.prediction_confidence|floatformat:1 }}%</p>
+        {% else %}
+            <p style="color: var(--text-muted); font-size: 14px;">No algorithmic suggestion available for this record.</p>
+        {% endif %}
+    </div>
+
+    <!-- Doctor Review Area -->
+    {% if symptom.ai_prediction_status != 'PENDING_REVIEW' %}
+    <div style="background: #f8f9fa; border: 1px solid var(--border-color); border-left: 4px solid var(--success); padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+        <h4 style="color: var(--success); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px;">Physician Verification Result</h4>
+        
+        <div style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: var(--dark); margin-bottom: 4px;"><strong>Attending Physician:</strong> Dr. {{ symptom.verified_by_doctor.full_name }}</p>
+            <p style="font-size: 12px; color: var(--text-muted);">Verified on: {{ symptom.verified_at|date:"M d, Y - h:i A" }}</p>
+        </div>
+        
+        <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
+        
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">FINAL DIAGNOSIS</p>
+        {% if symptom.doctor_final_diagnosis_catalog %}
+            <p style="font-size: 18px; font-weight: 700; color: var(--success); margin-bottom: 12px;">{{ symptom.doctor_final_diagnosis_catalog.name }}</p>
+        {% elif symptom.ai_prediction_status == 'APPROVED' %}
+            <p style="font-size: 18px; font-weight: 700; color: var(--success); margin-bottom: 12px;">{{ symptom.predicted_disease }} (Confirmed)</p>
+        {% endif %}
+        
+        {% if symptom.doctor_diagnosis_notes %}
+            <div style="background: #fff; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-top: 10px;">
+                <p style="font-size: 14px; color: var(--text-main);"><strong>Clinical Notes:</strong> <br>{{ symptom.doctor_diagnosis_notes }}</p>
+            </div>
+        {% endif %}
+        
+        {% if symptom.verification_note %}
+            <div class="alert warning" style="margin-top: 15px; font-size: 13px; padding: 10px;">
+                <strong>Verification Remark:</strong> {{ symptom.verification_note }}
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if symptom.ai_prediction_status == 'PENDING_REVIEW' and symptom.patient == patient %}
+        <form method="POST" action="{% url 'delete_symptom' symptom.id %}" style="margin-top:25px; text-align:right;" onsubmit="return confirm('Archive this record? It will be hidden from your dashboard.');">
+            {% csrf_token %}
+            <button type="submit" class="premium-btn btn-danger" style="font-size: 14px; padding: 8px 16px;">Archive Record</button>
+        </form>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,51 +1,39 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
-<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
-<div class="navbar">
-  <div class="nav-left"><div class="logo">CareSync</div></div>
-  <ul class="nav-links">
-      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
-      <li><a href="{% url 'patient_hospitals' %}">Hospitals</a></li>
-      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
-      <li><a href="{% url 'patient_doctors' %}">Doctors</a></li>
-  </ul>
-  <div class="nav-right">
-      <div class="profile">
-          <span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span>
-          <div class="profile-dropdown">
-              <a href="{% url 'patient_profile' %}">Profile</a>
-              <a href="{% url 'patient_logout' %}">Logout</a>
-          </div>
-      </div>
-  </div>
+{% extends 'patient/patient_base.html' %}
+
+{% block title %}Doctors | CareSync{% endblock %}
+
+{% block content %}
+<div class="page-header" style="text-align: center; margin-bottom: 40px; padding-bottom: 20px;">
+    <h1 class="page-title">Verified Physicians</h1>
+    <p class="page-subtitle">Browse our network of medically verified and licensed professionals.</p>
 </div>
 
-<div class="dashboard" style="margin-top: 100px;">
-    <div class="section">
-        <h3>Verified Doctors</h3>
-        <p style="margin-bottom: 20px; color: #6b7280;">Browse our network of medically verified professionals.</p>
-
-        <div class="hospital-grid">
-            {% for doc in doctors %}
-                <div class="hospital-card" style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align:center;">
-                    {% if doc.profile_image %}
-                        <img src="{{ doc.profile_image.url }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;">
-                    {% else %}
-                        <div style="width: 100px; height: 100px; border-radius: 50%; background: #e0e7ff; margin: 0 auto 15px auto; display:flex; align-items:center; justify-content:center; font-size: 30px;">👨‍⚕️</div>
-                    {% endif %}
-                    
-                    <h4 style="color: #4f46e5; margin-bottom: 5px;">Dr. {{ doc.full_name }}</h4>
-                    <p style="color: #22c55e; font-size: 12px; font-weight: bold; margin-bottom: 10px;">✅ License Verified</p>
-                    <p style="margin-bottom: 15px; font-size: 14px;"><strong>Experience:</strong> {{ doc.experience_years }} years</p>
-                    
-                    <div style="display: flex; gap: 10px;">
-                        <a href="{% url 'patient_doctor_detail' doc.doctor_id %}" class="btn secondary" style="flex:1; text-align:center;">View</a>
-                        <a href="{% url 'book_appointment' %}?doctor={{ doc.doctor_id }}" class="btn primary" style="flex:1; text-align:center;">Book</a>
-                    </div>
+<div class="grid-cards">
+    {% for doc in doctors %}
+        <div class="premium-card" style="text-align: center; display: flex; flex-direction: column;">
+            
+            {% if doc.profile_image %}
+                <img src="{{ doc.profile_image.url }}" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px; border: 1px solid var(--border-color);">
+            {% else %}
+                <div style="width: 90px; height: 90px; border-radius: 50%; background: #f8f9fa; color: var(--text-muted); margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 32px; border: 1px solid var(--border-color);">
+                    <span style="font-size: 24px; font-family: sans-serif;">DR</span>
                 </div>
-            {% empty %}
-                <p>No verified doctors available at the moment.</p>
-            {% endfor %}
+            {% endif %}
+            
+            <h4 style="color: var(--dark); font-size: 18px; font-weight: 700; margin-bottom: 6px;">Dr. {{ doc.full_name }}</h4>
+            <div style="margin-bottom: 12px;"><span class="badge badge-success">License Verified</span></div>
+            
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;"><strong>Experience:</strong> {{ doc.experience_years }} years</p>
+            
+            <div style="display: flex; gap: 10px; margin-top: auto;">
+                <a href="{% url 'patient_doctor_detail' doc.doctor_id %}" class="premium-btn btn-secondary" style="flex:1; padding: 10px; font-size: 13px;">View Profile</a>
+                <a href="{% url 'book_appointment' %}?doctor={{ doc.doctor_id }}" class="premium-btn btn-primary" style="flex:1; padding: 10px; font-size: 13px;">Book Visit</a>
+            </div>
         </div>
-    </div>
+    {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #fff; border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
+            <p style="color: var(--text-muted); font-size: 15px;">No verified doctors available at the moment.</p>
+        </div>
+    {% endfor %}
 </div>
+{% endblock %}

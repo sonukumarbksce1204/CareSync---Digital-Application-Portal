@@ -1,49 +1,39 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
-<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
-<div class="navbar">
-  <div class="nav-left"><div class="logo">CareSync</div></div>
-  <ul class="nav-links">
-      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
-      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
-  </ul>
-  <div class="nav-right">
-      <div class="profile"><span class="profile-name"><h2><strong>{{ request.user.username }}</strong></h2></span></div>
-  </div>
+{% extends 'patient/patient_base.html' %}
+
+{% block title %}Book Appointment | CareSync{% endblock %}
+
+{% block content %}
+<div class="page-header" style="text-align: center; margin-bottom: 40px; padding-bottom: 20px;">
+    <h1 class="page-title">Book an Appointment</h1>
+    <p class="page-subtitle">Schedule a visit with our network of healthcare professionals.</p>
 </div>
 
-<div class="dashboard" style="margin-top: 100px;">
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding:15px; margin-bottom:20px; border-radius:8px; color:#fff; background-color:{% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% else %}#f59e0b{% endif %};">
-                {{ message }}
+<div class="glass-panel" style="max-width: 600px; margin: 0 auto; border-top: 4px solid var(--primary);">
+    <form method="POST" class="premium-form">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert error" style="margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {% for err in form.non_field_errors %}
+                    <p style="margin: 0; font-size: 14px;">{{ err }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: var(--danger); font-size: 13px; margin-top: 5px;">{{ field.errors.as_text }}</div>
+                {% endif %}
             </div>
         {% endfor %}
-    {% endif %}
-
-    <div class="section" style="max-width: 600px; margin: 0 auto;">
-        <h3 style="text-align: center; color: #4f46e5; margin-bottom: 20px;">Book an Appointment</h3>
-        <p style="text-align: center; color: #6b7280; margin-bottom: 30px;">Please explicitly select ONE option: either a Doctor OR a Hospital.</p>
         
-        <form method="POST" action="{% url 'book_appointment' %}" class="symptom-form">
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div style="color: red; margin-bottom: 15px; font-weight:bold;">
-                    {{ form.non_field_errors }}
-                </div>
-            {% endif %}
-
-            {% for field in form %}
-                <div style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; color: #4b5563; margin-bottom:5px; display:block;">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div style="color: red; font-size: 12px; margin-top: 5px;">{{ field.errors.as_text }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-
-            <button type="submit" class="btn primary" style="width: 100%; margin-top: 20px; padding: 12px;">✅ Request Appointment</button>
-        </form>
-    </div>
+        <button type="submit" class="premium-btn btn-primary" style="width: 100%; margin-top: 20px; font-size: 16px; padding: 14px;">
+            Confirm Appointment
+        </button>
+    </form>
 </div>
+{% endblock %}

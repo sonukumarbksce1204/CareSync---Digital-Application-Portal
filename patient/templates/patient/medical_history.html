@@ -1,133 +1,159 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'patient/dashboard.css' %}">
-<div class="background-slideshow"><span></span><span></span><span></span><span></span></div>
-<div class="navbar">
-  <div class="nav-left"><div class="logo">CareSync</div></div>
-  <ul class="nav-links">
-      <li><a href="{% url 'patient_dashboard' %}">Dashboard</a></li>
-      <li><a href="{% url 'patient_appointments' %}">Appointments</a></li>
-      <li><a href="{% url 'patient_medical_history' %}" style="font-weight:bold;color:#4f46e5;">Medical History</a></li>
-  </ul>
-  <div class="nav-right">
-      <div class="profile"><span class="profile-name"><h2><strong>{{ patient.user.username }}</strong></h2></span></div>
-  </div>
+{% extends 'patient/patient_base.html' %}
+
+{% block title %}My Medical History | CareSync{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+        <h1 class="page-title">My Medical History</h1>
+        <p class="page-subtitle">Track your consultations, prescriptions, and clinical symptoms over time.</p>
+    </div>
+    <a href="{% url 'patient_dashboard' %}" class="premium-btn btn-secondary">&larr; Dashboard</a>
 </div>
 
-<div class="dashboard" style="margin-top:100px;">
-
-    <div class="section" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
-        <h2 style="color:#4f46e5;">📁 My Medical History</h2>
-        <a href="{% url 'patient_dashboard' %}" class="btn primary">← Back to Dashboard</a>
-    </div>
-
-    <!-- ── SYMPTOMS & AI REVIEWS ─────────────────────────────── -->
-    <div class="section">
-        <h3 style="margin-bottom:20px;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">🩺 Symptom Records & AI Reviews</h3>
+<!-- ── SYMPTOMS & AI REVIEWS ─────────────────────────────── -->
+<div class="glass-panel" style="border-top: 4px solid var(--primary);">
+    <h3 style="color: var(--dark); border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;">Symptom Records & Clinical Reviews</h3>
+    
+    <div class="grid-cards" style="grid-template-columns: 1fr;">
         {% for symptom in symptoms %}
-        <div class="hospital-card" style="padding:20px;border-radius:12px;margin-bottom:16px;border-left:5px solid
-            {% if symptom.ai_prediction_status == 'APPROVED' %}#22c55e
-            {% elif symptom.ai_prediction_status == 'MODIFIED' %}#3b82f6
-            {% elif symptom.ai_prediction_status == 'REJECTED' %}#ef4444
-            {% else %}#f59e0b{% endif %};">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-                <div>
-                    <p style="font-size:13px;color:#6b7280;">{{ symptom.created_at|date:"d M Y, h:i A" }}</p>
-                    <p style="font-size:15px;margin-top:4px;"><strong>Symptoms:</strong> {{ symptom.description }}</p>
-                    {% if symptom.duration_days %}<p style="font-size:13px;color:#6b7280;">Duration: {{ symptom.duration_days }} day(s) &nbsp;|&nbsp; Meds: {{ symptom.medicines_taken|default:"None" }}</p>{% endif %}
+            <div class="premium-card" style="border-left: 4px solid {% if symptom.ai_prediction_status == 'APPROVED' %}var(--success){% elif symptom.ai_prediction_status == 'MODIFIED' %}var(--primary){% elif symptom.ai_prediction_status == 'REJECTED' %}var(--danger){% else %}var(--warning){% endif %};">
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <div>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">{{ symptom.created_at|date:"M d, Y - h:i A" }}</div>
+                        <div style="font-size: 15px; font-weight: 600; color: var(--dark);">{{ symptom.description }}</div>
+                        {% if symptom.duration_days %}<div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Duration: {{ symptom.duration_days }} day(s) | Meds: {{ symptom.medicines_taken|default:"None" }}</div>{% endif %}
+                    </div>
+                    
+                    <span class="badge {% if symptom.ai_prediction_status == 'APPROVED' %}badge-success{% elif symptom.ai_prediction_status == 'MODIFIED' %}badge-primary{% elif symptom.ai_prediction_status == 'REJECTED' %}badge-danger{% else %}badge-warning{% endif %}">
+                        {% if symptom.ai_prediction_status == 'PENDING_REVIEW' %}Pending Review
+                        {% elif symptom.ai_prediction_status == 'APPROVED' %}Verified
+                        {% elif symptom.ai_prediction_status == 'MODIFIED' %}Updated by Doctor
+                        {% elif symptom.ai_prediction_status == 'REJECTED' %}Rejected{% endif %}
+                    </span>
                 </div>
-                <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;background:
-                    {% if symptom.ai_prediction_status == 'APPROVED' %}#dcfce7;color:#166534
-                    {% elif symptom.ai_prediction_status == 'MODIFIED' %}#dbeafe;color:#1e40af
-                    {% elif symptom.ai_prediction_status == 'REJECTED' %}#fecaca;color:#991b1b
-                    {% else %}#fef08a;color:#854d0e{% endif %};">
-                    {% if symptom.ai_prediction_status == 'PENDING_REVIEW' %}⏳ Pending Review
-                    {% elif symptom.ai_prediction_status == 'APPROVED' %}✅ Verified
-                    {% elif symptom.ai_prediction_status == 'MODIFIED' %}🔄 Updated by Doctor
-                    {% elif symptom.ai_prediction_status == 'REJECTED' %}❌ Rejected{% endif %}
-                </span>
-            </div>
 
-            {% if symptom.predicted_disease %}
-            <div style="background:#eef2ff;border-radius:8px;padding:12px;margin-bottom:10px;">
-                <p style="font-size:12px;color:#6b7280;margin-bottom:2px;">🤖 AI Suggested</p>
-                <p style="font-weight:700;color:#4f46e5;">{{ symptom.predicted_disease }}</p>
-                <p style="font-size:12px;color:#6b7280;">Confidence: {{ symptom.prediction_confidence|floatformat:1 }}%</p>
-            </div>
-            {% endif %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    {% if symptom.predicted_disease %}
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: var(--radius-sm); padding: 12px;">
+                        <div style="font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 4px;">Algorithmic Screen Result:</div>
+                        <div style="font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 2px;">{{ symptom.predicted_disease }}</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Confidence: {{ symptom.prediction_confidence|floatformat:1 }}%</div>
+                    </div>
+                    {% endif %}
 
-            {% if symptom.ai_prediction_status != 'PENDING_REVIEW' and symptom.verified_by_doctor %}
-            <div style="background:#f0fdf4;border-radius:8px;padding:12px;">
-                <p style="font-size:12px;color:#6b7280;margin-bottom:2px;">👨‍⚕️ Doctor's Verdict</p>
-                {% if symptom.doctor_final_diagnosis_catalog %}
-                    <p style="font-weight:700;color:#16a34a;">{{ symptom.doctor_final_diagnosis_catalog.name }}</p>
-                {% elif symptom.doctor_modified_diagnosis_text %}
-                    <p style="font-weight:700;color:#16a34a;">{{ symptom.doctor_modified_diagnosis_text }}</p>
-                {% elif symptom.ai_prediction_status == 'APPROVED' %}
-                    <p style="font-weight:700;color:#16a34a;">{{ symptom.predicted_disease }} ✓ Confirmed</p>
-                {% endif %}
-                {% if symptom.doctor_diagnosis_notes %}<p style="font-size:13px;color:#374151;margin-top:4px;">Notes: {{ symptom.doctor_diagnosis_notes }}</p>{% endif %}
-                <p style="font-size:11px;color:#6b7280;margin-top:6px;">by Dr. {{ symptom.verified_by_doctor.full_name }} on {{ symptom.verified_at|date:"d M Y" }}</p>
-            </div>
-            {% endif %}
-
-            <a href="{% url 'symptom_detail' symptom.id %}" style="font-size:13px;color:#4f46e5;text-decoration:none;display:inline-block;margin-top:10px;">View Full Detail →</a>
-        </div>
-        {% empty %}
-        <p style="color:#9ca3af;text-align:center;padding:20px;">No symptom records found.</p>
-        {% endfor %}
-    </div>
-
-    <!-- ── CONSULTATIONS ─────────────────────────────────────── -->
-    <div class="section" style="margin-top:30px;">
-        <h3 style="margin-bottom:20px;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">🏥 Doctor Consultations</h3>
-        {% for consult in consultations %}
-        <div class="hospital-card" style="padding:20px;border-radius:12px;margin-bottom:16px;border-left:5px solid #10b981;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-                <div>
-                    <p style="font-size:13px;color:#6b7280;">{{ consult.created_at|date:"d M Y, h:i A" }}</p>
-                    {% if consult.consultation_type %}<p style="font-size:12px;color:#6b7280;">{{ consult.get_consultation_type_display }}</p>{% endif %}
+                    {% if symptom.ai_prediction_status != 'PENDING_REVIEW' and symptom.verified_by_doctor %}
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: var(--radius-sm); padding: 12px;">
+                        <div style="font-size: 12px; color: var(--success); font-weight: 600; margin-bottom: 4px;">Physician Verdict:</div>
+                        
+                        <div style="font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 4px;">
+                            {% if symptom.doctor_final_diagnosis_catalog %}
+                                {{ symptom.doctor_final_diagnosis_catalog.name }}
+                            {% elif symptom.doctor_modified_diagnosis_text %}
+                                {{ symptom.doctor_modified_diagnosis_text }}
+                            {% elif symptom.ai_prediction_status == 'APPROVED' %}
+                                {{ symptom.predicted_disease }} (Confirmed)
+                            {% endif %}
+                        </div>
+                        
+                        {% if symptom.doctor_diagnosis_notes %}<div style="font-size: 13px; color: var(--text-main); margin-bottom: 6px;">Notes: {{ symptom.doctor_diagnosis_notes }}</div>{% endif %}
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; border-top: 1px dashed var(--border-color); padding-top: 6px;">Attending: Dr. {{ symptom.verified_by_doctor.full_name }}</div>
+                    </div>
+                    {% endif %}
                 </div>
-                <p style="font-size:13px;font-weight:600;color:#059669;">Dr. {{ consult.doctor.full_name }}</p>
-            </div>
 
-            <p style="margin-bottom:8px;"><strong>Diagnosis:</strong> {{ consult.diagnosis_text|default:"—" }}</p>
-            {% if consult.notes %}<p style="font-size:14px;color:#374151;margin-bottom:8px;"><strong>Clinical Notes:</strong> {{ consult.notes }}</p>{% endif %}
-            {% if consult.doctor_instructions %}
-            <div style="background:#ecfdf5;border-radius:6px;padding:10px;margin-bottom:8px;">
-                <p style="font-size:13px;color:#065f46;"><strong>📋 Doctor Instructions:</strong> {{ consult.doctor_instructions }}</p>
+                <div style="margin-top: 15px; text-align: right;">
+                    <a href="{% url 'symptom_detail' symptom.id %}" class="premium-btn btn-secondary" style="font-size: 13px; padding: 6px 14px;">View Full Record &rarr;</a>
+                </div>
             </div>
-            {% endif %}
-            {% if consult.follow_up_date %}
-            <p style="font-size:13px;color:#d97706;margin-bottom:8px;">📅 Follow-up: {{ consult.follow_up_date }}{% if consult.follow_up_note %} — {{ consult.follow_up_note }}{% endif %}</p>
-            {% endif %}
-            {% if consult.prescription_document %}
-            <a href="{{ consult.prescription_document.url }}" target="_blank" style="display:inline-block;background:#1FBF8F;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;margin-top:6px;">📥 Download Prescription</a>
-            {% endif %}
-        </div>
         {% empty %}
-        <p style="color:#9ca3af;text-align:center;padding:20px;">No consultation records yet.</p>
+            <p style="color: var(--text-muted); text-align: center; padding: 20px;">No symptom records found.</p>
         {% endfor %}
     </div>
-
-    <!-- ── DIAGNOSED DISEASES ────────────────────────────────── -->
-    <div class="section" style="margin-top:30px;">
-        <h3 style="margin-bottom:20px;border-bottom:2px solid #e5e7eb;padding-bottom:10px;">🦠 Diagnosed Diseases</h3>
-        <div class="hospital-grid">
-        {% for pd in diseases %}
-        <div class="hospital-card" style="padding:18px;border-radius:12px;border-left:5px solid {% if pd.disease.is_hereditary %}#a855f7{% else %}#ef4444{% endif %};">
-            <p style="font-weight:700;font-size:16px;margin-bottom:4px;">
-                {{ pd.disease.name }}
-                {% if pd.disease.is_hereditary %}<span style="background:#f3e8ff;color:#7e22ce;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px;">🧬 Hereditary</span>{% endif %}
-            </p>
-            {% if pd.disease.description %}<p style="font-size:13px;color:#6b7280;margin-bottom:6px;">{{ pd.disease.description|truncatechars:100 }}</p>{% endif %}
-            <p style="font-size:12px;color:#9ca3af;">Diagnosed: {{ pd.diagnosed_date|date:"d M Y" }} &nbsp;|&nbsp;
-                {% if pd.is_active %}<span style="color:#ef4444;font-weight:600;">Active</span>{% else %}<span style="color:#22c55e;">Resolved</span>{% endif %}
-            </p>
-        </div>
-        {% empty %}
-        <p style="color:#9ca3af;padding:20px;">No diseases on record.</p>
-        {% endfor %}
-        </div>
-    </div>
-
 </div>
+
+<!-- ── CONSULTATIONS ─────────────────────────────────────── -->
+<div class="glass-panel" style="border-top: 4px solid var(--primary);">
+    <h3 style="color: var(--dark); border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;">Doctor Consultations</h3>
+    
+    <div class="grid-cards" style="grid-template-columns: 1fr;">
+        {% for consult in consultations %}
+        <div class="premium-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">{{ consult.created_at|date:"M d, Y - h:i A" }}</div>
+                    {% if consult.consultation_type %}<div style="font-size: 12px; color: var(--text-muted); font-weight: 500;">{{ consult.get_consultation_type_display }}</div>{% endif %}
+                </div>
+                <div style="font-size: 16px; font-weight: 700; color: var(--primary);">Dr. {{ consult.doctor.full_name }}</div>
+            </div>
+
+            <div style="margin-bottom: 10px; font-size: 14px;"><strong>Diagnosis:</strong> {{ consult.diagnosis_text|default:"—" }}</div>
+            {% if consult.notes %}
+                <div style="font-size: 14px; color: var(--text-main); margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--border-color);">
+                    <strong>Clinical Notes:</strong><br>{{ consult.notes }}
+                </div>
+            {% endif %}
+            
+            {% if consult.doctor_instructions %}
+            <div class="alert info" style="padding: 12px; font-size: 13px; margin-bottom: 15px;">
+                <strong>Instructions:</strong> {{ consult.doctor_instructions }}
+            </div>
+            {% endif %}
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                {% if consult.follow_up_date %}
+                <div style="font-size: 13px; color: var(--dark); font-weight: 500;">
+                    Follow-up Required: {{ consult.follow_up_date|date:"F d, Y" }}{% if consult.follow_up_note %} — {{ consult.follow_up_note }}{% endif %}
+                </div>
+                {% else %}
+                <div></div>
+                {% endif %}
+                
+                {% if consult.prescription_document %}
+                <div>
+                    <a href="{{ consult.prescription_document.url }}" target="_blank" class="premium-btn btn-primary" style="font-size: 13px; padding: 6px 14px;">Download Prescription</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+            <p style="color: var(--text-muted); text-align: center; padding: 20px;">No consultation records yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── DIAGNOSED DISEASES ────────────────────────────────── -->
+<div class="glass-panel" style="border-top: 4px solid var(--secondary);">
+    <h3 style="color: var(--dark); border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;">Verified Diagnoses</h3>
+    
+    <div class="grid-cards">
+        {% for pd in diseases %}
+        <div class="premium-card">
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                <h4 style="font-size: 16px; font-weight: 700; color: var(--dark); margin: 0;">{{ pd.disease.name }}</h4>
+                {% if pd.disease.is_hereditary %}
+                    <span class="badge badge-warning">Hereditary Flag</span>
+                {% endif %}
+            </div>
+            
+            {% if pd.disease.description %}<p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">{{ pd.disease.description|truncatechars:100 }}</p>{% endif %}
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: auto;">
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Diagnosed: {{ pd.diagnosed_date|date:"M d, Y" }}</span>
+                {% if pd.is_active %}
+                    <span class="badge badge-danger">Active</span>
+                {% else %}
+                    <span class="badge badge-gray">Resolved</span>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center;">
+                <p style="color: var(--text-muted); padding: 20px;">No diseases officially diagnosed on record.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
