@@ -213,16 +213,35 @@ if IS_PRODUCTION:
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(levelname)s] %(name)s: %(message)s',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'loggers': {
+        # Django request errors (500s) always visible
         'django.request': {
             'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        # ML predictor — show INFO and above so model-load diagnostics appear
+        # in gunicorn stdout even when DEBUG=False on Hugging Face.
+        'ml_model.predictor': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Catch-all for any other app loggers
+        '': {
+            'handlers': ['console'],
+            'level': 'WARNING',
         },
     },
 }

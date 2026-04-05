@@ -20,6 +20,30 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ── Copy project files (including ml_model/, templates/, static/, etc.) ───────
 COPY --chown=user:user . /app
 
+# ── Verify ML model files were included in the image ────────────────────────
+# This step intentionally FAILS the build if any model file is missing,
+# giving a clear error message instead of a silent runtime prediction failure.
+RUN python - <<'EOF'
+import os, sys
+files = {
+    "ml_model/disease_model.keras":  "/app/ml_model/disease_model.keras",
+    "ml_model/symptom_index.pkl":    "/app/ml_model/symptom_index.pkl",
+    "ml_model/disease_encoder.pkl":  "/app/ml_model/disease_encoder.pkl",
+}
+missing = [name for name, path in files.items() if not os.path.exists(path)]
+if missing:
+    print("ERROR: The following ML model files are MISSING from the Docker image:")
+    for f in missing:
+        print(f"  ✗  {f}")
+    print("\nFix: make sure these files are committed to git (not in .gitignore)")
+    print("     and that deploy_to_hf.py is not excluding them.")
+    sys.exit(1)
+for name, path in files.items():
+    size = os.path.getsize(path)
+    print(f"  ✓  {name}  ({size:,} bytes)")
+print("ML model files verified OK.")
+EOF
+
 # ── Collect static files at BUILD time ───────────────────────────────────────
 # We inject a dummy SECRET_KEY so Django can load settings without a real key.
 # DATABASE_URL and CLOUDINARY_URL are intentionally absent here — collectstatic

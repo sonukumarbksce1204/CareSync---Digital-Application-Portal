@@ -4,17 +4,22 @@ CareSync Disease Predictor Utility
 Production-safe version with path diagnostics to help debug model-not-found
 errors in Docker / Hugging Face without changing the core prediction logic.
 
-Changes from original:
-- Added clear logging of resolved paths at import time
-- Added os.path.exists() checks with actionable error messages
-- All prediction logic preserved exactly
+Changes:
+- compile=False on load_model() → safe for inference-only; avoids optimizer
+  config errors when TF version differs between save-env and deploy-env.
+- Full traceback logged via logging + traceback modules instead of
+  warnings.warn (warnings can be suppressed in production; logging is not).
+- Directory listing logged on failure to confirm files reached the container.
 """
 
 import os
+import logging
+import traceback
 import numpy as np
 import joblib
-import warnings
 from tensorflow.keras.models import load_model
+
+logger = logging.getLogger(__name__)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -24,12 +29,22 @@ SYMPTOM_PATH = os.path.join(HERE, "symptom_index.pkl")
 ENCODER_PATH = os.path.join(HERE, "disease_encoder.pkl")
 
 # ── Startup diagnostics ───────────────────────────────────────────────────────
-# These lines print on every worker startup (or import in dev).
-# Check gunicorn / HF build logs to verify all three files are found.
-print(f"[ML] predictor module directory : {HERE}")
-print(f"[ML] model path   : {MODEL_PATH}  — exists={os.path.exists(MODEL_PATH)}")
-print(f"[ML] symptom path : {SYMPTOM_PATH} — exists={os.path.exists(SYMPTOM_PATH)}")
-print(f"[ML] encoder path : {ENCODER_PATH} — exists={os.path.exists(ENCODER_PATH)}")
+# Logged at INFO so they appear in gunicorn stdout even when DEBUG=False.
+_model_exists   = os.path.exists(MODEL_PATH)
+_symptom_exists = os.path.exists(SYMPTOM_PATH)
+_encoder_exists = os.path.exists(ENCODER_PATH)
+
+logging.basicConfig(level=logging.INFO)
+logger.info("[ML] predictor module directory : %s", HERE)
+logger.info("[ML] model path    : %s  — exists=%s", MODEL_PATH,   _model_exists)
+logger.info("[ML] symptom path  : %s  — exists=%s", SYMPTOM_PATH, _symptom_exists)
+logger.info("[ML] encoder path  : %s  — exists=%s", ENCODER_PATH, _encoder_exists)
+
+try:
+    _dir_contents = os.listdir(HERE)
+except Exception:
+    _dir_contents = ["<could not list directory>"]
+logger.info("[ML] files in model dir : %s", _dir_contents)
 
 # ── Global state ──────────────────────────────────────────────────────────────
 _READY = False
@@ -140,36 +155,56 @@ try:
         raise RuntimeError("symptom_index.pkl did not load as a dict")
 
     _build_indexes()
-    print(f"[ML] ✅ Symptom index loaded — {len(_symptom_list)} symptoms")
+    logger.info("[ML] ✅ Symptom index loaded — %d symptoms", len(_symptom_list))
 
 except Exception as e:
-    warnings.warn(f"[ML] ⚠ Symptom index load failed: {e}")
+    logger.error("[ML] ❌ Symptom index load failed: %s", e)
+    logger.error("%s", traceback.format_exc())
 
 
 # ── Load model ────────────────────────────────────────────────────────────────
+# compile=False: skips rebuilding the optimizer graph at load time.
+# This is correct for inference-only usage and avoids failures when the TF
+# version at load time differs from the version used to save the model
+# (e.g. a newer tensorflow-cpu on Hugging Face vs. an older local version).
 try:
     if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(f"Model file not found at: {MODEL_PATH}")
+        raise FileNotFoundError(
+            f"Model file not found at: {MODEL_PATH}\n"
+            f"Files in model dir: {os.listdir(HERE)}"
+        )
     if not os.path.exists(ENCODER_PATH):
-        raise FileNotFoundError(f"Encoder file not found at: {ENCODER_PATH}")
+        raise FileNotFoundError(
+            f"Encoder file not found at: {ENCODER_PATH}\n"
+            f"Files in model dir: {os.listdir(HERE)}"
+        )
 
-    _model = load_model(MODEL_PATH)
+    logger.info("[ML] Loading Keras model (compile=False) …")
+    _model = load_model(MODEL_PATH, compile=False)
+    logger.info("[ML] Keras model loaded successfully")
+
     _disease_encoder = joblib.load(ENCODER_PATH)
+    logger.info("[ML] Disease encoder loaded successfully")
 
     if len(_symptom_list) == 0:
         raise RuntimeError("Symptom index is empty — cannot build input vector")
 
-    # Smoke-test to verify the model input shape matches our symptom vector
+    # Smoke-test: verify the model accepts our symptom-vector shape
     test_vec = np.zeros((1, len(_symptom_list)), dtype=np.float32)
     _ = _model.predict(test_vec, verbose=0)
 
     _READY = True
-    print("[ML] ✅ Disease model READY")
+    logger.info("[ML] ✅ Disease model READY — %d symptom features", len(_symptom_list))
 
 except Exception as e:
-    warnings.warn(f"[ML] ⚠ Model NOT available: {e}")
     _READY = False
-    print(f"[ML] ❌ _READY=False  reason: {e}")
+    logger.error("[ML] ❌ Model load FAILED — _READY=False")
+    logger.error("[ML] Exception: %s", e)
+    logger.error("[ML] Full traceback:\n%s", traceback.format_exc())
+    try:
+        logger.error("[ML] Files in model dir: %s", os.listdir(HERE))
+    except Exception:
+        pass
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
