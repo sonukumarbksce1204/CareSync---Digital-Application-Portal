@@ -3,13 +3,21 @@
 {% block title %}Doctors | CareSync{% endblock %}
 
 {% block content %}
-<div class="page-header" style="text-align: center; margin-bottom: 40px; padding-bottom: 20px;">
+<div class="page-header" style="text-align: center; margin-bottom: 30px; padding-bottom: 20px;">
     <h1 class="page-title">Verified Physicians</h1>
     <p class="page-subtitle">Browse our network of medically verified and licensed professionals.</p>
 </div>
 
+<!-- Search Bar -->
+<div style="max-width: 600px; margin: 0 auto 40px;">
+    <form method="GET" action="{% url 'patient_doctors' %}" style="display: flex; gap: 10px;">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search by name or specialization..." class="form-control" style="flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid var(--border-color); font-size: 15px;">
+        <button type="submit" class="premium-btn btn-primary" style="padding: 12px 24px; border-radius: 30px;"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    </form>
+</div>
+
 <div class="grid-cards">
-    {% for doc in doctors %}
+    {% for doc in page_obj %}
         <div class="premium-card" style="text-align: center; display: flex; flex-direction: column;">
             
             {% if doc.profile_image %}
@@ -22,6 +30,15 @@
             
             <h4 style="color: var(--dark); font-size: 18px; font-weight: 700; margin-bottom: 6px;">Dr. {{ doc.full_name }}</h4>
             <div style="margin-bottom: 12px;"><span class="badge badge-success">License Verified</span></div>
+            
+            <!-- Specializations -->
+            {% if doc.specializations.all %}
+            <div style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-bottom: 10px;">
+                {% for spec in doc.specializations.all %}
+                <span style="background: rgba(31, 191, 143, 0.1); color: var(--primary); font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">{{ spec.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
             
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;"><strong>Experience:</strong> {{ doc.experience_years }} years</p>
             
@@ -36,4 +53,26 @@
         </div>
     {% endfor %}
 </div>
+
+<!-- Pagination Controls -->
+{% if page_obj.has_other_pages %}
+<div style="display: flex; justify-content: center; gap: 8px; margin-top: 40px;">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="premium-btn btn-secondary" style="padding: 8px 16px;"><i class="fa-solid fa-arrow-left"></i> Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="premium-btn btn-primary" style="padding: 8px 16px; background: var(--primary); color: white; cursor: default;">{{ num }}</span>
+        {% else %}
+            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="premium-btn btn-secondary" style="padding: 8px 16px;">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="premium-btn btn-secondary" style="padding: 8px 16px;">Next <i class="fa-solid fa-arrow-right"></i></a>
+    {% endif %}
+</div>
+{% endif %}
+
 {% endblock %}

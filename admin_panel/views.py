@@ -171,3 +171,50 @@ def admin_patients(request):
         "admin": admin,
         "patients": patients,
     })
+
+
+# ── Disease Mappings ─────────────────────────────────────────────────────────
+
+def disease_mappings(request):
+    admin = get_session_admin(request)
+    if not admin:
+        request.session.flush()
+        return redirect("admin_login")
+
+    from .models import DiseaseSpecialtyMapping
+
+    if request.method == "POST":
+        disease_name = request.POST.get("disease_name", "").strip()
+        specialty_name = request.POST.get("specialty_name", "").strip()
+
+        if disease_name and specialty_name:
+            # Simple upsert
+            mapping, created = DiseaseSpecialtyMapping.objects.update_or_create(
+                disease_name__iexact=disease_name,
+                defaults={
+                    'disease_name': disease_name,
+                    'specialty_name': specialty_name
+                }
+            )
+            messages.success(request, f"Mapping created: {disease_name} -> {specialty_name}")
+        else:
+            messages.error(request, "Both fields are required.")
+        return redirect("admin_disease_mappings")
+
+    mappings = DiseaseSpecialtyMapping.objects.all().order_by('-created_at')
+
+    return render(request, "admin_panel/disease_mappings.html", {
+        "admin": admin,
+        "mappings": mappings,
+    })
+
+def delete_disease_mapping(request, mapping_id):
+    admin = get_session_admin(request)
+    if not admin:
+        return redirect("admin_login")
+        
+    from .models import DiseaseSpecialtyMapping
+    mapping = get_object_or_404(DiseaseSpecialtyMapping, id=mapping_id)
+    mapping.delete()
+    messages.success(request, "Mapping deleted successfully.")
+    return redirect("admin_disease_mappings")

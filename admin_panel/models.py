@@ -16,3 +16,12 @@ class AdminUser(models.Model):
 
     def __str__(self):
         return self.username
+
+
+class DiseaseSpecialtyMapping(models.Model):
+    disease_name = models.CharField(max_length=200, unique=True, help_text="Name of the disease as output by the PredictaCare AI.")
+    specialty_name = models.CharField(max_length=200, help_text="Which doctor specialty to consult for this disease (e.g. Dermatologist).")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.disease_name} -> {self.specialty_name}"

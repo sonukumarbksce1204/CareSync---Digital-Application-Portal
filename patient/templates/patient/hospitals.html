@@ -16,7 +16,7 @@
 </div>
 
 <div class="grid-cards">
-    {% for hospital in hospitals %}
+    {% for hospital in page_obj %}
         <div class="premium-card" style="display: flex; flex-direction: column;">
             <h4 style="color: var(--dark); font-size: 18px; font-weight: 700; margin-bottom: 8px;">{{ hospital.name }}</h4>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">{{ hospital.city }}, {{ hospital.state }}</p>
@@ -39,4 +39,25 @@
         </div>
     {% endfor %}
 </div>
+<!-- Pagination Controls -->
+{% if page_obj.has_other_pages %}
+<div style="display: flex; justify-content: center; gap: 8px; margin-top: 40px;">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="premium-btn btn-secondary" style="padding: 8px 16px;"><i class="fa-solid fa-arrow-left"></i> Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="premium-btn btn-primary" style="padding: 8px 16px; background: var(--primary); color: white; cursor: default;">{{ num }}</span>
+        {% else %}
+            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="premium-btn btn-secondary" style="padding: 8px 16px;">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="premium-btn btn-secondary" style="padding: 8px 16px;">Next <i class="fa-solid fa-arrow-right"></i></a>
+    {% endif %}
+</div>
+{% endif %}
+
 {% endblock %}

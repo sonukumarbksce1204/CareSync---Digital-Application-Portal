@@ -9,4 +9,8 @@ urlpatterns = [
     path('doctors/', views.admin_doctors, name='admin_doctors'),
     path('hospitals/', views.admin_hospitals, name='admin_hospitals'),
     path('patients/', views.admin_patients, name='admin_patients'),
+    
+    # Disease & Specialists
+    path('disease-mappings/', views.disease_mappings, name='admin_disease_mappings'),
+    path('disease-mappings/delete/<int:mapping_id>/', views.delete_disease_mapping, name='admin_delete_disease_mapping'),
 ]

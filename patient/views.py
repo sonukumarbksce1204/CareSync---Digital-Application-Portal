@@ -222,6 +222,7 @@ def disease_predictor(request):
     result = error = None
     saved = False
 
+    recommended_specialties = []
     if request.method == "POST":
         selected = request.POST.getlist("symptoms")
 
@@ -242,6 +243,14 @@ def disease_predictor(request):
                     prediction_confidence=top["confidence"],
                 )
                 saved = True
+                
+                # Retrieve recommendations
+                from admin_panel.models import DiseaseSpecialtyMapping
+                predicted_titles = [item["disease"] for item in res["top"]]
+                matches = DiseaseSpecialtyMapping.objects.filter(disease_name__in=predicted_titles)
+                # Deduplicate specializations
+                recommended_specialties = list(set([m.specialty_name for m in matches]))
+                
             else:
                 error = "Symptoms not recognized."
 
@@ -249,6 +258,7 @@ def disease_predictor(request):
         "patient": patient,
         "symptom_list": ml["symptom_list"],
         "result": result,
+        "recommended_specialties": recommended_specialties,
         "error": error,
         "saved": saved,
     })
@@ -412,18 +422,37 @@ def contact_page(request):
 # DISCOVERY (HOSPITALS & DOCTORS)
 # ==============================
 def hospitals_list(request):
+    from django.core.paginator import Paginator
     hospitals = Hospital.objects.all()
     q = request.GET.get('q')
     if q: hospitals = hospitals.filter(name__icontains=q)
-    return render(request, 'patient/hospitals.html', {'hospitals': hospitals, 'patient': Patient.objects.filter(user=request.user).first()})
+    
+    paginator = Paginator(hospitals, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'patient/hospitals.html', {'page_obj': page_obj, 'patient': Patient.objects.filter(user=request.user).first()})
 
 def hospital_detail(request, hospital_id):
     hospital = get_object_or_404(Hospital, id=hospital_id)
     return render(request, 'patient/hospital_detail.html', {'hospital': hospital, 'patient': Patient.objects.filter(user=request.user).first()})
 
 def doctors_list(request):
-    doctors = Doctor.objects.filter(verification_status='verified')
-    return render(request, 'patient/doctors.html', {'doctors': doctors, 'patient': Patient.objects.filter(user=request.user).first()})
+    from django.core.paginator import Paginator
+    doctors = Doctor.objects.filter(verification_status='verified').prefetch_related('specializations')
+    q = request.GET.get('q')
+    if q:
+        from django.db.models import Q
+        doctors = doctors.filter(
+            Q(full_name__icontains=q) | 
+            Q(specializations__name__icontains=q)
+        ).distinct()
+        
+    paginator = Paginator(doctors, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'patient/doctors.html', {'page_obj': page_obj, 'patient': Patient.objects.filter(user=request.user).first()})
 
 def doctor_detail(request, doc_id):
     doctor = get_object_or_404(Doctor, doctor_id=doc_id)
