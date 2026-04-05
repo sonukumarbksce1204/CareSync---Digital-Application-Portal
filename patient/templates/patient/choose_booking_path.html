@@ -1,0 +1,43 @@
+{% extends 'patient/patient_base.html' %}
+
+{% block title %}Choose Booking Path | CareSync{% endblock %}
+
+{% block content %}
+<style>
+    .path-card { transition: transform 0.2s; }
+    .path-card:hover { transform: translateY(-5px); }
+</style>
+<div style="max-width: 900px; margin: 40px auto; text-align: center;">
+
+    <a href="{% url 'patient_appointments' %}" class="premium-btn btn-secondary" style="font-size: 14px; padding: 8px 16px; margin-bottom: 20px; float: left;">&larr; Back to Appointments</a>
+    <div style="clear: both;"></div>
+
+    <h2 style="color: var(--dark); font-size: 32px; font-weight: 800; margin-bottom: 15px;">Where would you like to visit?</h2>
+    <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 40px;">Select how you want to schedule your upcoming appointment.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+        
+        <!-- Book with Doctor -->
+        <div class="premium-card path-card" style="padding: 40px 30px; border-top: 5px solid var(--primary); display: flex; flex-direction: column; align-items: center; cursor: pointer;" onclick="window.location.href='{% url 'patient_doctors' %}'">
+            <div style="width: 80px; height: 80px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; margin-bottom: 20px;">
+                <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <h3 style="color: var(--dark); font-size: 22px; font-weight: 700; margin-bottom: 10px;">Book with a Doctor</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Search our directory of verified specialists and book directly into their available schedule.</p>
+            <a href="{% url 'patient_doctors' %}" class="premium-btn btn-primary" style="margin-top: auto; width: 100%; text-align: center;">View Doctors &rarr;</a>
+        </div>
+
+        <!-- Book through Hospital -->
+        <div class="premium-card path-card" style="padding: 40px 30px; border-top: 5px solid #10B981; display: flex; flex-direction: column; align-items: center; cursor: pointer;" onclick="window.location.href='{% url 'patient_hospitals' %}'">
+            <div style="width: 80px; height: 80px; background: #D1FAE5; color: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; margin-bottom: 20px;">
+                <i class="fa-regular fa-hospital"></i>
+            </div>
+            <h3 style="color: var(--dark); font-size: 22px; font-weight: 700; margin-bottom: 10px;">Book at a Facility</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Find a preferred hospital or clinic and schedule an appointment with their affiliated doctors.</p>
+            <a href="{% url 'patient_hospitals' %}" class="premium-btn btn-success" style="margin-top: auto; width: 100%; text-align: center; background-color: #10B981; border-color: #059669;">View Facilities &rarr;</a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

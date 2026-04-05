@@ -307,7 +307,9 @@ class Appointment(models.Model):
     doctor = models.ForeignKey('doctor.Doctor', on_delete=models.SET_NULL, null=True, blank=True, related_name='appointments')
     hospital = models.ForeignKey('hospital.Hospital', on_delete=models.SET_NULL, null=True, blank=True, related_name='appointments')
     
-    preferred_date = models.DateField()
+    slot = models.OneToOneField('doctor.DoctorAvailabilitySlot', on_delete=models.SET_NULL, null=True, blank=True, related_name='appointment_record')
+    
+    preferred_date = models.DateField(null=True, blank=True)
     appointment_time = models.TimeField(null=True, blank=True)
     
     reason = models.TextField()

@@ -459,6 +459,114 @@ def doctor_detail(request, doc_id):
     return render(request, 'patient/doctor_detail.html', {'doctor': doctor, 'patient': Patient.objects.filter(user=request.user).first()})
 
 # ==============================
+# BOOKING ENTRY DISPATCH
+# ==============================
+def choose_booking_path(request):
+    """Intermediate page: patient picks Doctor booking vs Hospital booking."""
+    if not request.user.is_authenticated:
+        return redirect('patient_login')
+    patient = Patient.objects.filter(user=request.user).first()
+    return render(request, 'patient/choose_booking_path.html', {'patient': patient})
+
+
+# ==============================
+# HOSPITAL-SPECIFIC BOOKING (affiliated doctors only)
+# ==============================
+def book_hospital_appointment(request, hospital_id):
+    """Slot-based booking through a specific hospital. Only shows that hospital's affiliated doctors."""
+    import django.contrib.messages as messages
+    from django.db import transaction
+    from doctor.models import DoctorAvailabilitySlot, HospitalAffiliation
+
+    if not request.user.is_authenticated:
+        return redirect('patient_login')
+    patient = Patient.objects.filter(user=request.user).first()
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+
+    # Only affiliated+approved doctors for this hospital
+    affiliated_doctor_ids = HospitalAffiliation.objects.filter(
+        hospital=hospital, status='APPROVED'
+    ).values_list('doctor_id', flat=True)
+    affiliated_doctors = Doctor.objects.filter(
+        id__in=affiliated_doctor_ids, verification_status='verified'
+    ).prefetch_related('specializations')
+
+    if request.method == 'POST':
+        slot_id = request.POST.get('slot_id')
+        reason = request.POST.get('reason', '').strip()
+        visit_mode = request.POST.get('visit_mode', '').strip()
+
+        if not slot_id:
+            messages.error(request, 'Please select an available time slot.')
+        elif not reason:
+            messages.error(request, 'Please provide a reason for your appointment.')
+        else:
+            with transaction.atomic():
+                # Must belong to an affiliated doctor AND this hospital (or unlinked)
+                slot = DoctorAvailabilitySlot.objects.select_for_update().filter(
+                    id=slot_id,
+                    doctor__id__in=affiliated_doctor_ids,
+                    status='AVAILABLE'
+                ).first()
+
+                if not slot:
+                    messages.error(request, 'This slot is no longer available. Please try another.')
+                else:
+                    already = Appointment.objects.filter(
+                        patient=patient, slot=slot,
+                        status__in=['REQUESTED', 'APPROVED', 'IN_CONSULTATION']
+                    ).exists()
+                    if already:
+                        messages.error(request, 'You already have a request for this slot.')
+                    else:
+                        slot.status = 'PENDING'
+                        slot.save()
+                        apt = Appointment(
+                            patient=patient,
+                            doctor=slot.doctor,
+                            hospital=hospital,
+                            slot=slot,
+                            preferred_date=slot.date,
+                            appointment_time=slot.start_time,
+                            reason=reason,
+                            visit_mode=visit_mode or None,
+                            status='REQUESTED',
+                        )
+                        apt.save()
+                        messages.success(request, 'Appointment request submitted. Awaiting confirmation.')
+                        return redirect('patient_appointments')
+
+    from datetime import date
+    form = AppointmentForm(initial={'hospital': hospital.id})
+    return render(request, 'patient/book_appointment.html', {
+        'form': form,
+        'patient': patient,
+        'hospital': hospital,
+        'all_doctors': affiliated_doctors,
+        'today': date.today(),
+    })
+
+
+# ==============================
+# HOSPITAL BOOKING CHOICE PAGE
+# ==============================
+def hospital_booking_choice(request, hospital_id):
+    """Shows two options: book an affiliated doctor OR book the clinic directly."""
+    if not request.user.is_authenticated:
+        return redirect('patient_login')
+    patient = Patient.objects.filter(user=request.user).first()
+    hospital = get_object_or_404(Hospital, id=hospital_id)
+    # Count affiliated doctors for context
+    from doctor.models import HospitalAffiliation
+    affiliated_count = HospitalAffiliation.objects.filter(hospital=hospital, status='APPROVED').count()
+    return render(request, 'patient/hospital_booking_choice.html', {
+        'patient': patient,
+        'hospital': hospital,
+        'affiliated_count': affiliated_count,
+    })
+
+
+# ==============================
 # APPOINTMENTS
 # ==============================
 def appointments_view(request):
@@ -508,14 +616,69 @@ def appointments_view(request):
 
 def book_appointment(request):
     import django.contrib.messages as messages
+    from django.db import transaction
+    from doctor.models import DoctorAvailabilitySlot
     patient = Patient.objects.filter(user=request.user).first()
+
     if request.method == 'POST':
+        slot_id = request.POST.get('slot_id')
+        reason = request.POST.get('reason', '').strip()
+        visit_mode = request.POST.get('visit_mode', '')
+
+        # --- Slot-based booking (new flow) ---
+        if slot_id:
+            if not reason:
+                messages.error(request, 'Please provide a reason for the appointment.')
+                return redirect(request.get_full_path())
+
+            with transaction.atomic():
+                # Lock the slot row to prevent race conditions
+                slot = DoctorAvailabilitySlot.objects.select_for_update().filter(
+                    id=slot_id, status='AVAILABLE'
+                ).first()
+
+                if not slot:
+                    messages.error(request, 'This slot is no longer available. Please choose another.')
+                    return redirect('book_appointment')
+
+                # Prevent duplicate bookings
+                already = Appointment.objects.filter(
+                    patient=patient, slot=slot,
+                    status__in=['REQUESTED', 'APPROVED', 'IN_CONSULTATION']
+                ).exists()
+                if already:
+                    messages.error(request, 'You already have a request for this slot.')
+                    return redirect('patient_appointments')
+
+                # Mark slot as PENDING immediately
+                slot.status = 'PENDING'
+                slot.save()
+
+                apt = Appointment(
+                    patient=patient,
+                    doctor=slot.doctor,
+                    hospital=slot.hospital,
+                    slot=slot,
+                    preferred_date=slot.date,
+                    appointment_time=slot.start_time,
+                    reason=reason,
+                    visit_mode=visit_mode or None,
+                    status='REQUESTED',
+                )
+                apt.save()
+
+            messages.success(request, 'Appointment request submitted. Awaiting doctor approval.')
+            return redirect('patient_appointments')
+
+        # --- Legacy form-based booking (fallback, no slot selected) ---
         form = AppointmentForm(request.POST)
         if form.is_valid():
             dup = Appointment.objects.filter(
-                patient=patient, preferred_date=form.cleaned_data['preferred_date'], 
-                appointment_time=form.cleaned_data['appointment_time'],
-                doctor=form.cleaned_data['doctor'], hospital=form.cleaned_data['hospital'],
+                patient=patient,
+                preferred_date=form.cleaned_data.get('preferred_date'),
+                appointment_time=form.cleaned_data.get('appointment_time'),
+                doctor=form.cleaned_data.get('doctor'),
+                hospital=form.cleaned_data.get('hospital'),
                 status__in=['REQUESTED', 'APPROVED', 'IN_CONSULTATION']
             ).exists()
             if dup:
@@ -530,23 +693,74 @@ def book_appointment(request):
         doc_id = request.GET.get('doctor')
         hosp_id = request.GET.get('hospital')
         form = AppointmentForm(initial={'doctor': doc_id, 'hospital': hosp_id})
-    return render(request, 'patient/book_appointment.html', {'form': form, 'patient': patient})
+
+    # Gather available slots for the selected doctor (used on the new slot-picker UI)
+    from doctor.models import DoctorAvailabilitySlot
+    from datetime import date
+    doc_id = request.GET.get('doctor') or request.POST.get('doctor_prefill')
+    hosp_id = request.GET.get('hospital')
+    available_dates = []
+    selected_doctor = None
+    selected_hospital = None
+    if doc_id:
+        selected_doctor = Doctor.objects.filter(doctor_id=doc_id, verification_status='verified').first()
+        if selected_doctor:
+            available_dates = list(
+                DoctorAvailabilitySlot.objects.filter(
+                    doctor=selected_doctor, status='AVAILABLE', date__gte=date.today()
+                ).values_list('date', flat=True).distinct().order_by('date')
+            )
+    if hosp_id:
+        selected_hospital = Hospital.objects.filter(id=hosp_id).first()
+
+    is_direct = request.GET.get('direct') == 'true'
+    if is_direct:
+        all_doctors = []
+    elif doc_id and selected_doctor:
+        # Pre-filter to just the selected doctor — patient came from a doctor card / detail page
+        all_doctors = Doctor.objects.filter(doctor_id=doc_id, verification_status='verified').prefetch_related('specializations')
+    else:
+        all_doctors = Doctor.objects.filter(verification_status='verified').prefetch_related('specializations')
+
+    return render(request, 'patient/book_appointment.html', {
+        'form': form,
+        'patient': patient,
+        'selected_doctor': selected_doctor,
+        'selected_hospital': selected_hospital,
+        'available_dates': available_dates,
+        'all_doctors': all_doctors,
+        'doc_prefill': doc_id,
+        'hosp_prefill': hosp_id,
+        'is_direct_booking': is_direct,
+        'today': date.today(),
+    })
 
 def cancel_appointment(request, apt_id):
     import django.contrib.messages as messages
     from django.utils import timezone as tz
+    from django.db import transaction
+    from doctor.models import DoctorAvailabilitySlot
     if request.method != 'POST':
         return redirect('patient_appointments')
     patient = Patient.objects.filter(user=request.user).first()
-    apt = get_object_or_404(Appointment, id=apt_id, patient=patient)
-    if apt.status in ['REQUESTED', 'APPROVED']:
-        apt.status = 'CANCELLED'
-        apt.cancelled_at = tz.now()
-        apt.cancellation_reason = request.POST.get('cancellation_reason', '').strip() or None
-        apt.save()
-        messages.success(request, 'Appointment cancelled.')
-    else:
-        messages.error(request, 'Cannot cancel this appointment.')
+
+    with transaction.atomic():
+        apt = get_object_or_404(Appointment, id=apt_id, patient=patient)
+        if apt.status in ['REQUESTED', 'APPROVED']:
+            apt.status = 'CANCELLED'
+            apt.cancelled_at = tz.now()
+            apt.cancellation_reason = request.POST.get('cancellation_reason', '').strip() or None
+            apt.save()
+
+            # Release the slot so others can book
+            if apt.slot_id:
+                DoctorAvailabilitySlot.objects.filter(
+                    id=apt.slot_id, status__in=['PENDING', 'BOOKED']
+                ).update(status='AVAILABLE')
+
+            messages.success(request, 'Appointment cancelled.')
+        else:
+            messages.error(request, 'Cannot cancel this appointment.')
     return redirect('patient_appointments')
 
 

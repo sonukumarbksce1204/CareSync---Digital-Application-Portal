@@ -64,23 +64,15 @@ tr:last-child td{border-bottom:none;}
             <td>{{ apt.reason }}<br><span style="font-size:12px;color:#64748b;">{{ apt.note }}</span></td>
             <td>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    {% if apt.hospital %}
-                    <form method="POST" action="{% url 'update_appointment_status' apt.id 'APPROVED' %}">{% csrf_token %}
-                        <button type="submit" class="btn" style="background:#22c55e;color:white;">✓ Approve</button>
-                    </form>
-                    {% else %}
                     <button type="button" class="btn" style="background:#22c55e;color:white;" onclick="toggleExpand('approve-{{ apt.id }}')">✓ Approve</button>
-                    {% endif %}
                     <button type="button" class="btn" style="background:#ef4444;color:white;" onclick="toggleExpand('reject-{{ apt.id }}')">✗ Reject</button>
                 </div>
-                {% if not apt.hospital %}
                 <div id="approve-{{ apt.id }}" class="reject-expand">
                     <form method="POST" action="{% url 'update_appointment_status' apt.id 'APPROVED' %}">{% csrf_token %}
-                        <textarea name="meeting_link_or_address" class="reason-textarea" rows="2" placeholder="Enter Clinic Address or Online Meeting Link..."></textarea>
+                        <textarea name="meeting_link_or_address" class="reason-textarea" rows="2" placeholder="Enter specific Room/Department, Clinic Address or Online Meeting Link..."></textarea>
                         <button type="submit" class="btn" style="background:#16a34a;color:white;margin-top:6px;width:100%;">Confirm Approval & Send Details</button>
                     </form>
                 </div>
-                {% endif %}
                 <div id="reject-{{ apt.id }}" class="reject-expand">
                     <form method="POST" action="{% url 'update_appointment_status' apt.id 'REJECTED' %}">{% csrf_token %}
                         <textarea name="rejection_reason" class="reason-textarea" rows="2" placeholder="Reason for rejection (patient will see this)..."></textarea>

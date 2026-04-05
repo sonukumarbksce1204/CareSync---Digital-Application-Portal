@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Hospital • CareSync Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;flex-shrink:0;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
+.main{flex:1;padding:40px;overflow-y:auto;}
+.page-title{color:white;font-size:24px;font-weight:700;margin-bottom:4px;}
+.subtitle{color:#64748b;font-size:14px;margin-bottom:28px;}
+
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:30px;max-width:800px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;}
+.form-group input,.form-group select,.form-group textarea{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;padding:10px 14px;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+.form-group input:focus,.form-group select:focus{border-color:#1FBF8F;box-shadow:0 0 0 3px rgba(31,191,143,0.12);}
+.form-group select option{background:#1e293b;color:white;}
+.form-group input[type=checkbox]{width:16px;height:16px;accent-color:#1FBF8F;}
+
+.btn-save{background:linear-gradient(135deg,#1FBF8F,#3EC7A6);color:white;border:none;padding:12px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:.2s;margin-top:8px;}
+.btn-save:hover{opacity:.9;transform:translateY(-1px);}
+.btn-back{display:inline-flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:13px;margin-bottom:20px;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);transition:.2s;}
+.btn-back:hover{color:white;border-color:rgba(255,255,255,0.2);}
+.section-label{color:#94a3b8;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:30px 0 15px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;}
+</style>
+</head>
+<body>
+{% include 'admin_panel/_sidebar.html' with active='hospitals' %}
+<div class="main">
+    <a href="{% url 'admin_hospitals' %}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Hospitals</a>
+    <div class="page-title">Edit Hospital</div>
+    <p class="subtitle">Update details for {{ hospital.name }}.</p>
+
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="section-label">General Information</div>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Hospital Name</label>
+                    <input type="text" name="name" value="{{ hospital.name }}" required>
+                </div>
+                <div class="form-group" style="opacity:0.7;pointer-events:none;">
+                    <label>Registration Number (Immutable)</label>
+                    <input type="text" value="{{ hospital.registration_number }}">
+                </div>
+                <div class="form-group">
+                    <label>Hospital Type</label>
+                    <select name="hospital_type">
+                        <option value="Private" {% if hospital.hospital_type == 'Private' %}selected{% endif %}>Private</option>
+                        <option value="Government" {% if hospital.hospital_type == 'Government' %}selected{% endif %}>Government</option>
+                        <option value="Trust" {% if hospital.hospital_type == 'Trust' %}selected{% endif %}>Trust</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section-label">Location Details</div>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Address</label>
+                    <input type="text" name="address" value="{{ hospital.address }}" required>
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="city" value="{{ hospital.city }}" required>
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" name="state" value="{{ hospital.state }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Pincode</label>
+                    <input type="text" name="pincode" value="{{ hospital.pincode }}" required>
+                </div>
+            </div>
+
+            <div class="section-label">Contact & Services</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Contact Number</label>
+                    <input type="text" name="contact_number" value="{{ hospital.contact_number }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" value="{{ hospital.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Website</label>
+                    <input type="url" name="website" value="{{ hospital.website|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label>Total Beds</label>
+                    <input type="number" name="total_beds" value="{{ hospital.total_beds }}" min="0">
+                </div>
+                <div class="form-group full" style="flex-direction:row;align-items:center;gap:10px;">
+                    <input type="checkbox" name="emergency_services" id="em_srv" {% if hospital.emergency_services %}checked{% endif %}>
+                    <label for="em_srv" style="margin:0;color:white;text-transform:none;">Provides 24/7 Emergency Services</label>
+                </div>
+            </div>
+
+            <div class="section-label" style="color:#f87171;">Security Danger Zone</div>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Reset Password (leave blank to keep current password)</label>
+                    <input type="password" name="new_password" placeholder="Enter new password to reset">
+                </div>
+            </div>
+
+            <div style="margin-top:30px;display:flex;gap:12px;align-items:center;">
+                <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                <a href="{% url 'admin_hospitals' %}" class="btn-back" style="margin-bottom:0;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

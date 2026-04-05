@@ -1,0 +1,5 @@
+Operations to perform:
+  Apply all migrations: admin, admin_panel, auth, contenttypes, doctor, hospital, patient, sessions
+Running migrations:
+  Applying hospital.0002_hospitalclosure... OK
+  Applying doctor.0006_doctorleave_doctorweeklyavailability... OK

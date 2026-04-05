@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q
 from django.utils import timezone
+from django.http import JsonResponse
 
-from .models import Doctor, Specialization, DoctorVerification, Qualification, HospitalAffiliation
+from .models import Doctor, Specialization, DoctorVerification, Qualification, HospitalAffiliation, DoctorAvailabilitySlot
 from .forms import DoctorProfileUpdateForm, ConsultationForm, AIReviewForm
 
 from patient.models import (
@@ -382,6 +383,7 @@ def update_appointment_status(request, apt_id, target_status):
        REQUESTED → APPROVED, REJECTED
        APPROVED  → CANCELLED
        (COMPLETED only via save_consultation)
+    Uses select_for_update() so concurrent approvals are safe.
     """
     if request.method != "POST":
         return redirect('doctor_appointments')
@@ -390,32 +392,337 @@ def update_appointment_status(request, apt_id, target_status):
     if not doctor:
         return redirect("doctor_login")
 
-    apt = get_object_or_404(Appointment, id=apt_id, doctor=doctor)
+    from django.db import transaction
 
-    valid_transitions = {
-        'REQUESTED': ['APPROVED', 'REJECTED'],
-        'APPROVED': ['CANCELLED'],
-    }
+    with transaction.atomic():
+        apt = Appointment.objects.select_for_update().filter(id=apt_id, doctor=doctor).first()
+        if not apt:
+            messages.error(request, "Appointment not found.")
+            return redirect('doctor_appointments')
 
-    if apt.status in valid_transitions and target_status in valid_transitions[apt.status]:
-        apt.status = target_status
-        if target_status == 'APPROVED':
-            apt.approved_at = timezone.now()
-            meeting_info = request.POST.get('meeting_link_or_address', '').strip()
-            if meeting_info and not apt.hospital:
-                apt.meeting_link_or_address = meeting_info
-        elif target_status == 'REJECTED':
-            apt.rejected_at = timezone.now()
-            apt.rejection_reason = request.POST.get('rejection_reason', '').strip() or None
-        elif target_status == 'CANCELLED':
-            apt.cancelled_at = timezone.now()
-            apt.cancellation_reason = request.POST.get('cancellation_reason', '').strip() or None
-        apt.save()
-        messages.success(request, f"Appointment {target_status.lower()} successfully.")
-    else:
-        messages.error(request, "Invalid status transition.")
+        valid_transitions = {
+            'REQUESTED': ['APPROVED', 'REJECTED'],
+            'APPROVED': ['CANCELLED'],
+        }
+
+        if apt.status in valid_transitions and target_status in valid_transitions[apt.status]:
+            # Lock the linked slot if it exists
+            slot = None
+            if apt.slot_id:
+                slot = DoctorAvailabilitySlot.objects.select_for_update().filter(id=apt.slot_id).first()
+
+            if target_status == 'APPROVED':
+                # Ensure no other APPROVED appointment overlaps this slot for this doctor
+                if slot:
+                    if slot.status == 'BOOKED':
+                        messages.error(request, "This slot was already booked by someone else.")
+                        return redirect('doctor_appointments')
+                    slot.status = 'BOOKED'
+                    slot.save()
+                apt.approved_at = timezone.now()
+                meeting_info = request.POST.get('meeting_link_or_address', '').strip()
+                if meeting_info and not apt.hospital:
+                    apt.meeting_link_or_address = meeting_info
+
+            elif target_status == 'REJECTED':
+                if slot:
+                    slot.status = 'AVAILABLE'
+                    slot.save()
+                apt.rejected_at = timezone.now()
+                apt.rejection_reason = request.POST.get('rejection_reason', '').strip() or None
+
+            elif target_status == 'CANCELLED':
+                if slot:
+                    slot.status = 'AVAILABLE'
+                    slot.save()
+                apt.cancelled_at = timezone.now()
+                apt.cancellation_reason = request.POST.get('cancellation_reason', '').strip() or None
+
+            apt.status = target_status
+            apt.save()
+            messages.success(request, f"Appointment {target_status.lower().replace('_', ' ')} successfully.")
+        else:
+            messages.error(request, "Invalid status transition.")
 
     return redirect('doctor_appointments')
+
+
+# ── Slot Management ───────────────────────────────────────────────────────────
+
+def manage_slots(request):
+    doctor = get_session_doctor(request)
+    if not doctor:
+        return redirect("doctor_login")
+
+    from django.db import transaction
+    from datetime import date
+    from hospital.models import Hospital
+
+    if request.method == "POST":
+        action = request.POST.get('action')
+
+        if action == 'generate_slots':
+            from doctor.models import DoctorWeeklyAvailability, DoctorLeave
+            from datetime import date, timedelta
+            
+            weekly_rules = doctor.weekly_availability.all()
+            if not weekly_rules.exists():
+                messages.error(request, "No weekly repeating rules. Please add recurring availability first.")
+            else:
+                leaves = doctor.leaves.all()
+                today = date.today()
+                slots_created = 0
+                
+                # We will check existing closures here inside the loop dynamically since Hospital is queried anyway.
+                from hospital.models import HospitalClosure
+
+                for day_offset in range(30):
+                    current_date = today + timedelta(days=day_offset)
+                    
+                    if leaves.filter(start_date__lte=current_date, end_date__gte=current_date).exists():
+                        continue
+                        
+                    day_idx = current_date.weekday()
+                    rules_for_day = weekly_rules.filter(day_of_week=day_idx)
+                    
+                    for rule in rules_for_day:
+                        if rule.hospital and HospitalClosure.objects.filter(
+                            hospital=rule.hospital, start_date__lte=current_date, end_date__gte=current_date
+                        ).exists():
+                            continue
+                            
+                        from datetime import datetime, time, timedelta as td
+
+                        start_dt = datetime.combine(current_date, rule.start_time)
+                        end_dt = datetime.combine(current_date, rule.end_time)
+                        interval_td = td(minutes=rule.interval_minutes)
+                        
+                        current_dt = start_dt
+                        while current_dt + interval_td <= end_dt:
+                            slot_start_time = current_dt.time()
+                            slot_end_time = (current_dt + interval_td).time()
+                            
+                            with transaction.atomic():
+                                if not DoctorAvailabilitySlot.objects.filter(
+                                    doctor=doctor, date=current_date, start_time=slot_start_time
+                                ).exists():
+                                    DoctorAvailabilitySlot.objects.create(
+                                        doctor=doctor,
+                                        date=current_date,
+                                        start_time=slot_start_time,
+                                        end_time=slot_end_time,
+                                        hospital=rule.hospital,
+                                        visit_mode=rule.visit_mode,
+                                        status='AVAILABLE'
+                                    )
+                                    slots_created += 1
+                                    
+                            current_dt += interval_td
+                                
+                messages.success(request, f"Generated {slots_created} fractional slots for the next 30 days.")
+
+        elif action == 'add_weekly_rule':
+            from doctor.models import DoctorWeeklyAvailability
+            day_of_week = request.POST.get('day_of_week')
+            start_time = request.POST.get('start_time')
+            end_time = request.POST.get('end_time')
+            hospital_id = request.POST.get('hospital_id') or None
+            visit_mode = request.POST.get('visit_mode') or None
+            interval_minutes = int(request.POST.get('interval_minutes', 30))
+            
+            if day_of_week and start_time and end_time:
+                hospital = Hospital.objects.filter(id=hospital_id).first() if hospital_id else None
+                DoctorWeeklyAvailability.objects.create(
+                    doctor=doctor, day_of_week=day_of_week, start_time=start_time, end_time=end_time,
+                    interval_minutes=interval_minutes, hospital=hospital, visit_mode=visit_mode
+                )
+                messages.success(request, f"Weekly availability rule added with {interval_minutes}m slots.")
+            else:
+                messages.error(request, "Missing fields for weekly rule.")
+                
+        elif action == 'delete_weekly_rule':
+            from doctor.models import DoctorWeeklyAvailability
+            rule_id = request.POST.get('rule_id')
+            DoctorWeeklyAvailability.objects.filter(id=rule_id, doctor=doctor).delete()
+            messages.success(request, "Weekly availability rule removed.")
+
+        elif action == 'add_leave':
+            from doctor.models import DoctorLeave
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            reason = request.POST.get('reason', '')
+            if start_date and end_date:
+                DoctorLeave.objects.create(doctor=doctor, start_date=start_date, end_date=end_date, reason=reason)
+                messages.success(request, "Leave / override dates marked.")
+            else:
+                messages.error(request, "Start and end dates are required.")
+
+        elif action == 'delete_leave':
+            from doctor.models import DoctorLeave
+            leave_id = request.POST.get('leave_id')
+            DoctorLeave.objects.filter(id=leave_id, doctor=doctor).delete()
+            messages.success(request, "Leave removed.")
+
+        elif action == 'create':
+            slot_date = request.POST.get('date')
+            start_time = request.POST.get('start_time')
+            end_time = request.POST.get('end_time')
+            hospital_id = request.POST.get('hospital_id') or None
+            visit_mode = request.POST.get('visit_mode') or None
+            interval_minutes = int(request.POST.get('interval_minutes', 30))
+
+            if not (slot_date and start_time and end_time):
+                messages.error(request, "Date, start time, and end time are required.")
+                return redirect('doctor_manage_slots')
+
+            try:
+                from datetime import date as _date, datetime
+                parsed_date = date.fromisoformat(slot_date)
+                if parsed_date < date.today():
+                    messages.error(request, "Cannot create slots in the past.")
+                    return redirect('doctor_manage_slots')
+            except ValueError:
+                messages.error(request, "Invalid date.")
+                return redirect('doctor_manage_slots')
+
+            hospital = Hospital.objects.filter(id=hospital_id).first() if hospital_id else None
+
+            from datetime import datetime, timedelta as td
+            try:
+                start_dt = datetime.combine(parsed_date, datetime.strptime(start_time, '%H:%M').time())
+                end_dt = datetime.combine(parsed_date, datetime.strptime(end_time, '%H:%M').time())
+            except ValueError:
+                # Fallback if seconds are included
+                start_dt = datetime.combine(parsed_date, datetime.strptime(start_time, '%H:%M:%S').time())
+                end_dt = datetime.combine(parsed_date, datetime.strptime(end_time, '%H:%M:%S').time())
+
+            interval_td = td(minutes=interval_minutes)
+            current_dt = start_dt
+            slots_created = 0
+
+            with transaction.atomic():
+                while current_dt + interval_td <= end_dt:
+                    slot_start = current_dt.time()
+                    slot_end = (current_dt + interval_td).time()
+                    
+                    overlap = Appointment.objects.filter(
+                        doctor=doctor,
+                        preferred_date=slot_date,
+                        appointment_time=slot_start,
+                        status__in=['REQUESTED', 'APPROVED']
+                    ).exists()
+                    
+                    if not overlap:
+                        _, created = DoctorAvailabilitySlot.objects.get_or_create(
+                            doctor=doctor,
+                            date=slot_date,
+                            start_time=slot_start,
+                            defaults={'end_time': slot_end, 'hospital': hospital, 'status': 'AVAILABLE', 'visit_mode': visit_mode}
+                        )
+                        if created:
+                            slots_created += 1
+                    current_dt += interval_td
+
+            if slots_created > 0:
+                messages.success(request, f"{slots_created} slot(s) created successfully.")
+            else:
+                messages.warning(request, "No new slots created. They may already exist or clash with appointments.")
+
+        elif action == 'block':
+            slot_id = request.POST.get('slot_id')
+            slot = DoctorAvailabilitySlot.objects.filter(id=slot_id, doctor=doctor, status='AVAILABLE').first()
+            if slot:
+                slot.status = 'BLOCKED'
+                slot.save()
+                messages.success(request, "Slot blocked.")
+            else:
+                messages.error(request, "Slot not found or cannot be blocked.")
+
+        elif action == 'unblock':
+            slot_id = request.POST.get('slot_id')
+            slot = DoctorAvailabilitySlot.objects.filter(id=slot_id, doctor=doctor, status='BLOCKED').first()
+            if slot:
+                slot.status = 'AVAILABLE'
+                slot.save()
+                messages.success(request, "Slot unblocked and is now available.")
+            else:
+                messages.error(request, "Slot not found or is not blocked.")
+
+        elif action == 'delete':
+            slot_id = request.POST.get('slot_id')
+            with transaction.atomic():
+                slot = DoctorAvailabilitySlot.objects.select_for_update().filter(
+                    id=slot_id, doctor=doctor
+                ).first()
+                if not slot:
+                    messages.error(request, "Slot not found.")
+                elif slot.status in ('PENDING', 'BOOKED'):
+                    messages.error(request, "Cannot delete a slot that has a pending or booked appointment.")
+                else:
+                    slot.delete()
+                    messages.success(request, "Slot deleted.")
+
+        return redirect('doctor_manage_slots')
+
+    from datetime import date as _date
+    all_slots = DoctorAvailabilitySlot.objects.filter(
+        doctor=doctor, date__gte=_date.today()
+    ).order_by('date', 'start_time').select_related('hospital', 'appointment_record__patient__user')
+
+    affiliated_hospitals = HospitalAffiliation.objects.filter(
+        doctor=doctor, status='APPROVED'
+    ).select_related('hospital')
+
+    return render(request, 'doctor/manage_slots.html', {
+        'doctor': doctor,
+        'slots': all_slots,
+        'affiliated_hospitals': affiliated_hospitals,
+        'slots_available': all_slots.filter(status='AVAILABLE').count(),
+        'slots_pending': all_slots.filter(status='PENDING').count(),
+        'slots_booked': all_slots.filter(status='BOOKED').count(),
+        'slots_blocked': all_slots.filter(status='BLOCKED').count(),
+        'weekly_rules': doctor.weekly_availability.all(),
+        'leaves': doctor.leaves.all(),
+    })
+
+
+def get_doctor_slots_ajax(request):
+    """AJAX: returns AVAILABLE slots for a doctor on a given date — used by patient booking."""
+    doctor_id = request.GET.get('doctor_id')
+    slot_date = request.GET.get('date')
+    hospital_id = request.GET.get('hospital_id')  # optional filter for hospital booking
+    if not doctor_id or not slot_date:
+        return JsonResponse([], safe=False)
+
+    qs = DoctorAvailabilitySlot.objects.filter(
+        doctor__doctor_id=doctor_id,
+        date=slot_date,
+        status='AVAILABLE'
+    )
+    if hospital_id:
+        # Filter to slots tied to this hospital or general (no hospital)
+        qs = qs.filter(hospital_id=hospital_id) | DoctorAvailabilitySlot.objects.filter(
+            doctor__doctor_id=doctor_id, date=slot_date, status='AVAILABLE', hospital__isnull=True
+        )
+        qs = qs.distinct()
+
+    # Filter out leaves and closures real-time for an extra layer of safety
+    from doctor.models import DoctorLeave
+    if DoctorLeave.objects.filter(doctor__doctor_id=doctor_id, start_date__lte=slot_date, end_date__gte=slot_date).exists():
+        return JsonResponse([], safe=False)
+        
+    from hospital.models import HospitalClosure
+    if hospital_id:
+        if HospitalClosure.objects.filter(hospital_id=hospital_id, start_date__lte=slot_date, end_date__gte=slot_date).exists():
+            # If hospital closed, remove all hospital bound slots
+            qs = qs.exclude(hospital_id=hospital_id)
+
+    data = [
+        {'id': s.id, 'start': str(s.start_time)[:5], 'end': str(s.end_time)[:5],
+         'mode': s.visit_mode or ''}
+        for s in qs.order_by('start_time')
+    ]
+    return JsonResponse(data, safe=False)
 
 
 # ── My Patients ───────────────────────────────────────────────────────────────

@@ -1,0 +1,12 @@
+{% comment %}Shared admin sidebar — include in every admin page{% endcomment %}
+<div class="sidebar">
+    <div class="logo">CareSync <span>Admin Panel</span></div>
+    <nav class="nav">
+        <a href="{% url 'admin_dashboard' %}" {% if active == 'dashboard' %}class="active"{% endif %}>🏠 Dashboard</a>
+        <a href="{% url 'admin_doctors' %}" {% if active == 'doctors' %}class="active"{% endif %}>👨‍⚕️ Doctors</a>
+        <a href="{% url 'admin_hospitals' %}" {% if active == 'hospitals' %}class="active"{% endif %}>🏥 Hospitals</a>
+        <a href="{% url 'admin_patients' %}" {% if active == 'patients' %}class="active"{% endif %}>👥 Patients</a>
+        <a href="{% url 'admin_disease_mappings' %}" {% if active == 'mappings' %}class="active"{% endif %}>⚕️ Disease Mappings</a>
+    </nav>
+    <a href="{% url 'admin_logout' %}" class="logout-btn">⬅ Logout</a>
+</div>

@@ -9,6 +9,7 @@
         <a href="{% url 'my_patients' %}" class="{% if request.resolver_match.url_name == 'my_patients' %}active{% endif %}">👥 My Patients</a>
         <a href="{% url 'doctor_hospital_affiliations' %}" class="{% if request.resolver_match.url_name == 'doctor_hospital_affiliations' %}active{% endif %}">🏥 Hospital Affiliations</a>
         <a href="{% url 'doctor_disease_catalog' %}" class="{% if request.resolver_match.url_name == 'doctor_disease_catalog' %}active{% endif %}">🧬 Disease Catalog</a>
+        <a href="{% url 'doctor_manage_slots' %}" class="{% if request.resolver_match.url_name == 'doctor_manage_slots' %}active{% endif %}">🗓️ Manage Slots</a>
         <a href="{% url 'doctor_profile' %}" class="{% if request.resolver_match.url_name == 'doctor_profile' %}active{% endif %}">⚙️ Profile Settings</a>
     </nav>
     

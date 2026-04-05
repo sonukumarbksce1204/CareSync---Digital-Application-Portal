@@ -50,3 +50,13 @@ class HospitalImage(models.Model):
 
     def __str__(self):
         return f"Image of {self.hospital.name}"
+
+
+class HospitalClosure(models.Model):
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='closures')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"{self.hospital.name} Closure: {self.start_date} to {self.end_date}"

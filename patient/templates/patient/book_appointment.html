@@ -3,37 +3,283 @@
 {% block title %}Book Appointment | CareSync{% endblock %}
 
 {% block content %}
-<div class="page-header" style="text-align: center; margin-bottom: 40px; padding-bottom: 20px;">
+<div class="page-header" style="text-align:center; margin-bottom:30px;">
     <h1 class="page-title">Book an Appointment</h1>
-    <p class="page-subtitle">Schedule a visit with our network of healthcare professionals.</p>
+    <p class="page-subtitle">
+        {% if selected_hospital %}
+            Booking at <strong>{{ selected_hospital.name }}</strong> — choose a doctor, pick a slot, and submit.
+        {% else %}
+            Select a doctor, choose an available slot, and submit your request.
+        {% endif %}
+    </p>
 </div>
 
-<div class="glass-panel" style="max-width: 600px; margin: 0 auto; border-top: 4px solid var(--primary);">
+{% if messages %}
+{% for msg in messages %}
+<div class="alert {% if 'error' in msg.tags %}error{% else %}success{% endif %}" style="margin-bottom:20px;">
+    <i class="fa-solid {% if 'error' in msg.tags %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+    {{ msg }}
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="glass-panel" style="max-width:760px; margin:0 auto; border-top:4px solid var(--primary);">
+
+    {% if selected_hospital %}
+    <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.15); border-radius:10px; padding:14px 18px; margin-bottom:24px; font-size:13px; color:var(--text-muted); display:flex; gap:12px; align-items:center;">
+        <i class="fa-regular fa-hospital" style="color:var(--primary); font-size:18px; flex-shrink:0;"></i>
+        <span>Showing only doctors affiliated with <strong style="color:var(--dark);">{{ selected_hospital.name }}</strong>. Slots are filtered to this facility.</span>
+    </div>
+    {% endif %}
+
+    <!-- STEP 1: Search + Pick Doctor -->
+    <h3 style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:14px;">
+        <span style="background:var(--primary); color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:8px;">1</span>
+        Select a Doctor
+    </h3>
+
+    {% if not is_direct_booking %}
+    <!-- Doctor Search Bar -->
+    <div style="position:relative; margin-bottom:20px;">
+        <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size:14px;"></i>
+        </span>
+        <input type="text" id="doctor-search" placeholder="Search doctor by name or specialization…"
+               class="premium-input"
+               style="padding-left:40px; width:100%;"
+               oninput="filterDoctors(this.value)">
+    </div>
+    {% endif %}
+
+    <div id="doctors-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px; margin-bottom:28px;">
+        {% for doc in all_doctors %}
+        <div class="doctor-card {% if selected_doctor and selected_doctor.doctor_id == doc.doctor_id %}selected{% endif %}"
+             id="dc-{{ doc.doctor_id }}"
+             data-name="dr. {{ doc.full_name|lower }}"
+             data-specs="{% for s in doc.specializations.all %}{{ s.name|lower }} {% endfor %}"
+             onclick="selectDoctor('{{ doc.doctor_id }}', '{{ doc.full_name }}', this)"
+             style="border:2px solid {% if selected_doctor and selected_doctor.doctor_id == doc.doctor_id %}var(--primary){% else %}var(--border-color){% endif %};
+                    border-radius:10px; padding:14px; cursor:pointer; transition:.2s;
+                    background:{% if selected_doctor and selected_doctor.doctor_id == doc.doctor_id %}var(--primary-light){% else %}#fff{% endif %};">
+            <div style="font-weight:700; font-size:14px; color:var(--text-dark); margin-bottom:4px;">Dr. {{ doc.full_name }}</div>
+            {% for spec in doc.specializations.all %}
+            <span style="background:rgba(37,99,235,.08); color:var(--primary); font-size:10px; padding:1px 6px; border-radius:8px; font-weight:600; display:inline-block; margin-bottom:2px;">{{ spec.name }}</span>
+            {% endfor %}
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">{{ doc.experience_years }} yrs exp.</div>
+        </div>
+        {% empty %}
+        <div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-muted); font-size:14px; background:#f8f9fa; border-radius:10px; border:1px dashed var(--border-color);">
+            <i class="fa-regular fa-face-sad-tear" style="font-size:28px; display:block; margin-bottom:10px; opacity:.5;"></i>
+            No affiliated doctors found for this facility.</i>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- No results message for search -->
+    <div id="no-search-result" style="display:none; text-align:center; padding:20px; color:var(--text-muted); font-size:14px; background:#f8f9fa; border-radius:10px; border:1px dashed var(--border-color); margin-bottom:28px;">
+        <i class="fa-solid fa-user-slash" style="font-size:24px; display:block; margin-bottom:8px; opacity:.5;"></i>
+        No doctors match your search. Try a different name or specialization.
+    </div>
+
+    <!-- STEP 2: Pick Date -->
+    <div id="date-section" style="display:{% if selected_doctor %}block{% else %}none{% endif %}; margin-bottom:28px;">
+        <h3 style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:16px;">
+            <span style="background:var(--primary); color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:8px;">2</span>
+            Choose a Date
+        </h3>
+        <input type="date" id="slot-date-picker" class="premium-input" style="max-width:280px;"
+               onchange="loadSlots()" min="{{ today|date:'Y-m-d' }}">
+        <div id="date-info" style="font-size:13px; color:var(--text-muted); margin-top:8px;"></div>
+    </div>
+
+    <!-- STEP 3: Pick Slot -->
+    <div id="slot-section" style="display:none; margin-bottom:28px;">
+        <h3 style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:16px;">
+            <span style="background:var(--primary); color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:8px;">3</span>
+            Available Time Slots
+        </h3>
+        <div id="slots-grid" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+        <div id="no-slots-msg" style="display:none; color:var(--text-muted); font-size:14px; padding:20px; text-align:center;">
+            <i class="fa-regular fa-calendar-xmark" style="font-size:28px; margin-bottom:8px; display:block;"></i>
+            No available slots for this date. Try another date.
+        </div>
+    </div>
+
+    <!-- STEP 4: Confirm Booking -->
+    <div id="confirm-section" style="display:none;">
+        <h3 style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:16px;">
+            <span style="background:var(--primary); color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:8px;">4</span>
+            Confirm Your Request
+        </h3>
+        <div id="selection-summary" style="background:var(--primary-light); border:1px solid #BFDBFE; border-radius:10px; padding:16px; margin-bottom:16px; font-size:14px;"></div>
+
+        <form method="POST" id="booking-form">
+            {% csrf_token %}
+            <input type="hidden" name="slot_id" id="selected_slot_id">
+            <div class="form-group">
+                <label for="reason">Reason for Visit</label>
+                <textarea name="reason" id="reason" required class="premium-input" style="min-height:80px;" placeholder="e.g. Recurring headaches and dizziness for 3 days..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="visit_mode">Visit Mode</label>
+                <select name="visit_mode" id="visit_mode" class="premium-input">
+                    <option value="">— Prefer not to specify —</option>
+                    <option value="IN_PERSON">In Person</option>
+                    <option value="ONLINE">Online / Teleconsult</option>
+                </select>
+            </div>
+            <button type="submit" class="premium-btn btn-primary" style="width:100%; padding:14px; font-size:16px; margin-top:10px;">
+                <i class="fa-solid fa-paper-plane" style="margin-right:8px;"></i> Submit Appointment Request
+            </button>
+        </form>
+    </div>
+
+    <!-- Fallback old form (direct clinic booking, no slot system) -->
+    {% if not all_doctors %}
+    {% if is_direct_booking %}
+    <div style="background:rgba(37,99,235,0.05); border-left:4px solid var(--primary); padding:15px; margin-bottom:20px; border-radius:6px;">
+        <i class="fa-solid fa-hospital" style="color:var(--primary); margin-right:8px;"></i>
+        <strong>Direct Clinic Booking:</strong> You are submitting a general appointment request for the facility. A specific doctor is not selected; the reception will assign one based on your reason/symptoms.
+    </div>
+    {% endif %}
     <form method="POST" class="premium-form">
         {% csrf_token %}
-        
-        {% if form.non_field_errors %}
-            <div class="alert error" style="margin-bottom: 20px;">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                {% for err in form.non_field_errors %}
-                    <p style="margin: 0; font-size: 14px;">{{ err }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-        
         {% for field in form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <div style="color: var(--danger); font-size: 13px; margin-top: 5px;">{{ field.errors.as_text }}</div>
-                {% endif %}
-            </div>
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div style="color:var(--danger); font-size:13px; margin-top:5px;">{{ field.errors.as_text }}</div>{% endif %}
+        </div>
         {% endfor %}
-        
-        <button type="submit" class="premium-btn btn-primary" style="width: 100%; margin-top: 20px; font-size: 16px; padding: 14px;">
-            Confirm Appointment
-        </button>
+        <button type="submit" class="premium-btn btn-primary" style="width:100%; margin-top:20px;">Confirm Appointment</button>
     </form>
+    {% endif %}
 </div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let selectedDoctorId = '{{ doc_prefill|default:"" }}';
+let selectedSlotId   = null;
+let selectedSlotLabel = '';
+const HOSPITAL_ID    = '{{ hosp_prefill|default:"" }}';  // passed from view when booking via hospital
+
+// ── Doctor selection ──────────────────────────────────────────────────────────
+function selectDoctor(doctorId, doctorName, cardEl) {
+    selectedDoctorId = doctorId;
+
+    document.querySelectorAll('.doctor-card').forEach(c => {
+        c.style.borderColor = 'var(--border-color)';
+        c.style.background  = '#fff';
+        c.classList.remove('selected');
+    });
+    cardEl.style.borderColor = 'var(--primary)';
+    cardEl.style.background  = 'var(--primary-light)';
+    cardEl.classList.add('selected');
+
+    document.getElementById('date-section').style.display  = 'block';
+    document.getElementById('slot-section').style.display  = 'none';
+    document.getElementById('confirm-section').style.display = 'none';
+    document.getElementById('slot-date-picker').value = '';
+    document.getElementById('slots-grid').innerHTML = '';
+}
+
+// ── Doctor search / filter ────────────────────────────────────────────────────
+function filterDoctors(query) {
+    const q = query.toLowerCase().trim();
+    const cards = document.querySelectorAll('.doctor-card');
+    let visible = 0;
+
+    cards.forEach(card => {
+        const name  = card.dataset.name  || '';
+        const specs = card.dataset.specs || '';
+        const match = !q || name.includes(q) || specs.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+
+    document.getElementById('no-search-result').style.display = (visible === 0 && q) ? 'block' : 'none';
+}
+
+// ── Slot loading via AJAX ─────────────────────────────────────────────────────
+function loadSlots() {
+    const date = document.getElementById('slot-date-picker').value;
+    if (!date || !selectedDoctorId) return;
+
+    document.getElementById('slot-section').style.display = 'block';
+    document.getElementById('slots-grid').innerHTML = '<span style="color:var(--text-muted); font-size:14px;">Loading slots…</span>';
+    document.getElementById('no-slots-msg').style.display = 'none';
+    document.getElementById('confirm-section').style.display = 'none';
+
+    // Build AJAX URL — include hospital_id if we're booking through a hospital
+    let url = `{% url 'doctor_slots_ajax' %}?doctor_id=${selectedDoctorId}&date=${date}`;
+    if (HOSPITAL_ID) url += `&hospital_id=${HOSPITAL_ID}`;
+
+    fetch(url)
+        .then(r => r.json())
+        .then(slots => {
+            const grid = document.getElementById('slots-grid');
+            grid.innerHTML = '';
+            if (!slots.length) {
+                document.getElementById('no-slots-msg').style.display = 'block';
+                return;
+            }
+            slots.forEach(s => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = `${s.start} – ${s.end}`;
+                if (s.mode) btn.title = s.mode === 'IN_PERSON' ? 'In-person visit' : 'Online / Video';
+                btn.style.cssText = 'padding:10px 20px; border:2px solid var(--border-color); border-radius:8px; background:#fff; cursor:pointer; font-size:13px; font-weight:600; transition:.15s;';
+                btn.onclick = function () {
+                    document.querySelectorAll('#slots-grid button').forEach(b => {
+                        b.style.borderColor = 'var(--border-color)';
+                        b.style.background  = '#fff';
+                        b.style.color       = 'var(--text-dark)';
+                    });
+                    btn.style.borderColor = 'var(--primary)';
+                    btn.style.background  = 'var(--primary)';
+                    btn.style.color = '#fff';
+                    selectedSlotId    = s.id;
+                    selectedSlotLabel = `${s.start} – ${s.end}`;
+                    showConfirm(date, selectedSlotLabel);
+                };
+                grid.appendChild(btn);
+            });
+        });
+}
+
+// ── Confirm summary ───────────────────────────────────────────────────────────
+function showConfirm(date, timeLabel) {
+    document.getElementById('selected_slot_id').value = selectedSlotId;
+    const selectedCard = document.querySelector('.doctor-card.selected div');
+    const doctorName = selectedCard ? selectedCard.textContent.trim() : '';
+    let summaryHtml = `<strong>Doctor:</strong> ${doctorName}<br><strong>Date:</strong> ${date}<br><strong>Time:</strong> ${timeLabel}`;
+    {% if selected_hospital %}
+    summaryHtml += `<br><strong>Facility:</strong> {{ selected_hospital.name }}`;
+    {% endif %}
+    document.getElementById('selection-summary').innerHTML = summaryHtml;
+    document.getElementById('confirm-section').style.display = 'block';
+}
+
+// ── On page load: auto-select pre-filled doctor & pre-fill search bar ─────────
+window.addEventListener('DOMContentLoaded', () => {
+    {% if doc_prefill %}
+    const preCard = document.getElementById('dc-{{ doc_prefill }}');
+    if (preCard) {
+        preCard.style.borderColor = 'var(--primary)';
+        preCard.style.background  = 'var(--primary-light)';
+        preCard.classList.add('selected');
+        document.getElementById('date-section').style.display = 'block';
+    }
+    // Pre-fill the search bar with the doctor's name
+    const searchInput = document.getElementById('doctor-search');
+    if (searchInput && preCard) {
+        const nameEl = preCard.querySelector('div');
+        if (nameEl) {
+            searchInput.value = nameEl.textContent.trim();
+            filterDoctors(searchInput.value);
+        }
+    }
+    {% endif %}
+});
+</script>
 {% endblock %}

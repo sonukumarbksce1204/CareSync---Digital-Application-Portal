@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hospital Management • CareSync Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
-.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;flex-shrink:0;}
 .logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
 .logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
 .nav{margin-top:30px;flex:1;}
@@ -16,75 +17,223 @@ body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display
 .nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
 .logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;}
 .logout-btn:hover{background:rgba(248,113,113,0.1);}
-.main{flex:1;padding:40px;overflow-y:auto;}
-h1{color:white;font-size:26px;font-weight:700;margin-bottom:6px;}
-.subtitle{color:#64748b;font-size:14px;margin-bottom:28px;}
-.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;}
+.main{flex:1;padding:36px 40px;overflow-y:auto;}
+.page-title{color:white;font-size:26px;font-weight:700;margin-bottom:4px;}
+.subtitle{color:#64748b;font-size:14px;margin-bottom:24px;}
+
+.top-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
+.search-box{display:flex;gap:10px;align-items:center;}
+.search-box input{padding:10px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;width:280px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+.search-box input:focus{border-color:#1FBF8F;}
+.search-box input::placeholder{color:#4b5563;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;font-size:13px;border-radius:9px;border:none;cursor:pointer;font-weight:600;font-family:'Poppins',sans-serif;transition:.15s;text-decoration:none;}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:7px;}
+.btn-primary{background:linear-gradient(135deg,#1FBF8F,#3EC7A6);color:white;}
+.btn-edit{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.2);}
+.btn-delete{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+.btn-clear{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.2);}
+.btn:hover{filter:brightness(1.15);}
+
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:0;overflow:hidden;margin-bottom:30px;}
 table{width:100%;border-collapse:collapse;}
-th{color:#64748b;font-size:11px;font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);text-transform:uppercase;letter-spacing:0.5px;}
-td{color:#cbd5e1;font-size:14px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+th{color:#64748b;font-size:11px;font-weight:700;text-align:left;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.07);text-transform:uppercase;letter-spacing:0.5px;background:rgba(0,0,0,0.1);}
+td{color:#cbd5e1;font-size:13px;padding:13px 16px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(255,255,255,0.02);}
-.badge-active{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.2);display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+
+.messages{margin-bottom:20px;}
+.msg{padding:12px 16px;border-radius:8px;margin-bottom:8px;font-size:13px;}
+.msg-success{background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);}
+.msg-error{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+
 .avatar-h{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#1FBF8F,#3EC7A6);color:white;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-right:10px;vertical-align:middle;}
 .chip{background:rgba(59,130,246,0.15);color:#93c5fd;border-radius:4px;padding:2px 7px;font-size:11px;margin-right:4px;}
+.action-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center;}
+.modal-content{background:#1e293b;border:1px solid rgba(255,255,255,0.1);border-radius:16px;width:100%;max-width:700px;padding:30px;max-height:90vh;overflow-y:auto;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.modal-title{color:white;font-size:20px;font-weight:700;}
+.close-btn{background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;transition:.2s;}
+.close-btn:hover{color:white;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;}
+.form-group input,.form-group select,.form-group textarea{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;padding:10px 14px;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+.form-group input:focus{border-color:#1FBF8F;}
+.form-group select option{background:#1e293b;color:white;}
 </style>
 </head>
 <body>
-<div class="sidebar">
-    <div class="logo">CareSync <span>Admin Panel</span></div>
-    <nav class="nav">
-        <a href="{% url 'admin_dashboard' %}">🏠 Dashboard</a>
-        <a href="{% url 'admin_doctors' %}">👨‍⚕️ Doctors</a>
-        <a href="{% url 'admin_hospitals' %}" class="active">🏥 Hospitals</a>
-        <a href="{% url 'admin_patients' %}">👥 Patients</a>
-        <a href="{% url 'admin_disease_mappings' %}">⚕️ Disease Mappings</a>
-    </nav>
-    <a href="{% url 'admin_logout' %}" class="logout-btn">⬅ Logout</a>
-</div>
+{% include 'admin_panel/_sidebar.html' with active='hospitals' %}
 <div class="main">
-    <h1>🏥 Hospital Management</h1>
-    <p class="subtitle">All registered hospitals on the CareSync platform.</p>
+    <div class="page-title">🏥 Hospital Management</div>
+    <p class="subtitle">Add, edit, or remove hospitals from the CareSync network.</p>
+
+    {% if messages %}
+    <div class="messages">
+        {% for m in messages %}
+        <div class="msg {% if m.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">{{ m }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="top-bar">
+        <form method="GET" class="search-box">
+            <input type="text" name="q" value="{{ q }}" placeholder="Search by name, city or state…">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            {% if q %}<a href="{% url 'admin_hospitals' %}" class="btn btn-clear">✕ Clear</a>{% endif %}
+        </form>
+        <button type="button" class="btn btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add Hospital</button>
+    </div>
 
     <div class="card">
         <table>
+            <thead>
             <tr>
                 <th>Hospital</th>
                 <th>Reg. No.</th>
-                <th>City</th>
+                <th>Location</th>
                 <th>Contact</th>
-                <th>Beds</th>
-                <th>Emergency</th>
-                <th>Registered</th>
+                <th>Services</th>
+                <th>Actions</th>
             </tr>
+            </thead>
+            <tbody>
             {% for h in hospitals %}
             <tr>
                 <td>
-                    <span class="avatar-h">{{ h.name|first }}</span>
-                    <span style="font-weight:600;">{{ h.name }}</span>
-                    {% if h.emergency_services %}<br><span class="chip" style="margin-left:46px;">Emergency</span>{% endif %}
+                    <div style="display:flex;align-items:center;">
+                        <div class="avatar-h">{{ h.name|first }}</div>
+                        <div>
+                            <div style="font-weight:600;color:white;">{{ h.name }}</div>
+                            <div style="font-size:11px;color:#64748b;">{{ h.hospital_type }}</div>
+                        </div>
+                    </div>
                 </td>
-                <td style="font-size:13px;color:#64748b;">{{ h.registration_number }}</td>
-                <td style="font-size:13px;">{{ h.city }}, {{ h.state }}</td>
-                <td style="font-size:13px;">
-                    <div>{{ h.contact_number }}</div>
-                    <div style="color:#64748b;font-size:12px;">{{ h.email }}</div>
+                <td style="font-family:monospace;color:#94a3b8;font-size:13px;">{{ h.registration_number }}</td>
+                <td style="color:#94a3b8;">
+                    <div style="font-size:13px;">{{ h.city }}, {{ h.state }}</div>
+                    <div style="font-size:11px;">Zip: {{ h.pincode }}</div>
                 </td>
-                <td style="font-size:13px;">{{ h.total_beds|default:"—" }}</td>
+                <td style="color:#94a3b8;">
+                    <div style="font-size:13px;">{{ h.contact_number }}</div>
+                    <div style="font-size:12px;color:#64748b;">{{ h.email }}</div>
+                </td>
                 <td>
-                    {% if h.emergency_services %}
-                    <span style="color:#4ade80;font-size:13px;">✓ Yes</span>
-                    {% else %}
-                    <span style="color:#64748b;font-size:13px;">No</span>
-                    {% endif %}
+                    <div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">Beds: {{ h.total_beds|default:"0" }}</div>
+                    {% if h.emergency_services %}<span class="chip">Emergency</span>{% endif %}
                 </td>
-                <td style="font-size:12px;color:#64748b;">{{ h.registration_date|date:"d M Y"|default:"—" }}</td>
+                <td>
+                    <div class="action-row">
+                        <a href="{% url 'admin_hospital_edit' h.id %}" class="btn-sm btn-edit"><i class="fa-solid fa-pen"></i></a>
+                        <form method="POST" style="display:inline;" onsubmit="return confirm('Permanently delete {{ h.name }}? This cannot be undone!')">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="DELETE">
+                            <input type="hidden" name="hospital_id" value="{{ h.id }}">
+                            <button type="submit" class="btn-sm btn-delete"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </td>
             </tr>
             {% empty %}
-            <tr><td colspan="7" style="text-align:center;color:#64748b;padding:30px;">No hospitals registered yet.</td></tr>
+            <tr><td colspan="6" style="text-align:center;color:#4b5563;padding:40px;">No hospitals found{% if q %} matching "{{ q }}"{% endif %}.</td></tr>
             {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
+
+<!-- Create Hospital Modal -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Add New Hospital</h2>
+            <button type="button" class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="CREATE">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Hospital Name *</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Registration Number *</label>
+                    <input type="text" name="registration_number" required>
+                </div>
+                <div class="form-group">
+                    <label>Hospital Type</label>
+                    <select name="hospital_type">
+                        <option value="Private">Private</option>
+                        <option value="Government">Government</option>
+                        <option value="Trust">Trust</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Login Email *</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Login Password *</label>
+                    <input type="password" name="password" required>
+                </div>
+                <div class="form-group full">
+                    <label>Full Address *</label>
+                    <input type="text" name="address" required>
+                </div>
+                <div class="form-group">
+                    <label>City *</label>
+                    <input type="text" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label>State *</label>
+                    <input type="text" name="state" required>
+                </div>
+                <div class="form-group">
+                    <label>Pincode *</label>
+                    <input type="text" name="pincode" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Number *</label>
+                    <input type="text" name="contact_number" required>
+                </div>
+                <div class="form-group">
+                    <label>Total Beds</label>
+                    <input type="number" name="total_beds" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Website (Optional)</label>
+                    <input type="url" name="website" placeholder="https://...">
+                </div>
+                <div class="form-group full" style="flex-direction:row;align-items:center;gap:10px;">
+                    <input type="checkbox" name="emergency_services" id="em_srv" style="width:16px;height:16px;accent-color:#1FBF8F;">
+                    <label for="em_srv" style="margin:0;color:white;text-transform:none;">Provides 24/7 Emergency Services</label>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:10px;">
+                <button type="button" class="btn btn-clear" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Create Hospital</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal() {
+    document.getElementById('createModal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('createModal').style.display = 'none';
+}
+window.onclick = function(event) {
+    if (event.target == document.getElementById('createModal')) {
+        closeModal();
+    }
+}
+</script>
 </body>
 </html>

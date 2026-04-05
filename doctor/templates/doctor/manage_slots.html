@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Slots | CareSync Doctor Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+        body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+        .sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;flex-shrink:0;}
+        .logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+        .logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+        .nav{margin-top:30px;flex:1;}
+        .nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+        .nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+        .logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+        .logout-btn:hover{background:rgba(248,113,113,0.1);}
+        .main{flex:1;padding:40px;overflow-y:auto;}
+        .page-title{color:white;font-size:26px;font-weight:700;margin-bottom:6px;}
+        .page-sub{color:#64748b;font-size:14px;margin-bottom:30px;}
+        .panel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;margin-bottom:24px;}
+        .panel-title{color:white;font-size:16px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+        .alert{padding:12px 18px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:500;}
+        .alert-success{background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2);}
+        .alert-error{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+        .alert-warning{background:rgba(245,158,11,0.1);color:#fcd34d;border:1px solid rgba(245,158,11,0.2);}
+        .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:20px;}
+        .form-group label{display:block;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+        .form-group input,.form-group select{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;padding:11px 14px;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+        .form-group input:focus,.form-group select:focus{border-color:#1FBF8F;box-shadow:0 0 0 3px rgba(31,191,143,0.15);}
+        .form-group select option{background:#1e293b;color:white;}
+        .btn-create{background:linear-gradient(90deg,#1FBF8F,#3b82f6);color:white;border:none;padding:12px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:.2s;}
+        .btn-create:hover{opacity:.9;transform:translateY(-1px);}
+        .slot-table{width:100%;border-collapse:collapse;}
+        .slot-table th{color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:left;}
+        .slot-table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.04);color:#cbd5e1;font-size:14px;vertical-align:middle;}
+        .slot-table tr:last-child td{border-bottom:none;}
+        .slot-table tr:hover td{background:rgba(255,255,255,0.02);}
+        .slot-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+        .badge-available{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.2);}
+        .badge-pending{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.2);}
+        .badge-booked{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.2);}
+        .badge-blocked{background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.2);}
+        .btn-sm{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;border-radius:6px;border:none;cursor:pointer;font-weight:600;transition:.15s;font-family:'Poppins',sans-serif;}
+        .btn-block{background:rgba(245,158,11,0.15);color:#fcd34d;}.btn-block:hover{background:rgba(245,158,11,0.3);}
+        .btn-unblock{background:rgba(16,185,129,0.15);color:#10b981;}.btn-unblock:hover{background:rgba(16,185,129,0.3);}
+        .btn-delete{background:rgba(239,68,68,0.15);color:#f87171;}.btn-delete:hover{background:rgba(239,68,68,0.3);}
+        .btn-view{background:rgba(59,130,246,0.15);color:#60a5fa;text-decoration:none;}.btn-view:hover{background:rgba(59,130,246,0.3);}
+        .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:28px;}
+        .stat-pill{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center;}
+        .stat-pill .num{font-size:24px;font-weight:700;display:block;}
+        .stat-pill .lbl{font-size:11px;color:#64748b;margin-top:4px;}
+        .num-available{color:#10b981;}.num-pending{color:#fcd34d;}.num-booked{color:#60a5fa;}.num-blocked{color:#94a3b8;}
+        .empty-state{text-align:center;padding:50px 20px;color:#475569;}
+        .empty-state i{font-size:40px;margin-bottom:16px;display:block;opacity:.4;}
+    </style>
+</head>
+<body>
+{% include 'doctor/_sidebar.html' %}
+<div class="main">
+    <div class="page-title"><i class="fa-solid fa-calendar-days" style="color:#1FBF8F;margin-right:8px;"></i>Availability Slots</div>
+    <p class="page-sub">Define and manage the time windows patients can book appointments with you.</p>
+
+    {% for msg in messages %}
+    <div class="alert {% if msg.tags == 'error' %}alert-error{% elif msg.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">{{ msg }}</div>
+    {% endfor %}
+
+    <div class="stats-row">
+        <div class="stat-pill"><span class="num num-available">{{ slots_available }}</span><span class="lbl">Available</span></div>
+        <div class="stat-pill"><span class="num num-pending">{{ slots_pending }}</span><span class="lbl">Pending</span></div>
+        <div class="stat-pill"><span class="num num-booked">{{ slots_booked }}</span><span class="lbl">Booked</span></div>
+        <div class="stat-pill"><span class="num num-blocked">{{ slots_blocked }}</span><span class="lbl">Blocked</span></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title"><i class="fa-solid fa-redo" style="color:#1FBF8F;"></i> Recurring Weekly Availability</div>
+        <p style="color:#94a3b8; font-size: 13px; margin-bottom: 20px;">Define your normal weekly hours. You can generate actual slots from these rules.</p>
+        
+        {% if weekly_rules %}
+        <div style="margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
+            <table class="slot-table" style="background: rgba(0,0,0,0.1);">
+                <thead><tr><th>Day</th><th>Time</th><th>Interval</th><th>Location</th><th>Mode</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for rule in weekly_rules %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ rule.get_day_of_week_display }}</td>
+                        <td>{{ rule.start_time|time:"g:i A" }} - {{ rule.end_time|time:"g:i A" }}</td>
+                        <td>{{ rule.interval_minutes }}m slots</td>
+                        <td>{{ rule.hospital.name|default:"Private Clinic" }}</td>
+                        <td>{{ rule.get_visit_mode_display|default:"Any" }}</td>
+                        <td>
+                            <form method="POST" onsubmit="return confirm('Delete this weekly rule?');">{% csrf_token %}
+                                <input type="hidden" name="action" value="delete_weekly_rule">
+                                <input type="hidden" name="rule_id" value="{{ rule.id }}">
+                                <button type="submit" class="btn-sm btn-delete"><i class="fa-solid fa-trash"></i> Drop</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_weekly_rule">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Day of Week</label>
+                    <select name="day_of_week" required>
+                        <option value="0">Monday</option><option value="1">Tuesday</option>
+                        <option value="2">Wednesday</option><option value="3">Thursday</option>
+                        <option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Start Time</label><input type="time" name="start_time" required></div>
+                <div class="form-group"><label>End Time</label><input type="time" name="end_time" required></div>
+                <div class="form-group"><label>Interval</label>
+                    <select name="interval_minutes">
+                        <option value="5">5 mins</option><option value="10">10 mins</option><option value="15">15 mins</option><option value="30" selected>30 mins</option><option value="60">60 mins</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Mode</label>
+                    <select name="visit_mode">
+                        <option value="">— Any —</option><option value="IN_PERSON">In Person</option><option value="ONLINE">Online</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Hospital (Optional)</label>
+                    <select name="hospital_id">
+                        <option value="">— Private —</option>
+                        {% for aff in affiliated_hospitals %}<option value="{{ aff.hospital.id }}">{{ aff.hospital.name }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-create" style="padding: 10px 20px; font-size: 13px;"><i class="fa-solid fa-plus"></i> Add Weekly Rule</button>
+        </form>
+    </div>
+
+    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <div class="panel" style="margin-bottom: 0;">
+            <div class="panel-title"><i class="fa-solid fa-plane-slash" style="color:#fcd34d;"></i> Mark Leave / Unavailability</div>
+            <p style="color:#94a3b8; font-size: 13px; margin-bottom: 15px;">Block off entire date ranges from being booked.</p>
+            
+            {% if leaves %}
+            <ul style="list-style: none; margin-bottom: 15px;">
+                {% for leave in leaves %}
+                <li style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; color: #cbd5e1;">
+                    <span>{{ leave.start_date|date:"M d" }} - {{ leave.end_date|date:"M d, Y" }} ({{ leave.reason|default:"No reason" }})</span>
+                    <form method="POST" style="margin:0;">{% csrf_token %}<input type="hidden" name="action" value="delete_leave"><input type="hidden" name="leave_id" value="{{ leave.id }}"><button type="submit" class="btn-sm btn-delete"><i class="fa-solid fa-xmark"></i></button></form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_leave">
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="form-group"><label>From</label><input type="date" name="start_date" required></div>
+                    <div class="form-group"><label>To</label><input type="date" name="end_date" required></div>
+                </div>
+                <div class="form-group"><label>Reason</label><input type="text" name="reason" placeholder="e.g. Sick Leave, Vacation"></div>
+                <button type="submit" class="btn-sm btn-block" style="padding: 10px 20px; font-size: 13px; width: 100%; justify-content: center; margin-top: 10px;"><i class="fa-solid fa-ban"></i> Mark Leave</button>
+            </form>
+        </div>
+
+        <div class="panel" style="margin-bottom: 0;">
+            <div class="panel-title"><i class="fa-solid fa-bolt" style="color:#3b82f6;"></i> Generate Real Slots</div>
+            <p style="color:#94a3b8; font-size: 13px; margin-bottom: 20px;">Use your Weekly Rules to physically generate bookable time slots for the next 30 days. Leaves and closed hospitals will be automatically skipped.</p>
+            
+            <form method="POST" onsubmit="return confirm('This will generate slots based on your weekly pattern for the next 30 days. Proceed?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="generate_slots">
+                <button type="submit" class="btn-create" style="width: 100%; padding: 15px; font-size: 15px; background: linear-gradient(90deg, #3b82f6, #8b5cf6);"><i class="fa-solid fa-calendar-plus"></i> Generate 30-Day Slots</button>
+            </form>
+            
+            <div style="margin-top: 30px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+                <p style="color:#94a3b8; font-size: 12px; margin-bottom: 10px;"><i class="fa-solid fa-circle-info"></i> Need an ad-hoc slot?</p>
+                <form method="POST" style="display: flex; gap: 10px; align-items: flex-end;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+                    <div class="form-group" style="width:130px;"><label>Date</label><input type="date" name="date" required style="padding: 6px;"></div>
+                    <div class="form-group" style="width:90px;"><label>Start</label><input type="time" name="start_time" required  style="padding: 6px;"></div>
+                    <div class="form-group" style="width:90px;"><label>End</label><input type="time" name="end_time" required  style="padding: 6px;"></div>
+                    <div class="form-group" style="width:90px;"><label>Interval</label>
+                        <select name="interval_minutes" style="padding: 6px;">
+                            <option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="30" selected>30m</option><option value="60">1h</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-sm btn-unblock" style="padding: 8px 12px; height: 32px;"><i class="fa-solid fa-plus"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title"><i class="fa-regular fa-calendar-check" style="color:#60a5fa;"></i> Upcoming Slots</div>
+        {% if slots %}
+        <div style="overflow-x:auto;">
+        <table class="slot-table">
+            <thead>
+                <tr><th>Date</th><th>Time</th><th>Mode</th><th>Hospital</th><th>Status</th><th>Patient</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for slot in slots %}
+                <tr>
+                    <td style="font-weight:600;color:white;">{{ slot.date|date:"D, j M Y" }}</td>
+                    <td>{{ slot.start_time|time:"g:i A" }} &ndash; {{ slot.end_time|time:"g:i A" }}</td>
+                    <td style="font-size:12px;color:#94a3b8;">{{ slot.get_visit_mode_display|default:"Any" }}</td>
+                    <td style="font-size:13px;">{{ slot.hospital.name|default:"—" }}</td>
+                    <td><span class="slot-badge badge-{{ slot.status|lower }}">{{ slot.get_status_display }}</span></td>
+                    <td style="font-size:13px;">
+                        {% if slot.appointment_record %}
+                            <a href="{% url 'doctor_patient_detail' slot.appointment_record.patient.patient_id %}" style="color:#1FBF8F;text-decoration:none;font-weight:600;">
+                                {{ slot.appointment_record.patient.user.get_full_name|default:slot.appointment_record.patient.patient_id }}
+                            </a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            {% if slot.status == 'AVAILABLE' %}
+                            <form method="POST" style="display:inline;">
+                                {% csrf_token %}<input type="hidden" name="action" value="block"><input type="hidden" name="slot_id" value="{{ slot.id }}">
+                                <button type="submit" class="btn-sm btn-block"><i class="fa-solid fa-ban"></i> Block</button>
+                            </form>
+                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this slot?')">
+                                {% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="slot_id" value="{{ slot.id }}">
+                                <button type="submit" class="btn-sm btn-delete"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                            {% endif %}
+                            {% if slot.status == 'BLOCKED' %}
+                            <form method="POST" style="display:inline;">
+                                {% csrf_token %}<input type="hidden" name="action" value="unblock"><input type="hidden" name="slot_id" value="{{ slot.id }}">
+                                <button type="submit" class="btn-sm btn-unblock"><i class="fa-solid fa-unlock"></i> Unblock</button>
+                            </form>
+                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this slot?')">
+                                {% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="slot_id" value="{{ slot.id }}">
+                                <button type="submit" class="btn-sm btn-delete"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                            {% endif %}
+                            {% if slot.status == 'PENDING' or slot.status == 'BOOKED' %}
+                            <a href="{% url 'doctor_appointments' %}" class="btn-sm btn-view"><i class="fa-solid fa-arrow-right"></i> Appointments</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fa-regular fa-calendar-xmark"></i>
+            <p>No upcoming slots yet. Create one above to start accepting appointments.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.getElementById('slot_date').min = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>

@@ -30,7 +30,7 @@
             
             <div style="display: flex; gap: 10px; margin-top: auto;">
                 <a href="{% url 'patient_hospital_detail' hospital.id %}" class="premium-btn btn-secondary" style="flex:1; text-align:center; padding: 10px; font-size: 13px;">View Details</a>
-                <a href="{% url 'book_appointment' %}?hospital={{ hospital.id }}" class="premium-btn btn-primary" style="flex:1; text-align:center; padding: 10px; font-size: 13px;">Book Clinic</a>
+                <a href="{% url 'hospital_booking_choice' hospital.id %}" class="premium-btn btn-primary" style="flex:1; text-align:center; padding: 10px; font-size: 13px;">Book Clinic</a>
             </div>
         </div>
     {% empty %}

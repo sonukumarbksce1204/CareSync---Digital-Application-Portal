@@ -1,0 +1,4 @@
+Operations to perform:
+  Apply all migrations: admin, admin_panel, auth, contenttypes, doctor, hospital, patient, sessions
+Running migrations:
+  Applying doctor.0007_doctorweeklyavailability_interval_minutes... OK

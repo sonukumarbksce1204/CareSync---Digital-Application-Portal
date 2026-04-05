@@ -3,7 +3,8 @@ from .views import (
     doctor_profile, doctor_signup, doctor_login, doctor_dashboard, doctor_logout,
     doctor_search_view, doctor_patient_detail_view, review_prediction,
     doctor_appointments, update_appointment_status, my_patients, pending_reviews,
-    add_consultation, hospital_affiliations, doctor_disease_catalog
+    add_consultation, hospital_affiliations, doctor_disease_catalog,
+    manage_slots, get_doctor_slots_ajax
 )
 
 urlpatterns = [
@@ -30,4 +31,8 @@ urlpatterns = [
     
     # Disease Management
     path("disease-catalog/", doctor_disease_catalog, name="doctor_disease_catalog"),
+
+    # Slot management
+    path("slots/", manage_slots, name="doctor_manage_slots"),
+    path("slots/ajax/", get_doctor_slots_ajax, name="doctor_slots_ajax"),
 ]

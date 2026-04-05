@@ -1,0 +1,165 @@
+{% extends 'patient/patient_base.html' %}
+
+{% block title %}Book at {{ hospital.name }} | CareSync{% endblock %}
+
+{% block content %}
+<style>
+    .choice-card {
+        transition: transform 0.25s cubic-bezier(.4,0,.2,1), box-shadow 0.25s;
+        cursor: pointer;
+        border-top: 5px solid transparent;
+    }
+    .choice-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .choice-icon {
+        width: 88px; height: 88px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 38px;
+        margin: 0 auto 22px;
+    }
+    .badge-count {
+        display: inline-block;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        margin-top: 10px;
+    }
+    .divider-or {
+        position: relative;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .divider-or::before, .divider-or::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+        margin: 0 16px;
+    }
+</style>
+
+<div style="max-width: 960px; margin: 0 auto; padding: 10px 0 60px;">
+
+    <!-- Back -->
+    <a href="{% url 'patient_hospitals' %}" class="premium-btn btn-secondary" style="font-size: 13px; padding: 8px 18px; margin-bottom: 28px; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-arrow-left"></i> Back to Facilities
+    </a>
+
+    <!-- Header -->
+    <div class="glass-panel" style="text-align: center; padding: 30px 32px 24px; margin-bottom: 32px; border-top: 4px solid var(--primary);">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: var(--primary-light); border-radius: 50%; margin-bottom: 16px;">
+            <i class="fa-regular fa-hospital" style="font-size: 26px; color: var(--primary);"></i>
+        </div>
+        <h1 class="page-title" style="font-size: 26px; margin-bottom: 6px;">{{ hospital.name }}</h1>
+        <p class="page-subtitle" style="font-size: 15px;">{{ hospital.city }}, {{ hospital.state }} &mdash; {{ hospital.hospital_type }}</p>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 12px; max-width: 560px; margin-left: auto; margin-right: auto;">
+            Choose how you'd like to book your visit at this facility.
+        </p>
+    </div>
+
+    <!-- Two Option Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; align-items: stretch;">
+
+        <!-- Option 1: Book Affiliated Doctor -->
+        <div class="premium-card choice-card" style="border-top-color: var(--primary); padding: 40px 30px; display: flex; flex-direction: column; align-items: center; text-align: center;"
+             onclick="window.location.href='{% url 'book_hospital_appointment' hospital.id %}'">
+
+            <div class="choice-icon" style="background: var(--primary-light); color: var(--primary);">
+                <i class="fa-solid fa-user-doctor"></i>
+            </div>
+
+            <h3 style="color: var(--dark); font-size: 20px; font-weight: 700; margin-bottom: 12px;">
+                Book with an Affiliated Doctor
+            </h3>
+            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 16px; flex-grow: 1;">
+                Choose from doctors verified and affiliated with <strong>{{ hospital.name }}</strong>. Pick your preferred specialist, select their available time slot, and submit your request.
+            </p>
+
+            {% if affiliated_count > 0 %}
+            <span class="badge-count">
+                <i class="fa-solid fa-circle-check" style="margin-right: 4px;"></i>
+                {{ affiliated_count }} affiliated doctor{{ affiliated_count|pluralize }} available
+            </span>
+            {% else %}
+            <span class="badge-count" style="background: #FEF9C3; color: #92400E;">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px;"></i>
+                No affiliated doctors yet
+            </span>
+            {% endif %}
+
+            <a href="{% url 'book_hospital_appointment' hospital.id %}" class="premium-btn btn-primary"
+               style="margin-top: 28px; width: 100%; text-align: center; padding: 13px; font-size: 14px;">
+                <i class="fa-solid fa-calendar-plus" style="margin-right: 8px;"></i>
+                Book a Doctor's Slot
+            </a>
+        </div>
+
+        <!-- Divider (mobile only: horizontal; desktop: vertical via grid gap) -->
+        <div class="divider-or" style="display: none; grid-column: 1 / -1;">or</div>
+
+        <!-- Option 2: Book Hospital / Clinic Directly -->
+        <div class="premium-card choice-card" style="border-top-color: #10B981; padding: 40px 30px; display: flex; flex-direction: column; align-items: center; text-align: center;"
+             onclick="window.location.href='{% url 'book_appointment' %}?hospital={{ hospital.id }}&direct=true'">
+
+            <div class="choice-icon" style="background: #D1FAE5; color: #059669;">
+                <i class="fa-regular fa-hospital"></i>
+            </div>
+
+            <h3 style="color: var(--dark); font-size: 20px; font-weight: 700; margin-bottom: 12px;">
+                Book Directly with the Clinic
+            </h3>
+            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 16px; flex-grow: 1;">
+                Submit a general appointment request to <strong>{{ hospital.name }}</strong>. The reception team will review your request, assign an appropriate doctor, and confirm your appointment.
+            </p>
+
+            <span class="badge-count" style="background: #D1FAE5; color: #065F46;">
+                <i class="fa-solid fa-buildings" style="margin-right: 4px;"></i>
+                General walk-in / reception-assigned
+            </span>
+
+            <a href="{% url 'book_appointment' %}?hospital={{ hospital.id }}&direct=true" class="premium-btn btn-secondary"
+               style="margin-top: 28px; width: 100%; text-align: center; padding: 13px; font-size: 14px; border-color: #10B981; color: #10B981;">
+                <i class="fa-solid fa-paper-plane" style="margin-right: 8px;"></i>
+                Request Clinic Appointment
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Info note -->
+    <div style="margin-top: 28px; background: rgba(37,99,235,0.04); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px 20px; font-size: 13px; color: var(--text-muted); display: flex; gap: 12px; align-items: flex-start;">
+        <i class="fa-solid fa-circle-info" style="color: var(--primary); margin-top: 2px; flex-shrink: 0;"></i>
+        <span>
+            <strong style="color: var(--text-dark);">Not sure?</strong>
+            If you have a specific condition or need a specialist, we recommend booking directly with a doctor so you can see their available slots. For general consultations or if you're unsure which doctor to see, request a clinic appointment and the facility will guide you.
+        </span>
+    </div>
+
+</div>
+
+<script>
+    // On small screens add horizontal divider between cards
+    function checkLayout() {
+        const div = document.querySelector('.divider-or');
+        if (window.innerWidth < 640) {
+            div.style.display = 'flex';
+        } else {
+            div.style.display = 'none';
+        }
+    }
+    checkLayout();
+    window.addEventListener('resize', checkLayout);
+</script>
+{% endblock %}

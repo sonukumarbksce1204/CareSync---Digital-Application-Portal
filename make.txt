@@ -1,0 +1,3 @@
+Migrations for 'doctor':
+  doctor\migrations\0007_doctorweeklyavailability_interval_minutes.py
+    + Add field interval_minutes to doctorweeklyavailability
