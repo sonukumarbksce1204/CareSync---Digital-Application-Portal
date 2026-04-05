@@ -72,8 +72,8 @@ CareSync is a comprehensive, production-ready **Digital Health Portal** that con
 | 👨‍👩‍👧 **Family Hub** | Group patients into families; family head sees all members' records |
 | 🩺 **Doctor Portal** | Search patients by ID, review AI predictions, add consultations and prescriptions |
 | 🏥 **Hospital Panel** | Manage affiliations, approve doctors, access patient records securely |
-| 📅 **Appointments** | Book, reschedule, approve, reject, and cancel with full history |
-| 🛡️ **Admin Panel** | Register and verify doctors, onboard hospitals, manage the platform |
+| 📅 **Appointments** | Advanced scheduling with recurring availability, anti-clash safeguards, and full rescheduling workflows |
+| 🛡️ **Admin Panel** | Full production-grade CRUD management for Doctors, Hospitals, and Patients |
 | 🔐 **Role-based Access** | Patients, doctors, hospitals, and admins each have strict, isolated permissions |
 | ☁️ **Cloud Storage** | Media files stored on Cloudinary; static files on WhiteNoise |
 | 🐳 **Docker + HF Deploy** | Fully containerized; deployed on Hugging Face Spaces |
@@ -229,6 +229,7 @@ CareSync has **four distinct user roles**, each with a separate login, dashboard
 ### Patient Dashboard
 - **Symptom Log**: Add medical records with description, duration, improvement status, images, and test reports.
 - **AI Prediction chip**: Select symptoms from a 131-item list; AI instantly predicts the top disease with confidence %.
+- **Smart Doctor Recommendations**: Based on AI disease predictions by PredictaCare, specialized doctors are instantly recommended with a direct "Book" button to lower friction.
 - **Medical Timeline**: Chronological view of symptoms, consultations, and active diseases.
 - **Consultation History**: Read-only view of doctor notes, diagnoses, instructions, and prescriptions.
 
@@ -241,29 +242,34 @@ CareSync has **four distinct user roles**, each with a separate login, dashboard
 - Family disease summary shows aggregate health status across all members.
 
 ### Appointment System
-- Patients book appointments specifying **doctor**, **hospital**, **date**, **time**, and **visit mode** (in-person or online).
-- Doctors/hospitals **approve**, **reject**, or **reschedule** appointments.
-- Patients can **accept or reject** reschedule proposals.
-- Duplicate appointment detection prevents double-booking.
-- Full history: upcoming, past (completed), and cancelled appointments shown separately.
+- **Advanced Scheduling**: Doctors set recurring weekly availability per hospital, rather than one-off slots.
+- **Smart Booking**: Strict enforcement of hospital closure rules and doctor affiliation validity.
+- **Anti-Clash Safeguards**: Atomic database transactions guarantee no double-booking or slot conflicts.
+- **Comprehensive Lifecycle**: Patients and doctors/hospitals can book, approve, reject, or cancel appointments.
+- **Rescheduling Workflows**: Flexible rescheduling options for both patients and doctors with accept/reject responses.
+- **Location Context**: Conditional display of clinic addresses based on the doctor's current affiliation status.
+- **Full History**: Upcoming, past (completed), and cancelled appointments tracked separately.
 
 ### Doctor Clinical Workspace
 - **Patient Search**: Look up any patient by their 4-character Patient ID or the family's 6-digit Family ID.
 - **AI Review Panel**: Pending symptom predictions are listed for review; doctor can approve, add notes, or override with a catalog diagnosis.
 - **Add Consultation**: Attach a clinical note, select a diagnosis from the catalog, upload a prescription PDF, and set a follow-up date.
+- **Availability & Leave Management**: Define recurring weekly schedules and operational hours, and manage temporary leaves/vacations.
 - **My Patients**: View all patients previously accessed or treated.
 - **Hospital Affiliations**: Request, view, and manage all hospital affiliations.
-- **Disease Catalog**: Add diseases (with ICD codes and hereditary flags) to the platform catalog.
+- **Disease Catalog**: Add diseases with ICD codes and mark specific conditions as hereditary.
 
 ### Hospital Management Panel
 - View and respond to doctor affiliation requests.
 - Look up patients (by ID) to view their records.
 - Track all appointment requests targeted at the hospital.
+- **Hospital Closures**: Define specific dates when the hospital is closed, automatically preventing conflicting appointment bookings.
 
 ### Admin Panel
-- Register and verify doctors (upload license, set verification status).
-- Onboard new hospitals.
-- Full audit visibility over the platform.
+- **Comprehensive User Management**: Full CRUD operations (Create, Read, Update, Delete) for Doctors, Hospitals, and Patients.
+- **Account Control**: Toggle user account statuses, enforce suspensions, and manage system access.
+- **Verification Workflow**: Review and verify doctor license documents securely.
+- **Platform Oversight**: Onboard hospitals, perform data maintenance, and monitor all platform activities.
 
 ---
 
@@ -312,6 +318,7 @@ The AI prediction engine is built as a standalone Django app module (`ml_model/`
 | `FamilyJoinRequest` | Request to join a family group (pending/approved/rejected) |
 | `FamilyHeadChangeLog` | Audit trail of family head transfers |
 | `DoctorAccessLog` | Records every time a doctor accesses a patient's records |
+| `HospitalAccessLog` | Records every time a hospital accesses a patient's records |
 | `AIReviewLog` | Audit log of every AI prediction review action by a doctor |
 
 ### Doctor App
@@ -323,6 +330,8 @@ The AI prediction engine is built as a standalone Django app module (`ml_model/`
 | `Qualification` | Degree, institution, year for each doctor |
 | `HospitalAffiliation` | Doctor ↔ Hospital affiliation with approval workflow |
 | `DoctorVerification` | License document and verification status |
+| `DoctorWeeklyAvailability` | Recurring scheduling rules for specific days/times |
+| `DoctorLeave` | Temporary doctor absences block off scheduling for specific dates |
 
 ### Hospital App
 
@@ -331,6 +340,14 @@ The AI prediction engine is built as a standalone Django app module (`ml_model/`
 | `Hospital` | Hospital profile (type, beds, emergency services, contact) |
 | `Department` | Hospital departments |
 | `HospitalImage` | Gallery images for a hospital |
+| `HospitalClosure` | Exceptional dates when the hospital is not operating |
+
+### Admin App
+
+| Model | Purpose |
+|-------|---------|
+| `AdminUser` | Custom admin profiling model |
+| `DiseaseSpecialtyMapping` | Maps AI-predicted diseases to required medical specializations |
 
 ---
 

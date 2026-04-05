@@ -1,0 +1,657 @@
+Initialising Hugging Face API à
+Creating / verifying Docker Space: Sonukumar1204/CareSync à
+Setting production secrets on the Space à
+  ! DATABASE_URL not set ù the Space will fall back to SQLite (data will reset on restart!)
+  ! CLOUDINARY_URL not set ù media uploads will use local filesystem (files lost on restart!)
+Uploading project files to Hugging Face ...
+
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+Processing Files (8 / 8)      : 100%|##########| 11.4MB / 11.4MB,   ???B/s  
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            [A[A
+
+
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            [A[A[A
+
+
+
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            [A[A[A[A
+
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            [A[A[A[A[A[A[A[A[A
+Processing Files (8 / 8)      : 100%|##########| 11.4MB / 11.4MB,  0.00B/s  
+
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+
+  ...l_model\symptom_index.pkl: 100%|##########| 2.70kB / 2.70kB            
+
+  ...model\disease_encoder.pkl: 100%|##########| 1.13kB / 1.13kB            
+
+  ...model\disease_model.keras: 100%|##########|  893kB /  893kB            
+
+  ...ic\patient\images\bg2.jpg: 100%|##########|  876kB /  876kB            
+
+  ...ic\patient\images\bg1.jpg: 100%|##########| 1.93MB / 1.93MB            
+
+  ...\patient\images\sign1.jpg: 100%|##########| 3.24MB / 3.24MB            
+
+  ...ic\patient\images\bg4.jpg: 100%|##########| 2.08MB / 2.08MB            
+
+  ...ic\patient\images\bg3.jpg: 100%|##########| 2.38MB / 2.38MB            
+
+SUCCESS! Deployment triggered!  Visit: https://huggingface.co/spaces/Sonukumar1204/CareSync
+   Monitor the build at: https://huggingface.co/spaces/Sonukumar1204/CareSync/logs
