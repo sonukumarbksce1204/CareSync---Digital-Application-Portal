@@ -1,0 +1,761 @@
+Initialising Hugging Face API ΓÇª
+Creating / verifying Docker Space: Sonukumar1204/CareSync ΓÇª
+Setting production secrets on the Space ΓÇª
+  ΓÜá DATABASE_URL not set ΓÇö the Space will fall back to SQLite (data will reset on restart!)
+  ΓÜá CLOUDINARY_URL not set ΓÇö media uploads will use local filesystem (files lost on restart!)
+Uploading project files to Hugging Face ΓÇª
+
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+Processing Files (8 / 8)      : 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 11.4MB / 11.4MB,   ???B/s  
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            [A[A
+
+
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            [A[A[A
+
+
+
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            [A[A[A[A
+
+
+
+
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            [A[A[A[A[A
+
+
+
+
+
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            [A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            [A[A[A[A[A[A[A[A[A
+Processing Files (8 / 8)      : 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 11.4MB / 11.4MB,  0.00B/s  
+
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+
+  ...model\disease_encoder.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.13kB / 1.13kB            
+
+  ...l_model\symptom_index.pkl: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.70kB / 2.70kB            
+
+  ...ic\patient\images\bg2.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  876kB /  876kB            
+
+  ...model\disease_model.keras: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê|  893kB /  893kB            
+
+  ...ic\patient\images\bg1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 1.93MB / 1.93MB            
+
+  ...ic\patient\images\bg3.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.38MB / 2.38MB            
+
+  ...ic\patient\images\bg4.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 2.08MB / 2.08MB            
+
+  ...\patient\images\sign1.jpg: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 3.24MB / 3.24MB            
+
+Γ£à Deployment triggered!  Visit: https://huggingface.co/spaces/Sonukumar1204/CareSync
+   Monitor the build at: https://huggingface.co/spaces/{repo_id}/logs
