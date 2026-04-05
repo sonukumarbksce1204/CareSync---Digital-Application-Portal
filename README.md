@@ -13,7 +13,7 @@ pinned: false
 
 **A full-stack, AI-powered healthcare management system built with Django.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Hugging%20Face%20Spaces-blue?logo=huggingface)](https://huggingface.co/spaces/Sonukumar1204/CareSync)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Hugging%20Face%20Spaces-blue?logo=huggingface)](https://sonukumar1204-caresync.hf.space/)
 [![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-4.2+-green?logo=django)](https://www.djangoproject.com/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-CPU-orange?logo=tensorflow)](https://www.tensorflow.org/)
@@ -58,7 +58,7 @@ CareSync is a comprehensive, production-ready **Digital Health Portal** that con
 
 ## Live Demo
 
-🌐 **[https://huggingface.co/spaces/Sonukumar1204/CareSync](https://huggingface.co/spaces/Sonukumar1204/CareSync)**
+🌐 **[https://sonukumar1204-caresync.hf.space/](https://sonukumar1204-caresync.hf.space/)**
 
 > The app is deployed on Hugging Face Spaces as a Docker container with a Neon PostgreSQL database and Cloudinary media storage.
 
@@ -500,7 +500,7 @@ The script:
 **Sonu Kumar**  
 Student Developer passionate about building healthcare solutions with AI and Django.
 
-- 🌐 Live: [https://huggingface.co/spaces/Sonukumar1204/CareSync](https://huggingface.co/spaces/Sonukumar1204/CareSync)
+- 🌐 Live: [https://sonukumar1204-caresync.hf.space/](https://sonukumar1204-caresync.hf.space/)
 
 If this project helped you, please consider giving it a ⭐ on GitHub!
 
