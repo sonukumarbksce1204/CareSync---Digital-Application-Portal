@@ -5,50 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disease Catalog | CareSync Doctor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: linear-gradient(120deg, #e6fff7, #d7f5ee, #f0fffb); height: 100vh; display: flex; }
+        body { background: linear-gradient(120deg, #0f172a, #1e293b); height: 100vh; display: flex; }
+        .sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+        .logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+        .logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+        .nav{margin-top:30px;flex:1;}
+        .nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+        .nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+        .logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+        .logout-btn:hover{background:rgba(248,113,113,0.1);}
+        .main{flex:1;padding:40px;overflow-y:auto;}
+        h1{color:white;font-size:26px;font-weight:700;margin-bottom:6px;}
+        .subtitle{color:#64748b;font-size:14px;margin-bottom:32px;}
         
-        /* Sidebar is handled by include */
-        .sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
-        .logo{font-size:28px;font-weight:600;margin-bottom:40px;cursor:pointer;}
-        .nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
-        .logout{margin-top:auto;}
-        .logout a{color:white;text-decoration:none;font-weight:500;}
-        
-        /* Main Area */
-        .main { flex: 1; padding: 40px; overflow-y: auto; }
-        .top { font-size: 24px; font-weight: 600; margin-bottom: 30px; }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-        
-        .card h2 { margin-bottom: 10px; color: #1A2B2B; font-size: 20px; }
-        .card p { font-size: 14px; color: #555; margin-bottom: 15px; }
+        .card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:24px;}
+        .card h2{color:white;font-size:18px;margin-bottom:10px;}
+        .card p{color:#94a3b8;font-size:14px;margin-bottom:15px;}
 
-        .table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 12px; overflow: hidden; }
-        .table th, .table td { padding: 15px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 14px; }
-        .table th { background-color: #f0fdf4; font-weight: 600; color: #166534; }
-        .table tr:hover { background-color: #f8fafc; }
+        table{width:100%;border-collapse:collapse;text-align:left;}
+        th{color:#64748b;font-size:12px;font-weight:600;padding:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+        td{color:#cbd5e1;font-size:14px;padding:15px 12px;border-bottom:1px solid rgba(255,255,255,0.04);}
+        tr:last-child td{border-bottom:none;}
         
-        .btn-toggle { background: #e2e8f0; color: #475569; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 12px; transition: all 0.2s ease; }
-        .btn-toggle.active { background: #ef4444; color: white; }
-        .btn-toggle:hover { filter: brightness(0.95); }
-        .badge-hereditary { background: #fee2e2; color: #b91c1c; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
-        .message-alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #dcfce7; color: #166534; font-weight: 500; font-size: 14px; border-left: 5px solid #16a34a; }
+        .btn-toggle{background:rgba(255,255,255,0.1);color:#cbd5e1;border:none;padding:6px 12px;border-radius:20px;cursor:pointer;font-weight:600;font-size:12px;transition:all 0.2s ease;}
+        .btn-toggle.active{background:#ef4444;color:white;}
+        .btn-toggle:hover{filter:brightness(0.95);}
+        .badge-hereditary{background:rgba(239,68,68,0.15);color:#f87171;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block;}
+        .message-alert{padding:15px;border-radius:8px;margin-bottom:20px;background:rgba(34,197,94,0.1);color:#4ade80;font-weight:500;font-size:14px;border-left:5px solid #22c55e;}
         
-        .form-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; margin-top: 5px; }
-        .form-label { font-size: 13px; font-weight: 600; color: #475569; }
-        .btn-primary { background: #1FBF8F; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
-        .btn-primary:hover { background: #128c66; }
+        .form-input{width:100%;padding:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);border-radius:8px;font-size:14px;margin-top:5px;color:white;outline:none;}
+        .form-input::placeholder{color:#64748b;}
+        .form-label{font-size:13px;font-weight:600;color:#94a3b8;}
+        .btn-primary{background:#1FBF8F;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;transition:background 0.2s;white-space:nowrap;font-size:14px;}
+        .btn-primary:hover{opacity:0.9;}
         
     </style>
 </head>
@@ -56,10 +49,8 @@
     {% include 'doctor/_sidebar.html' %}
     
     <div class="main">
-        <div class="top">
-            System Disease Registry
-            <p style="font-size: 14px; font-weight: normal; color: #555; margin-top: 5px;">Manage clinical condition rules and flag hereditary risks.</p>
-        </div>
+        <h1>System Disease Registry</h1>
+        <p class="subtitle">Manage clinical condition rules and flag hereditary risks.</p>
 
         {% if messages %}
             {% for message in messages %}
@@ -75,7 +66,7 @@
                 <input type="hidden" name="action" value="add_disease">
                 
                 <div style="flex: 2; min-width: 200px;">
-                    <label class="form-label">Disease Name <span style="color:red;">*</span></label>
+                    <label class="form-label">Disease Name <span style="color:#ef4444;">*</span></label>
                     <input type="text" name="disease_name" required class="form-input" placeholder="e.g. Type 2 Diabetes">
                 </div>
                 
@@ -86,7 +77,7 @@
                 
                 <div style="display: flex; align-items: center; margin-bottom: 12px; margin-right: 10px;">
                     <input type="checkbox" name="is_hereditary" id="is_hereditary" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer; accent-color: #ef4444;">
-                    <label for="is_hereditary" style="font-size: 14px; font-weight: 600; color: #b91c1c; cursor: pointer;">Flag as Hereditary</label>
+                    <label for="is_hereditary" style="font-size: 14px; font-weight: 600; color: #f87171; cursor: pointer;">Flag as Hereditary</label>
                 </div>
                 
                 <button type="submit" class="btn-primary">Add Disease</button>
@@ -96,7 +87,7 @@
         <div class="card">
             <h2>Current Catalog</h2>
             <p>Database of all conditions available in the CareSync system.</p>
-            <table class="table">
+            <table>
                 <tr>
                     <th>Disease Name</th>
                     <th>ICD Code</th>
@@ -105,13 +96,13 @@
                 </tr>
                 {% for d in diseases %}
                 <tr>
-                    <td style="font-weight: 600; color: #334155;">{{ d.name }}</td>
-                    <td style="color: #64748b; font-family: monospace;">{{ d.icd_code|default:"-" }}</td>
+                    <td style="font-weight: 600; color: white;">{{ d.name }}</td>
+                    <td style="color: #94a3b8; font-family: monospace;">{{ d.icd_code|default:"-" }}</td>
                     <td>
                         {% if d.is_hereditary %}
                             <span class="badge-hereditary"><i class="fas fa-dna"></i> Hereditary</span>
                         {% else %}
-                            <span style="color: #10b981; font-weight: 600; font-size: 12px;"><i class="fas fa-check-circle"></i> Standard</span>
+                            <span style="color: #4ade80; font-weight: 600; font-size: 12px;"><i class="fas fa-check-circle"></i> Standard</span>
                         {% endif %}
                     </td>
                     <td>
@@ -129,8 +120,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="disease_id" value="{{ d.id }}">
                             <input type="hidden" name="action" value="flag_patient">
-                            <input type="text" name="patient_id" placeholder="Patient ID..." required style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; text-transform: uppercase;">
-                            <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">Flag</button>
+                            <input type="text" name="patient_id" placeholder="Patient ID..." required style="flex: 1; padding: 6px; border: 1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:white; border-radius: 4px; font-size: 12px; text-transform: uppercase;">
+                            <button type="submit" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">Flag</button>
                         </form>
                     </td>
                 </tr>

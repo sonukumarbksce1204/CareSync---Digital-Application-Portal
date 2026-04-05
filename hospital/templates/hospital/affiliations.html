@@ -1,102 +1,108 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ hospital.name }} - Doctor Affiliations</title>
-    <link rel="stylesheet" href="{% static 'hospital/style2.css' %}">
-    <style>
-        .table { width: 100%; border-collapse: collapse; margin-top: 20px;}
-        .table th, .table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left;}
-        .table th { background-color: #f4f4f4;}
-        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold;}
-        .btn-approve { background-color: #10b981;}
-        .btn-reject { background-color: #ef4444;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ hospital.name }} - Doctor Affiliations</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
+.main{flex:1;padding:40px;overflow-y:auto;}
+h1{color:white;font-size:26px;font-weight:700;margin-bottom:6px;}
+.subtitle{color:#64748b;font-size:14px;margin-bottom:32px;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:24px;overflow-x:auto;}
+.card h2{color:white;font-size:18px;margin-bottom:16px;}
+table{width:100%;border-collapse:collapse;text-align:left;}
+th{color:#64748b;font-size:12px;font-weight:600;padding:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+td{color:#cbd5e1;font-size:14px;padding:15px 12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+.btn{display:inline-block;padding:8px 16px;border-radius:6px;font-weight:600;font-size:12px;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.2s;}
+.btn:hover{opacity:0.9;}
+.btn-approve{background:#22c55e;color:white;}
+.btn-reject{background:#ef4444;color:white;}
+.badge-approve{background:rgba(74,222,128,0.1);color:#4ade80;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block;}
+.badge-reject{background:rgba(239,68,68,0.1);color:#f87171;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block;}
+</style>
 </head>
 <body>
-<div class="layout">
-    <aside class="sidebar">
-        <h2 class="logo">Care<span>Sync</span></h2>
-        <ul>
-            <li><a href="{% url 'hospital_dashboard' %}" style="text-decoration:none; color:inherit;">Dashboard</a></li>
-            <li><a href="{% url 'hospital_search' %}" style="text-decoration:none; color:inherit;">Search Patients</a></li>
-            <li class="active"><a href="{% url 'hospital_affiliations' %}" style="text-decoration:none; color:inherit;">Doctor Affiliations</a></li>
-            <li><a href="{% url 'hospital_appointments' %}" style="text-decoration:none; color:inherit;">Appointments</a></li>
-            <li class="logout"><a href="{% url 'hospital_logout' %}" style="text-decoration:none; color:white;">Logout</a></li>
-        </ul>
-    </aside>
+{% include 'hospital/_sidebar.html' %}
 
-    <main class="main-content">
-        <section class="hero" style="background: linear-gradient(135deg, #10b981, #047857);">
-            <h1>Doctor Affiliations</h1>
-            <p>Manage verified doctor connections for your hospital.</p>
-        </section>
+<div class="main">
+    <h1>Doctor Affiliations</h1>
+    <p class="subtitle">Manage verified doctor connections for your hospital.</p>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div style="padding: 15px; background: #bbf7d0; color: #166534; border-radius: 8px; margin: 20px 0;">{{ message }}</div>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding:15px;background:rgba(34,197,94,0.1);color:#4ade80;border-left:4px solid #22c55e;border-radius:8px;margin-bottom:20px;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card" style="border-left:4px solid #f59e0b;">
+        <h2 style="color:#fcd34d;">Pending Requests</h2>
+        <table>
+            <tr>
+                <th>Doctor Name</th>
+                <th>Email</th>
+                <th>Requested At</th>
+                <th>Actions</th>
+            </tr>
+            {% for req in pending_requests %}
+            <tr>
+                <td><strong style="color:white;">Dr. {{ req.doctor.full_name }}</strong></td>
+                <td>{{ req.doctor.email }}</td>
+                <td style="color:#94a3b8;">{{ req.requested_at|date:"d M Y" }}</td>
+                <td style="display:flex;gap:10px;">
+                    <form method="POST" style="margin:0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="affiliation_id" value="{{ req.id }}">
+                        <input type="hidden" name="action" value="APPROVE">
+                        <button type="submit" class="btn btn-approve">Approve</button>
+                    </form>
+                    <form method="POST" style="margin:0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="affiliation_id" value="{{ req.id }}">
+                        <input type="hidden" name="action" value="REJECT">
+                        <button type="submit" class="btn btn-reject">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#64748b;">No pending affiliation requests.</td></tr>
             {% endfor %}
-        {% endif %}
+        </table>
+    </div>
 
-        <section class="info-card" style="margin-top:20px;">
-            <h2>Pending Requests</h2>
-            <table class="table">
-                <tr>
-                    <th>Doctor Name</th>
-                    <th>Email</th>
-                    <th>Requested At</th>
-                    <th>Actions</th>
-                </tr>
-                {% for req in pending_requests %}
-                <tr>
-                    <td><strong>Dr. {{ req.doctor.full_name }}</strong></td>
-                    <td>{{ req.doctor.email }}</td>
-                    <td>{{ req.requested_at|date:"d M Y" }}</td>
-                    <td style="display:flex; gap:10px;">
-                        <form method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="affiliation_id" value="{{ req.id }}">
-                            <input type="hidden" name="action" value="APPROVE">
-                            <button type="submit" class="btn btn-approve">Approve</button>
-                        </form>
-                        <form method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="affiliation_id" value="{{ req.id }}">
-                            <input type="hidden" name="action" value="REJECT">
-                            <button type="submit" class="btn btn-reject">Reject</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="4" style="text-align:center; padding:20px;">No pending affiliation requests.</td></tr>
-                {% endfor %}
-            </table>
-        </section>
-
-        <section class="info-card" style="margin-top:20px;">
-            <h2>Resolved Requests</h2>
-            <table class="table">
-                <tr>
-                    <th>Doctor Name</th>
-                    <th>Status</th>
-                    <th>Responded At</th>
-                </tr>
-                {% for req in resolved_requests %}
-                <tr>
-                    <td><strong>Dr. {{ req.doctor.full_name }}</strong></td>
-                    <td>
-                        {% if req.status == 'APPROVED' %}<span style="color: green; font-weight: bold;">APPROVED</span>{% endif %}
-                        {% if req.status == 'REJECTED' %}<span style="color: red; font-weight: bold;">REJECTED</span>{% endif %}
-                    </td>
-                    <td>{{ req.responded_at|date:"d M Y, h:i A" }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="3" style="text-align:center; padding:20px;">No resolved affiliation requests yet.</td></tr>
-                {% endfor %}
-            </table>
-        </section>
-    </main>
+    <div class="card">
+        <h2>Resolved Requests</h2>
+        <table>
+            <tr>
+                <th>Doctor Name</th>
+                <th>Status</th>
+                <th>Responded At</th>
+            </tr>
+            {% for req in resolved_requests %}
+            <tr>
+                <td><strong style="color:white;">Dr. {{ req.doctor.full_name }}</strong></td>
+                <td>
+                    {% if req.status == 'APPROVED' %}<span class="badge-approve">APPROVED</span>{% endif %}
+                    {% if req.status == 'REJECTED' %}<span class="badge-reject">REJECTED</span>{% endif %}
+                </td>
+                <td style="color:#94a3b8;">{{ req.responded_at|date:"d M Y, h:i A" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align:center;color:#64748b;">No resolved affiliation requests yet.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
 </div>
 </body>
 </html>

@@ -1,26 +1,25 @@
-Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
 Traceback (most recent call last):
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\utils\deprecation.py", line 119, in __call__
-    response = self.process_request(request)
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\middleware\common.py", line 48, in process_request
-    host = request.get_host()
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\http\request.py", line 202, in get_host
-    raise DisallowedHost(msg)
-django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
-Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+  File "C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal\test_static.py", line 11, in <module>
+    call_command("collectstatic", "--noinput", clear=True, verbosity=3)
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\management\__init__.py", line 194, in call_command
+    return command.execute(*args, **defaults)
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\management\base.py", line 464, in execute
+    output = self.handle(*args, **options)
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\contrib\staticfiles\management\commands\collectstatic.py", line 209, in handle
+    collected = self.collect()
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\contrib\staticfiles\management\commands\collectstatic.py", line 135, in collect
+    handler(path, prefixed_path, storage)
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\cloudinary_storage\management\commands\collectstatic.py", line 27, in copy_file
+    if (settings.STATICFILES_STORAGE == 'cloudinary_storage.storage.StaticCloudinaryStorage' or
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\conf\__init__.py", line 83, in __getattr__
+    val = getattr(_wrapped, name)
+AttributeError: 'Settings' object has no attribute 'STATICFILES_STORAGE'. Did you mean: 'STATICFILES_DIRS'?
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\utils\deprecation.py", line 119, in __call__
-    response = self.process_request(request)
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\middleware\common.py", line 48, in process_request
-    host = request.get_host()
-  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\site-packages\django\http\request.py", line 202, in get_host
-    raise DisallowedHost(msg)
-django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
-Before: verified_by_admin=True, status=verified
-GET form context status: 400
-POST response: 400
-After POST: verified_by_admin=True, status=verified
+  File "C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal\test_static.py", line 15, in <module>
+    print("\n\u274c Collectstatic failed:")
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 2: character maps to <undefined>

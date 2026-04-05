@@ -4,100 +4,110 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Review AI Prediction • CareSync Doctor</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh;display:flex;}
-.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;min-height:100vh;}
-.logo{font-size:28px;font-weight:600;margin-bottom:40px;cursor:pointer;}
-.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
-.logout{margin-top:auto;}
-.logout a{color:white;text-decoration:none;font-weight:500;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
 .main{flex:1;padding:40px;overflow-y:auto;}
-.top{font-size:24px;font-weight:600;margin-bottom:30px;}
-.card{background:white;border-radius:16px;padding:30px;box-shadow:0 10px 30px rgba(0,0,0,0.05);max-width:820px;margin:0 auto;}
+h1{color:white;font-size:26px;font-weight:700;margin-bottom:20px;}
+.top{margin-bottom:30px;}
+.top a{color:#1FBF8F;text-decoration:none;font-weight:600;}
+.top a:hover{opacity:0.8;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:30px;max-width:820px;}
+.card h2{color:white;font-size:20px;margin-bottom:20px;}
+.info-box{background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;margin-bottom:25px;border-left:4px solid #1FBF8F;}
+.info-box p{margin-bottom:6px;font-size:14px;color:#cbd5e1;}
+.info-box strong{color:#94a3b8;}
+.info-box hr{border:0;border-top:1px solid rgba(255,255,255,0.08);margin:15px 0;}
 .form-group{margin-bottom:22px;}
-label{font-weight:600;color:#374151;display:block;margin-bottom:8px;}
-input,select,textarea{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;font-family:'Poppins',sans-serif;}
-.btn{background:#1FBF8F;color:white;padding:12px 25px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;font-size:16px;width:100%;}
-.btn:hover{background:#189b74;}
-.errorlist{color:red;margin-bottom:10px;list-style:none;font-size:13px;}
-.help{font-size:12px;color:#6b7280;margin-top:4px;}
-.info-box{background:#f8fafc;padding:20px;border-radius:8px;margin-bottom:25px;border-left:4px solid #cbd5e1;}
-.info-box p{margin-bottom:6px;font-size:14px;}
+label{font-weight:600;color:#94a3b8;display:block;margin-bottom:8px;font-size:14px;}
+input,select,textarea{width:100%;padding:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;color:white;}
+option{color:black;}
+.btn{background:#1FBF8F;color:white;padding:12px 25px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;font-size:15px;width:100%;transition:opacity 0.2s;}
+.btn:hover{opacity:0.9;}
+.help{font-size:12px;color:#64748b;margin-top:6px;}
 .modified-fields{display:none;}
+.modified-box{background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:24px;margin-bottom:20px;}
 </style>
 </head>
 <body>
 {% include 'doctor/_sidebar.html' %}
 
 <div class="main">
-<div class="top">
-    <a href="{% url 'doctor_patient_detail' symptom.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;">← Back to Patient Record</a>
-</div>
-
-<div class="card">
-    <h2 style="margin-bottom:20px;color:#111827;">🤖 Review AI Diagnosis</h2>
-
-    <!-- AI suggestion summary -->
-    <div class="info-box">
-        <p><strong>👤 Patient:</strong> {{ symptom.patient.user.get_full_name|default:symptom.patient.patient_id }}</p>
-        <p><strong>📝 Patient Description:</strong> {{ symptom.description }}</p>
-        <hr style="margin:12px 0;border:none;border-top:1px solid #e5e7eb;">
-        <p style="font-size:13px;color:#6b7280;margin-bottom:4px;">AI Suggested Diagnosis</p>
-        <p style="font-size:20px;font-weight:700;color:#4f46e5;">{{ symptom.predicted_disease|default:"No prediction" }}</p>
-        <p style="font-size:13px;color:#6b7280;">Confidence: {{ symptom.prediction_confidence|floatformat:1|default:"0.0" }}%</p>
+    <div class="top">
+        <a href="{% url 'doctor_patient_detail' symptom.patient.patient_id %}">← Back to Patient Record</a>
     </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
+    <div class="card">
+        <h2>🤖 Review AI Diagnosis</h2>
 
-        <div class="form-group">
-            <label>Your Decision <span style="color:#ef4444;">*</span></label>
-            {{ form.ai_prediction_status }}
-            {{ form.ai_prediction_status.errors }}
-            <p class="help">Select APPROVED to confirm the AI suggestion, MODIFIED to override it, or REJECTED to dismiss it.</p>
+        <!-- AI suggestion summary -->
+        <div class="info-box">
+            <p><strong>👤 Patient:</strong> {{ symptom.patient.user.get_full_name|default:symptom.patient.patient_id }}</p>
+            <p><strong>📝 Patient Description:</strong> {{ symptom.description }}</p>
+            <hr>
+            <p style="font-size:13px;color:#64748b;margin-bottom:4px;">AI Suggested Diagnosis</p>
+            <p style="font-size:20px;font-weight:700;color:#60a5fa;">{{ symptom.predicted_disease|default:"No prediction" }}</p>
+            <p style="font-size:13px;color:#64748b;">Confidence: {{ symptom.prediction_confidence|floatformat:1|default:"0.0" }}%</p>
         </div>
 
-        <!-- shown only when MODIFIED -->
-        <div id="modified-fields" class="modified-fields">
-            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin-bottom:20px;">
-                <h4 style="margin-bottom:15px;color:#1d4ed8;">Your Final Diagnosis</h4>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
 
-                <div class="form-group">
-                    <label>{{ form.doctor_final_diagnosis_catalog.label }}</label>
-                    {{ form.doctor_final_diagnosis_catalog }}
-                    {{ form.doctor_final_diagnosis_catalog.errors }}
-                    <p class="help">Select from the disease catalog if the correct disease is listed there.</p>
-                </div>
+            <div class="form-group">
+                <label>Your Decision <span style="color:#ef4444;">*</span></label>
+                {{ form.ai_prediction_status }}
+                {{ form.ai_prediction_status.errors }}
+                <p class="help">Select APPROVED to confirm the AI suggestion, MODIFIED to override it, or REJECTED to dismiss it.</p>
+            </div>
 
-                <div class="form-group">
-                    <label>{{ form.doctor_modified_diagnosis_text.label }}</label>
-                    {{ form.doctor_modified_diagnosis_text }}
-                    {{ form.doctor_modified_diagnosis_text.errors }}
-                    <p class="help">Use free text if not in catalog (e.g. "Stage 2 Hypertension with renal involvement").</p>
-                </div>
+            <!-- shown only when MODIFIED -->
+            <div id="modified-fields" class="modified-fields">
+                <div class="modified-box">
+                    <h4 style="margin-bottom:15px;color:#60a5fa;">Your Final Diagnosis</h4>
 
-                <div class="form-group">
-                    <label>{{ form.doctor_diagnosis_notes.label }}</label>
-                    {{ form.doctor_diagnosis_notes }}
-                    {{ form.doctor_diagnosis_notes.errors }}
-                    <p class="help">Clinical reasoning supporting your diagnosis change.</p>
+                    <div class="form-group">
+                        <label>{{ form.doctor_final_diagnosis_catalog.label }}</label>
+                        {{ form.doctor_final_diagnosis_catalog }}
+                        {{ form.doctor_final_diagnosis_catalog.errors }}
+                        <p class="help">Select from the disease catalog if the correct disease is listed there.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{ form.doctor_modified_diagnosis_text.label }}</label>
+                        {{ form.doctor_modified_diagnosis_text }}
+                        {{ form.doctor_modified_diagnosis_text.errors }}
+                        <p class="help">Use free text if not in catalog (e.g. "Stage 2 Hypertension with renal involvement").</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{ form.doctor_diagnosis_notes.label }}</label>
+                        {{ form.doctor_diagnosis_notes }}
+                        {{ form.doctor_diagnosis_notes.errors }}
+                        <p class="help">Clinical reasoning supporting your diagnosis change.</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>{{ form.verification_note.label }} <span id="note-required" style="color:#ef4444;display:none;">*</span></label>
-            {{ form.verification_note }}
-            {{ form.verification_note.errors }}
-            <p class="help">Internal audit note. Required when modifying or rejecting.</p>
-        </div>
+            <div class="form-group">
+                <label>{{ form.verification_note.label }} <span id="note-required" style="color:#ef4444;display:none;">*</span></label>
+                {{ form.verification_note }}
+                {{ form.verification_note.errors }}
+                <p class="help">Internal audit note. Required when modifying or rejecting.</p>
+            </div>
 
-        <button type="submit" class="btn">✅ Confirm &amp; Save Verification</button>
-    </form>
-</div>
+            <button type="submit" class="btn">✅ Confirm &amp; Save Verification</button>
+        </form>
+    </div>
 </div>
 
 <script>

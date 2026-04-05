@@ -159,12 +159,16 @@ input:focus, select:focus {
 
 <div class="form-group">
 <label>Select Specializations</label>
-<select name="specializations" multiple required size="5">
+<select name="specializations" multiple size="5">
     {% for s in specializations %}
         <option value="{{ s.id }}">{{ s.name }}</option>
     {% endfor %}
 </select>
 <small>Hold CTRL (Windows) or CMD (Mac) to select multiple</small>
+</div>
+
+<div class="form-group">
+<input type="text" name="custom_specialization" placeholder="Other Specializations (Comma separated)">
 </div>
 
 <div class="form-group">

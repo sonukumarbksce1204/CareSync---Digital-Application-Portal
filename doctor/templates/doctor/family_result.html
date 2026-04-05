@@ -4,52 +4,63 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Family Result • CareSync</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;display:flex;}
-.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
-.logo{font-size:28px;font-weight:600;margin-bottom:40px;cursor:pointer;}
-.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
-.logout{margin-top:auto;}
-.logout a{color:white;text-decoration:none;font-weight:500;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
 .main{flex:1;padding:40px;overflow-y:auto;}
-.top{font-size:24px;font-weight:600;margin-bottom:30px;}
-.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;}
-.member-card { background: #f9f9f9; padding: 15px; margin-top: 15px; border-left: 5px solid #1FBF8F; border-radius: 4px; }
-.btn-mini { background: #3EC7A6; color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-size: 13px; display: inline-block; margin-top: 10px;}
+h1{color:white;font-size:26px;font-weight:700;margin-bottom:6px;}
+.subtitle{color:#64748b;font-size:14px;margin-bottom:32px;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:24px;}
+.card h2{color:white;font-size:18px;margin-bottom:16px;}
+.info-item{color:#cbd5e1;font-size:14px;margin-bottom:8px;}
+.info-item strong{color:#94a3b8;font-weight:600;}
+.member-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-left:4px solid #1FBF8F;border-radius:12px;padding:20px;margin-bottom:15px;}
+.member-card h3{color:white;font-size:16px;margin-bottom:8px;}
+.btn-mini{background:#3b82f6;color:white;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:12px;display:inline-block;margin-top:10px;font-weight:600;transition:opacity 0.2s;}
+.btn-mini:hover{opacity:0.9;}
 </style>
 </head>
 <body>
 {% include 'doctor/_sidebar.html' %}
 
 <div class="main">
-<div class="top">Family Record ({{ family.family_id }})</div>
+    <h1>Family Record</h1>
+    <p class="subtitle">Family ID: <span style="font-family:monospace;color:#f59e0b;font-size:16px;">{{ family.family_id }}</span></p>
 
-<div class="card">
-<h3>Family Health Insights</h3>
-<br>
-{% for item in summary %}
-    <p style="color:#b91c1c; font-weight:bold;">⚠️ {{ item.disease_name }} detected in {{ item.occurrences }} member(s)</p>
-    <p style="color:#b91c1c; font-size: 13px; margin-left: 25px; margin-bottom: 10px;">Affected: {{ item.patients|join:", " }}</p>
-{% empty %}
-    <p style="color:#10b981; font-weight:bold;">✓ No major hereditary or catalogued chronic diseases flagged.</p>
-{% endfor %}
-</div>
-
-<div class="card">
-<h3>Family Members</h3>
-<p>Head of Family: {{ family.head.user.get_full_name|default:family.head.user.username }}</p>
-
-{% for member in family.members.all %}
-    <div class="member-card">
-        <h4>{{ member.user.get_full_name|default:member.user.username }} ({{ member.patient_id }})</h4>
-        <p>Relationship: {{ member.get_family_relationship_display|default:"Attached" }}</p>
-        {% if member.is_deceased %}<p style="color:red">[Deceased]</p>{% endif %}
-        <a href="{% url 'doctor_patient_detail' member.patient_id %}" class="btn-mini">View Individual Record</a>
+    <div class="card">
+        <h2>Family Health Insights</h2>
+        {% for item in summary %}
+            <p class="info-item" style="color:#f87171; font-weight:600;">⚠️ {{ item.disease_name }} detected in {{ item.occurrences }} member(s)</p>
+            <p class="info-item" style="font-size: 13px; margin-left: 25px; margin-bottom: 15px;color:#94a3b8;">Affected: {{ item.patients|join:", " }}</p>
+        {% empty %}
+            <p class="info-item" style="color:#4ade80; font-weight:600;">✓ No major hereditary or catalogued chronic diseases flagged.</p>
+        {% endfor %}
     </div>
-{% endfor %}
-</div>
+
+    <div class="card">
+        <h2>Family Members</h2>
+        <p class="info-item" style="margin-bottom:20px;"><strong>Head of Family:</strong> {{ family.head.user.get_full_name|default:family.head.user.username }}</p>
+
+        {% for member in family.members.all %}
+            <div class="member-card">
+                <h3>{{ member.user.get_full_name|default:member.user.username }} <span style="color:#94a3b8;font-weight:400;font-size:14px;font-family:monospace;">({{ member.patient_id }})</span></h3>
+                <div class="info-item"><strong>Relationship:</strong> {{ member.get_family_relationship_display|default:"Attached" }}</div>
+                {% if member.is_deceased %}
+                    <div class="info-item" style="color:#f87171;font-weight:600;">[Deceased]</div>
+                {% endif %}
+                <a href="{% url 'doctor_patient_detail' member.patient_id %}" class="btn-mini">View Individual Record</a>
+            </div>
+        {% endfor %}
+    </div>
 
 </div>
 </body>

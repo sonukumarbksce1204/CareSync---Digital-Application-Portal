@@ -16,15 +16,7 @@ body {
   background: #e6f4f1;
 }
 
-/* Background Image */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: url("/static/images/bg.jpg") no-repeat center center/cover;
-  opacity: 0.15;   /* adjust fade here */
-  z-index: -2;
-}
+/* Background handled by .background-slideshow (bg1-bg4.jpg) below */
 
 /* Soft overlay for readability */
 body::after {

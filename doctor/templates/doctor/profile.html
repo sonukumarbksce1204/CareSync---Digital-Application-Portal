@@ -5,133 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Doctor Profile • CareSync</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
+.main{flex:1;padding:40px;overflow-y:auto;}
 
-body{
-background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);
-min-height:100vh;
-display:flex;
-}
+.profile-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:30px;max-width:820px;}
+.avatar{width:150px;height:150px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;color:white;background:linear-gradient(135deg,#1FBF8F,#3EC7A6);margin-bottom:20px;overflow:hidden;}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.info p{margin:6px 0;color:#cbd5e1;font-size:15px;}
+.info strong{color:#94a3b8;}
 
-/* Sidebar */
-.sidebar{
-width:250px;
-background:linear-gradient(140deg,#1FBF8F,#3EC7A6);
-color:white;
-padding:30px;
-display:flex;
-flex-direction:column;
-}
+.section{margin-top:30px;}
+.section h3{margin-bottom:16px;color:white;font-size:18px;}
+.list-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);padding:15px;border-radius:12px;margin-bottom:10px;font-size:14px;color:#f8fafc;}
 
-.logo{
-font-size:28px;
-font-weight:600;
-margin-bottom:40px;
-cursor:pointer;
-}
+.upload-box{margin-top:30px;padding:25px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px dashed rgba(31,191,143,0.5);}
+.upload-box label, .upload-box strong{font-size:14px;color:#94a3b8;margin-bottom:15px;display:block;}
 
-.nav a{
-color:white;
-text-decoration:none;
-display:block;
-margin:15px 0;
-font-size:15px;
-opacity:0.9;
-}
+input[type="text"], input[type="number"], input[type="file"]{padding:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:white;border-radius:6px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;}
+input::placeholder{color:#64748b;}
 
-.logout{margin-top:auto;}
-
-/* Main */
-.main{
-flex:1;
-padding:40px;
-}
-
-/* Card */
-.profile-card{
-background:rgba(255,255,255,0.8);
-backdrop-filter:blur(20px);
-border-radius:18px;
-padding:40px;
-box-shadow:0 10px 40px rgba(0,0,0,0.06);
-max-width:900px;
-}
-
-/* Avatar */
-.avatar{
-width:150px;
-height:150px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:48px;
-color:white;
-background:linear-gradient(135deg,#1FBF8F,#3EC7A6);
-margin-bottom:20px;
-overflow:hidden;
-}
-
-.avatar img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-/* Info */
-.info p{
-margin:6px 0;
-color:#333;
-font-size:15px;
-}
-
-/* Sections */
-.section{
-margin-top:30px;
-}
-
-.section h3{
-margin-bottom:12px;
-color:#1A2B2B;
-}
-
-.list-item{
-background:#f7fffb;
-padding:12px;
-border-radius:10px;
-margin-bottom:8px;
-font-size:14px;
-border:1px solid #e2f5ee;
-}
-
-/* Upload */
-.upload-box{
-margin-top:30px;
-padding:20px;
-background:#f7fffb;
-border-radius:12px;
-border:1px dashed #1FBF8F;
-}
-
-.upload-box label{
-font-size:14px;
-color:#1A2B2B;
-margin-bottom:10px;
-display:block;
-}
-
-button{
-padding:10px 20px;
-border:none;
-background:#1FBF8F;
-color:white;
-border-radius:8px;
-cursor:pointer;
-margin-top:10px;
-}
+button{padding:10px 20px;border:none;background:#1FBF8F;color:white;border-radius:8px;cursor:pointer;font-weight:600;transition:opacity 0.2s;}
+button:hover{opacity:0.9;}
 </style>
 </head>
 
@@ -141,49 +47,72 @@ margin-top:10px;
 
 <div class="main">
 
-<div class="profile-card">
-
-<div class="avatar">
-{% if doctor.profile_image %}
-<img src="{{ doctor.profile_image.url }}">
-{% else %}
-{{ doctor.full_name|first|upper }}
-{% endif %}
-</div>
-
-<h2>Dr. {{ doctor.full_name }}</h2>
-
-<div class="info">
-<p><strong>Email:</strong> {{ doctor.email }}</p>
-<p><strong>Phone:</strong> {{ doctor.phone }}</p>
-<p><strong>Status:</strong> {{ doctor.verification_status }}</p>
-</div>
-
-<div class="section">
-<h3>Specializations</h3>
-{% for s in specializations %}
-<div class="list-item">{{ s.name }}</div>
-{% endfor %}
-</div>
-
-<div class="section">
-<h3>Qualifications</h3>
-{% for q in qualifications %}
-<div class="list-item">{{ q.degree }}</div>
-{% endfor %}
-</div>
-
-<div class="upload-box">
-<form method="POST" enctype="multipart/form-data">
-{% csrf_token %}
-<label>Choose Profile Picture</label>
-<input type="file" name="profile_image">
-<br>
-<button>Update</button>
-</form>
-</div>
-
-</div>
+    <div class="profile-card">
+        
+        <div class="avatar">
+            {% if doctor.profile_image %}
+                <img src="{{ doctor.profile_image.url }}">
+            {% else %}
+                {{ doctor.full_name|first|upper }}
+            {% endif %}
+        </div>
+        
+        <h2 style="color:white;margin-bottom:20px;">Dr. {{ doctor.full_name }}</h2>
+        
+        <div class="info">
+            <p><strong>Email:</strong> {{ doctor.email }}</p>
+            <p><strong>Phone:</strong> {{ doctor.phone }}</p>
+            <p><strong>Status:</strong> <span style="{% if doctor.verification_status == 'APPROVED' %}color:#4ade80;{% else %}color:#facc15;{% endif %}">{{ doctor.verification_status }}</span></p>
+        </div>
+        
+        <div class="section">
+            <h3>Specializations</h3>
+            {% for s in specializations %}
+                <div class="list-item">{{ s.name }}</div>
+            {% endfor %}
+        </div>
+        
+        <div class="section">
+            <h3>Qualifications</h3>
+            {% for q in qualifications %}
+            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:white;">{{ q.degree }}</strong><br>
+                    <small style="color:#94a3b8;">{{ q.institution }} ({{ q.year_completed }})</small>
+                </div>
+                <form method="POST" style="margin:0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_qualification" value="1">
+                    <input type="hidden" name="q_id" value="{{ q.id }}">
+                    <button type="submit" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.3); color:#f87171; padding:4px 8px; font-size:11px; margin:0;">Remove</button>
+                </form>
+            </div>
+            {% endfor %}
+        
+            <div class="upload-box" style="margin-top:10px; padding:20px;">
+                <strong>Add Qualification</strong>
+                <form method="POST" style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                    {% csrf_token %}
+                    <input type="hidden" name="add_qualification" value="1">
+                    <input type="text" name="degree" placeholder="Degree (e.g. MBBS)" style="flex:1; min-width:150px;" required>
+                    <input type="text" name="institution" placeholder="Institution" style="flex:1; min-width:150px;" required>
+                    <input type="number" name="year_completed" placeholder="Year" style="width:80px;" required>
+                    <button type="submit" style="margin:0; padding:8px 15px;">Add</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="upload-box">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label>Choose Profile Picture</label>
+                <input type="file" name="profile_image" style="background:transparent; border:none; padding:0;">
+                <br>
+                <button type="submit" style="margin-top:15px;">Update Avatar</button>
+            </form>
+        </div>
+        
+    </div>
 
 </div>
 

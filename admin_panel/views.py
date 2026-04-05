@@ -12,6 +12,35 @@ def get_session_admin(request):
 
 # ── Login / Logout ────────────────────────────────────────────────────────────
 
+def signup_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return render(request, "admin_panel/admin_signup.html")
+
+        if AdminUser.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return render(request, "admin_panel/admin_signup.html")
+
+        if AdminUser.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists.")
+            return render(request, "admin_panel/admin_signup.html")
+
+        admin = AdminUser(username=username, email=email)
+        admin.set_password(password)
+        admin.save()
+        
+        messages.success(request, "Admin account created successfully. Please sign in.")
+        return redirect("admin_login")
+
+    return render(request, "admin_panel/admin_signup.html")
+
+
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -124,4 +153,21 @@ def admin_hospitals(request):
     return render(request, "admin_panel/admin_hospitals.html", {
         "admin": admin,
         "hospitals": hospitals,
+    })
+
+
+# ── Patient Management ────────────────────────────────────────────────────────
+
+def admin_patients(request):
+    admin = get_session_admin(request)
+    if not admin:
+        request.session.flush()
+        return redirect("admin_login")
+
+    from patient.models import Patient
+    patients = Patient.objects.select_related('user').all().order_by('-created_at')
+
+    return render(request, "admin_panel/admin_patients.html", {
+        "admin": admin,
+        "patients": patients,
     })

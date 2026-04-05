@@ -1,0 +1,17 @@
+
+0 static files copied to 'C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal\staticfiles'.
+Traceback (most recent call last):
+  File "C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal\test_static.py", line 12, in <module>
+    print("\n\u2705 Collectstatic completed successfully.")
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 2: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sonuk\OneDrive\Desktop\caresync\CareSync---Digital-Application-Portal\test_static.py", line 15, in <module>
+    print("\n\u274c Collectstatic failed:")
+  File "C:\Users\sonuk\AppData\Local\Programs\Python\Python310\lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 2: character maps to <undefined>

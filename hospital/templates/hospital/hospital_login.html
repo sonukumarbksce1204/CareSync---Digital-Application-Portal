@@ -1,55 +1,67 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Hospital Login</title>
-    <link rel="stylesheet" href="{% static 'hospital/style1.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Login • CareSync</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+    body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+    .hero-section{text-align:center;margin-bottom:30px;}
+    .hero-section h1{color:white;font-size:28px;font-weight:700;margin-bottom:8px;}
+    .hero-section p{color:#94a3b8;font-size:14px;max-width:450px;}
+    .login-container{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:35px;width:100%;max-width:420px;}
+    .login-container h2{color:white;font-size:22px;font-weight:700;margin-bottom:25px;text-align:center;}
+    .messages p{padding:12px;background:rgba(239,68,68,0.1);color:#f87171;border-radius:8px;margin-bottom:15px;font-size:13px;border-left:3px solid #ef4444;}
+    .input-group{margin-bottom:18px;}
+    .input-group label{display:block;color:#94a3b8;font-size:13px;margin-bottom:6px;}
+    .input-group input{width:100%;padding:11px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:border 0.2s;}
+    .input-group input:focus{border-color:#1FBF8F;}
+    .input-group input::placeholder{color:#475569;}
+    .btn-login{width:100%;padding:12px;background:linear-gradient(135deg,#1FBF8F,#16a37f);color:white;border:none;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer;transition:opacity 0.2s;}
+    .btn-login:hover{opacity:0.9;}
+    .register-link{text-align:center;margin-top:18px;color:#64748b;font-size:13px;}
+    .register-link a{color:#1FBF8F;text-decoration:none;font-weight:600;}
+    .back-link{margin-top:20px;color:#64748b;font-size:13px;}
+    .back-link a{color:#94a3b8;text-decoration:none;}
+    .back-link a:hover{color:#1FBF8F;}
+  </style>
 </head>
-
-
-
 <body>
 
 <div class="hero-section">
-    <h1>CareSync Hospital Portal</h1>
-    <p>Access hospital dashboard, manage appointments, records, and streamline your workflow securely.</p>
+  <h1>🏥 CareSync Hospital Portal</h1>
+  <p>Access hospital dashboard, manage appointments, records, and streamline your workflow securely.</p>
 </div>
-
 
 <div class="login-container">
-    <h2>🏥 Hospital Login</h2>
+  <h2>Hospital Login</h2>
 
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <p class="{{ message.tags }}">{{ message }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <p class="{{ message.tags }}">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-    <form method="POST">
-        {% csrf_token %}
-        <div class="input-group">
-            <label>Registration Number</label>
-            <input type="text" name="registration_number" required>
-        </div>
-
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" name="password" required>
-        </div>
-
-        <button type="submit" class="btn-login">Login</button>
-
-        <p class="register-link">
-            New Hospital? <a href="{% url 'hospital_register' %}">Register here</a>
-        </p>
-    </form>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="input-group">
+      <label>Registration Number</label>
+      <input type="text" name="registration_number" placeholder="e.g. HOSP-2024-001" required>
+    </div>
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="••••••••" required>
+    </div>
+    <button type="submit" class="btn-login">Login</button>
+    <p class="register-link">New Hospital? <a href="{% url 'hospital_register' %}">Register here</a></p>
+  </form>
 </div>
 
+<p class="back-link"><a href="/">← Back to Home</a></p>
+
 </body>
-
-
-
 </html>

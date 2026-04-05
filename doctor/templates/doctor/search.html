@@ -4,50 +4,62 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Doctor Search • CareSync</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);height:100vh;display:flex;}
-.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;}
-.logo{font-size:28px;font-weight:600;margin-bottom:40px;cursor:pointer;}
-.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
-.logout{margin-top:auto;}
-.logout a{color:white;text-decoration:none;font-weight:500;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
 .main{flex:1;padding:40px;overflow-y:auto;}
-.top{font-size:24px;font-weight:600;margin-bottom:30px;}
-.card{background:rgba(255,255,255,0.75);border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05);max-width: 600px;}
-input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; }
-select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; }
-button { padding: 12px 20px; background: #1FBF8F; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;}
-.error { color: red; margin-bottom: 15px;}
+h1{color:white;font-size:26px;font-weight:700;margin-bottom:6px;}
+.subtitle{color:#64748b;font-size:14px;margin-bottom:32px;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:24px;max-width: 600px;}
+.card h3{color:white;font-size:18px;margin-bottom:16px;}
+input[type="text"], select { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 20px; color: white; font-family: 'Poppins', sans-serif;}
+input[type="text"]::placeholder { color: #64748b; }
+label { color: #94a3b8; font-size: 13px; display: block; margin-bottom: 6px; }
+button { padding: 12px 20px; background: #1FBF8F; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; font-size: 14px; transition: opacity 0.2s; }
+button:hover { opacity: 0.9; }
+.error { color: #f87171; margin-bottom: 15px; font-size: 13px; background: rgba(239,68,68,0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.2); }
+.success { color: #4ade80; margin-bottom: 15px; font-size: 13px; background: rgba(34,197,94,0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(34,197,94,0.2); }
 </style>
 </head>
 <body>
 {% include 'doctor/_sidebar.html' %}
 
 <div class="main">
-{% if messages %}
-    {% for message in messages %}
-        <p class="error" style="color:{% if message.tags == 'success' %}green{% else %}red{% endif %}">{{ message }}</p>
-    {% endfor %}
-{% endif %}
-<div class="top">Patient Record Lookup</div>
-<div class="card">
-<h3>Enter ID to Search</h3><br>
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <h1>Patient Record Lookup</h1>
+    <p class="subtitle">Search for patient's personal or family health records securely.</p>
 
-<form method="GET" action="{% url 'doctor_search' %}">
-<label>Search Type</label>
-<select name="type" required>
-    <option value="personal">Personal Health ID</option>
-    <option value="family">Family Health ID</option>
-</select>
-<label>Health ID</label>
-<input type="text" name="q" placeholder="Enter ID here..." required>
-<button type="submit">Search Records</button>
-</form>
+    {% if messages %}
+        {% for message in messages %}
+            <p class="{% if message.tags == 'success' %}success{% else %}error{% endif %}">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
 
-</div>
+    <div class="card">
+        <h3>Enter ID to Search</h3>
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+        <form method="GET" action="{% url 'doctor_search' %}">
+            <label>Search Type</label>
+            <select name="type" required>
+                <option value="personal" style="color: black;">Personal Health ID</option>
+                <option value="family" style="color: black;">Family Health ID</option>
+            </select>
+            
+            <label>Health ID</label>
+            <input type="text" name="q" placeholder="Enter ID here..." required>
+            
+            <button type="submit">Search Records</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

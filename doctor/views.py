@@ -40,6 +40,7 @@ def doctor_signup(request):
         license_file = request.FILES.get("license_file")
         qualification_text = request.POST.get("qualification")
         selected_specs = request.POST.getlist("specializations")
+        custom_specs = request.POST.get("custom_specialization")
 
         if password != confirm_password:
             messages.error(request, "Passwords do not match")
@@ -60,6 +61,14 @@ def doctor_signup(request):
         doctor = Doctor(full_name=full_name, email=email, phone=phone, experience_years=experience)
         doctor.set_password(password)
         doctor.save()
+        
+        if custom_specs:
+            for spec_name in custom_specs.split(','):
+                spec_name = spec_name.strip()
+                if spec_name:
+                    spec_obj, _ = Specialization.objects.get_or_create(name=spec_name)
+                    selected_specs.append(spec_obj.id)
+                    
         doctor.specializations.set(selected_specs)
 
         DoctorVerification.objects.create(
@@ -153,6 +162,23 @@ def doctor_profile(request):
         return redirect("doctor_login")
 
     if request.method == "POST":
+        if 'add_qualification' in request.POST:
+            degree = request.POST.get('degree')
+            institution = request.POST.get('institution')
+            year = request.POST.get('year_completed')
+            if degree and institution and year:
+                Qualification.objects.create(
+                    doctor=doctor, degree=degree, institution=institution, year_completed=year
+                )
+                messages.success(request, "Qualification added.")
+            return redirect('doctor_profile')
+            
+        if 'delete_qualification' in request.POST:
+            q_id = request.POST.get('q_id')
+            Qualification.objects.filter(id=q_id, doctor=doctor).delete()
+            messages.success(request, "Qualification removed.")
+            return redirect('doctor_profile')
+
         form = DoctorProfileUpdateForm(request.POST, request.FILES, instance=doctor)
         if form.is_valid():
             form.save()

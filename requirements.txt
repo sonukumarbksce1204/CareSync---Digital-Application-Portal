@@ -1,0 +1,16 @@
+django>=4.2,<6.0
+# Use tensorflow-cpu — Hugging Face free tier has no GPU, and tensorflow-cpu
+# is ~3x smaller, making the Docker build significantly faster and less likely
+# to time out during the HF build process.
+tensorflow-cpu
+numpy
+joblib
+gunicorn
+whitenoise[brotli]
+dj-database-url
+psycopg2-binary
+django-cloudinary-storage
+cloudinary
+python-dotenv
+pillow
+huggingface_hub

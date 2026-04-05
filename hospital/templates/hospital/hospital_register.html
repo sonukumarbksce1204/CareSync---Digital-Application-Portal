@@ -1,63 +1,82 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hospital Registration</title>
-  <link rel="stylesheet" href="{% static 'hospital/style.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Registration • CareSync</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+    body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;}
+    .page-header{text-align:center;margin-bottom:30px;}
+    .page-header h1{color:white;font-size:28px;font-weight:700;margin-bottom:8px;}
+    .page-header p{color:#94a3b8;font-size:14px;max-width:480px;}
+    .form-container{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:35px;width:100%;max-width:540px;}
+    .form-container h2{color:white;font-size:22px;font-weight:700;margin-bottom:25px;text-align:center;}
+    .form-group{margin-bottom:18px;}
+    .form-group label{display:block;color:#94a3b8;font-size:13px;margin-bottom:6px;}
+    .form-group input,.form-group select,.form-group textarea{
+      width:100%;padding:11px 14px;background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;
+      font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:border 0.2s;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#1FBF8F;}
+    .form-group input::placeholder,.form-group textarea::placeholder{color:#475569;}
+    .form-group select option{color:black;}
+    .form-group.inline{display:flex;align-items:center;gap:10px;}
+    .form-group.inline label{margin-bottom:0;white-space:nowrap;}
+    .form-group.inline input[type="checkbox"]{width:auto;accent-color:#1FBF8F;}
+    .error{color:#f87171;font-size:12px;margin-top:4px;}
+    .btn{width:100%;padding:12px;background:linear-gradient(135deg,#1FBF8F,#16a37f);color:white;border:none;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer;margin-top:10px;transition:opacity 0.2s;}
+    .btn:hover{opacity:0.9;}
+    .login-link{text-align:center;margin-top:18px;color:#64748b;font-size:13px;}
+    .login-link a{color:#1FBF8F;text-decoration:none;font-weight:600;}
+    .back-link{margin-top:20px;color:#64748b;font-size:13px;}
+    .back-link a{color:#94a3b8;text-decoration:none;}
+    .back-link a:hover{color:#1FBF8F;}
+  </style>
 </head>
+<body>
 
-  <body>
-  <div class="main-wrapper">
+<div class="page-header">
+  <h1>🏥 CareSync Hospital Portal</h1>
+  <p>Register your hospital and join the fastest growing healthcare network.</p>
+</div>
 
-    <!-- LEFT SECTION -->
-    <div class="left-panel">
-      <h1>🏥 CareSync Hospital Portal</h1>
-      <p>Your trusted healthcare partner.  
-         Register your hospital and join the fastest growing network.</p>
+<div class="form-container">
+  <h2>Hospital Registration</h2>
 
-      <img src="{% static 'hospital/hospital_vector.png' %}" 
-           alt="Hospital Illustration" class="illustration">
-    </div>
+  <form method="POST" novalidate>
+    {% csrf_token %}
 
-    <!-- RIGHT SECTION (FORM) -->
-    <div class="form-container">
-      <h2>Hospital Registration</h2>
-
-      <form method="POST" novalidate>
-        {% csrf_token %}
-
-        {% for field in form %}
-          {% if field.name == 'emergency_services' %}
-            <div class="form-group inline">
-              <label>{{ field.label }}</label>
-              {{ field }}
-              {% if field.errors %}
-                <div class="error">{{ field.errors|striptags }}</div>
-              {% endif %}
-            </div>
-          {% else %}
-            <div class="form-group">
-              <label>{{ field.label }}</label>
-              {{ field }}
-              {% if field.errors %}
-                <div class="error">{{ field.errors|striptags }}</div>
-              {% endif %}
-            </div>
+    {% for field in form %}
+      {% if field.name == 'emergency_services' %}
+        <div class="form-group inline">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="error">{{ field.errors|striptags }}</div>
           {% endif %}
-        {% endfor %}
-
-        <button type="submit" class="btn">Register Hospital</button>
-
-        <div class="login-link">
-          <a href="{% url 'hospital_login' %}">Already Registered? Login</a>
         </div>
+      {% else %}
+        <div class="form-group">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="error">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
 
-      </form>
+    <button type="submit" class="btn">Register Hospital</button>
+
+    <div class="login-link">
+      <a href="{% url 'hospital_login' %}">Already Registered? Login</a>
     </div>
+  </form>
+</div>
 
-  </div>
+<p class="back-link"><a href="/">← Back to Home</a></p>
+
 </body>
-
-
 </html>

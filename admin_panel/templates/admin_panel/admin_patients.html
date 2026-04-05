@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hospital Management • CareSync Admin</title>
+<title>Patient Management • CareSync Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -25,9 +25,7 @@ th{color:#64748b;font-size:11px;font-weight:700;text-align:left;padding:10px 14p
 td{color:#cbd5e1;font-size:14px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(255,255,255,0.02);}
-.badge-active{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.2);display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-.avatar-h{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#1FBF8F,#3EC7A6);color:white;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-right:10px;vertical-align:middle;}
-.chip{background:rgba(59,130,246,0.15);color:#93c5fd;border-radius:4px;padding:2px 7px;font-size:11px;margin-right:4px;}
+.avatar{width:36px;height:36px;border-radius:50%;background:#1FBF8F;color:white;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-right:10px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -36,51 +34,37 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <nav class="nav">
         <a href="{% url 'admin_dashboard' %}">🏠 Dashboard</a>
         <a href="{% url 'admin_doctors' %}">👨‍⚕️ Doctors</a>
-        <a href="{% url 'admin_hospitals' %}" class="active">🏥 Hospitals</a>
-        <a href="{% url 'admin_patients' %}">👥 Patients</a>
+        <a href="{% url 'admin_hospitals' %}">🏥 Hospitals</a>
+        <a href="{% url 'admin_patients' %}" class="active">👥 Patients</a>
     </nav>
     <a href="{% url 'admin_logout' %}" class="logout-btn">⬅ Logout</a>
 </div>
 <div class="main">
-    <h1>🏥 Hospital Management</h1>
-    <p class="subtitle">All registered hospitals on the CareSync platform.</p>
+    <h1>👥 Patient Management</h1>
+    <p class="subtitle">View and monitor registered patients across the platform.</p>
 
     <div class="card">
         <table>
             <tr>
-                <th>Hospital</th>
-                <th>Reg. No.</th>
-                <th>City</th>
-                <th>Contact</th>
-                <th>Beds</th>
-                <th>Emergency</th>
-                <th>Registered</th>
+                <th>Patient</th>
+                <th>Health ID</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Join Date</th>
             </tr>
-            {% for h in hospitals %}
+            {% for patient in patients %}
             <tr>
                 <td>
-                    <span class="avatar-h">{{ h.name|first }}</span>
-                    <span style="font-weight:600;">{{ h.name }}</span>
-                    {% if h.emergency_services %}<br><span class="chip" style="margin-left:46px;">Emergency</span>{% endif %}
+                    <span class="avatar">{{ patient.user.get_full_name|default:patient.user.username|first|upper }}</span>
+                    <span style="font-weight:600;">{{ patient.user.get_full_name|default:patient.user.username }}</span>
                 </td>
-                <td style="font-size:13px;color:#64748b;">{{ h.registration_number }}</td>
-                <td style="font-size:13px;">{{ h.city }}, {{ h.state }}</td>
-                <td style="font-size:13px;">
-                    <div>{{ h.contact_number }}</div>
-                    <div style="color:#64748b;font-size:12px;">{{ h.email }}</div>
-                </td>
-                <td style="font-size:13px;">{{ h.total_beds|default:"—" }}</td>
-                <td>
-                    {% if h.emergency_services %}
-                    <span style="color:#4ade80;font-size:13px;">✓ Yes</span>
-                    {% else %}
-                    <span style="color:#64748b;font-size:13px;">No</span>
-                    {% endif %}
-                </td>
-                <td style="font-size:12px;color:#64748b;">{{ h.registration_date|date:"d M Y"|default:"—" }}</td>
+                <td style="font-family:monospace;letter-spacing:1px;color:#1FBF8F;">{{ patient.patient_id }}</td>
+                <td style="color:#64748b;font-size:13px;">{{ patient.user.email }}</td>
+                <td style="font-size:13px;">{{ patient.phone }}</td>
+                <td style="font-size:13px;color:#64748b;">{{ patient.created_at|date:"M d, Y" }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="7" style="text-align:center;color:#64748b;padding:30px;">No hospitals registered yet.</td></tr>
+            <tr><td colspan="5" style="text-align:center;color:#64748b;padding:30px;">No patients registered yet.</td></tr>
             {% endfor %}
         </table>
     </div>

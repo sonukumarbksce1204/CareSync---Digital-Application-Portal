@@ -1,3 +1,12 @@
+---
+title: CareSync
+emoji: 🏥
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
 # CareSync 🏥
 
 A modern hospital management system built using **Django** and **HTML/CSS/JS**.  

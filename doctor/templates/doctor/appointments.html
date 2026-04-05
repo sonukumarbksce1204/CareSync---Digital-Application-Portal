@@ -4,29 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Doctor Appointments • CareSync</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh;display:flex;}
-.sidebar{width:250px;background:linear-gradient(140deg,#1FBF8F,#3EC7A6);color:white;padding:30px;display:flex;flex-direction:column;min-height:100vh;}
-.logo{font-size:28px;font-weight:600;cursor:pointer;}
-.nav a{color:white;text-decoration:none;display:block;margin:15px 0;font-size:15px;opacity:0.9;}
+body{background:linear-gradient(120deg,#0f172a,#1e293b);min-height:100vh;display:flex;}
+.sidebar{width:240px;background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.08);padding:30px 20px;display:flex;flex-direction:column;min-height:100vh;}
+.logo{font-size:22px;font-weight:700;color:#1FBF8F;margin-bottom:8px;}
+.logo span{color:#94a3b8;font-size:13px;font-weight:400;display:block;}
+.nav{margin-top:30px;flex:1;}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 14px;border-radius:10px;margin-bottom:4px;font-size:14px;transition:all 0.2s;}
+.nav a:hover,.nav a.active{background:rgba(31,191,143,0.12);color:#1FBF8F;}
+.logout-btn{display:block;color:#f87171;text-decoration:none;padding:11px 14px;border-radius:10px;font-size:14px;margin-top:auto;}
+.logout-btn:hover{background:rgba(248,113,113,0.1);}
 .main{flex:1;padding:40px;overflow-y:auto;}
-.card{background:white;border-radius:16px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.05);margin-bottom:20px;}
-.btn{display:inline-block;padding:6px 14px;border-radius:6px;font-weight:bold;font-size:13px;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.2s;}
+h2{color:white;font-size:26px;font-weight:700;margin-bottom:20px;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:24px;overflow-x:auto;}
+.card h3{color:white;font-size:18px;margin-bottom:16px;}
+table{width:100%;border-collapse:collapse;text-align:left;}
+th{color:#64748b;font-size:12px;font-weight:600;padding:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+td{color:#cbd5e1;font-size:14px;padding:15px 12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+.btn{display:inline-block;padding:8px 14px;border-radius:6px;font-weight:600;font-size:12px;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.2s;}
 .btn:hover{opacity:0.85;}
 .badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;}
-.badge-completed{background:#e0f2fe;color:#0284c7;}
-.badge-cancelled{background:#fecaca;color:#991b1b;}
-.badge-rejected{background:#fde68a;color:#92400e;}
-
-/* Inline reject form */
-.reject-expand{display:none;margin-top:10px;animation:fadeIn 0.2s ease;}
-.reject-expand.open{display:block;}
+.badge-completed{background:rgba(59,130,246,0.15);color:#60a5fa;}
+.badge-cancelled{background:rgba(239,68,68,0.15);color:#f87171;}
+.badge-rejected{background:rgba(245,158,11,0.15);color:#fbbf24;}
+.reject-expand,.cancel-expand{display:none;margin-top:10px;animation:fadeIn 0.2s ease;}
+.reject-expand.open,.cancel-expand.open{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
-.reason-textarea{width:100%;padding:8px;border:1px solid #fca5a5;border-radius:6px;font-size:13px;font-family:'Poppins',sans-serif;resize:vertical;}
-.cancel-expand{display:none;margin-top:10px;animation:fadeIn 0.2s ease;}
-.cancel-expand.open{display:block;}
+.reason-textarea{width:100%;padding:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:white;border-radius:6px;font-size:13px;font-family:'Poppins',sans-serif;resize:vertical;}
 </style>
 </head>
 <body>
@@ -36,26 +43,26 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh
 
 {% if messages %}
     {% for message in messages %}
-        <div style="padding:15px;background:#bbf7d0;color:#166534;border-radius:8px;margin-bottom:20px;">{{ message }}</div>
+        <div style="padding:15px;background:rgba(34,197,94,0.1);color:#4ade80;border-left:4px solid #22c55e;border-radius:8px;margin-bottom:20px;">{{ message }}</div>
     {% endfor %}
 {% endif %}
 
 <!-- ─── PENDING REQUESTS ──────────────────────────────── -->
 <div class="card" style="border-left:4px solid #f59e0b;">
-    <h3 style="margin-bottom:15px;">⏳ Pending Requests</h3>
-    <table style="width:100%;border-collapse:collapse;text-align:left;">
-        <tr style="border-bottom:2px solid #eee;">
-            <th style="padding:12px;">Date & Time</th>
-            <th style="padding:12px;">Patient</th>
-            <th style="padding:12px;">Reason & Note</th>
-            <th style="padding:12px;">Actions</th>
+    <h3 style="margin-bottom:15px;color:#fcd34d;">⏳ Pending Requests</h3>
+    <table>
+        <tr>
+            <th>Date & Time</th>
+            <th>Patient</th>
+            <th>Reason & Note</th>
+            <th>Actions</th>
         </tr>
         {% for apt in requested %}
-        <tr style="border-bottom:1px solid #eee;vertical-align:top;">
-            <td style="padding:12px;"><strong>{{ apt.preferred_date }}</strong><br><span style="color:#666;font-size:12px;">{{ apt.appointment_time|default:"" }}</span></td>
-            <td style="padding:12px;"><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a><br><span style="font-size:12px;color:#888;">ID: {{ apt.patient.patient_id }}</span></td>
-            <td style="padding:12px;">{{ apt.reason }}<br><span style="font-size:12px;color:#666;">{{ apt.note }}</span></td>
-            <td style="padding:12px;">
+        <tr>
+            <td><strong style="color:white;">{{ apt.preferred_date }}</strong><br><span style="color:#94a3b8;font-size:12px;">{{ apt.appointment_time|default:"" }}</span></td>
+            <td><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a><br><span style="font-size:12px;color:#64748b;font-family:monospace;">ID: {{ apt.patient.patient_id }}</span></td>
+            <td>{{ apt.reason }}<br><span style="font-size:12px;color:#64748b;">{{ apt.note }}</span></td>
+            <td>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     {% if apt.hospital %}
                     <form method="POST" action="{% url 'update_appointment_status' apt.id 'APPROVED' %}">{% csrf_token %}
@@ -83,35 +90,35 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="4" style="padding:20px;text-align:center;color:#666;">No pending appointment requests.</td></tr>
+        <tr><td colspan="4" style="text-align:center;color:#64748b;">No pending appointment requests.</td></tr>
         {% endfor %}
     </table>
 </div>
 
 <!-- ─── UPCOMING / APPROVED ──────────────────────────── -->
 <div class="card" style="border-left:4px solid #3b82f6;">
-    <h3 style="margin-bottom:15px;">📅 Upcoming / Approved</h3>
-    <table style="width:100%;border-collapse:collapse;text-align:left;">
-        <tr style="border-bottom:2px solid #eee;">
-            <th style="padding:12px;">Date & Time</th>
-            <th style="padding:12px;">Patient</th>
-            <th style="padding:12px;">Reason</th>
-            <th style="padding:12px;">Actions</th>
+    <h3 style="margin-bottom:15px;color:#93c5fd;">📅 Upcoming / Approved</h3>
+    <table>
+        <tr>
+            <th>Date & Time</th>
+            <th>Patient</th>
+            <th>Reason</th>
+            <th>Actions</th>
         </tr>
         {% for apt in upcoming %}
-        <tr style="border-bottom:1px solid #eee;vertical-align:top;">
-            <td style="padding:12px;"><strong>{{ apt.preferred_date }}</strong><br><span style="color:#666;font-size:12px;">{{ apt.appointment_time|default:"" }}</span></td>
-            <td style="padding:12px;"><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a><br><span style="font-size:12px;color:#888;">{{ apt.visit_mode|default:"" }}</span></td>
-            <td style="padding:12px;">{{ apt.reason }}<br><span style="font-size:12px;color:#666;">{{ apt.note }}</span></td>
-            <td style="padding:12px;">
+        <tr>
+            <td><strong style="color:white;">{{ apt.preferred_date }}</strong><br><span style="color:#94a3b8;font-size:12px;">{{ apt.appointment_time|default:"" }}</span></td>
+            <td><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a><br><span style="font-size:12px;color:#64748b;">{{ apt.visit_mode|default:"" }}</span></td>
+            <td>{{ apt.reason }}<br><span style="font-size:12px;color:#64748b;">{{ apt.note }}</span></td>
+            <td>
                 {% if apt.reschedule_requested_by == 'PATIENT' %}
-                    <div style="margin-bottom:8px; background:#fef3c7; padding:8px; border-radius:6px; font-size:12px; color:#92400e;">
+                    <div style="margin-bottom:8px; background:rgba(245,158,11,0.1); padding:8px; border-radius:6px; font-size:12px; color:#fcd34d; border:1px solid rgba(245,158,11,0.2);">
                         <strong>Patient wants to reschedule:</strong><br>
                         {{ apt.reschedule_date }} at {{ apt.reschedule_time }}<br>
                         <em>"{{ apt.reschedule_reason }}"</em>
                     </div>
                 {% elif apt.reschedule_requested_by == 'DOCTOR' %}
-                    <div style="margin-bottom:8px; background:#e0e7ff; padding:8px; border-radius:6px; font-size:12px; color:#3730a3;">
+                    <div style="margin-bottom:8px; background:rgba(59,130,246,0.1); padding:8px; border-radius:6px; font-size:12px; color:#93c5fd; border:1px solid rgba(59,130,246,0.2);">
                         <strong>Reschedule proposed to patient:</strong><br>
                         Waiting for patient to accept.
                     </div>
@@ -130,7 +137,7 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh
                             <form method="POST" style="display:inline;">{% csrf_token %}
                                 <input type="hidden" name="reschedule_action" value="REJECT">
                                 <input type="hidden" name="apt_id" value="{{ apt.id }}">
-                                <button type="submit" class="btn" style="background:#6b7280;color:white;">Reject Request</button>
+                                <button type="submit" class="btn" style="background:#64748b;color:white;">Reject Request</button>
                             </form>
                         {% elif apt.reschedule_requested_by != 'DOCTOR' %}
                             <button type="button" class="btn" style="background:#8b5cf6;color:white;" onclick="toggleExpand('reschedule-{{ apt.id }}')">🕒 Propose Reschedule</button>
@@ -148,8 +155,8 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh
                     <form method="POST">{% csrf_token %}
                         <input type="hidden" name="reschedule_action" value="PROPOSE">
                         <input type="hidden" name="apt_id" value="{{ apt.id }}">
-                        <input type="date" name="reschedule_date" required style="width:100%; padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:6px;">
-                        <input type="time" name="reschedule_time" style="width:100%; padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:6px;">
+                        <input type="date" name="reschedule_date" required style="width:100%; padding:8px; margin-bottom:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:white; border-radius:6px; font-family:'Poppins',sans-serif;">
+                        <input type="time" name="reschedule_time" style="width:100%; padding:8px; margin-bottom:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:white; border-radius:6px; font-family:'Poppins',sans-serif;">
                         <textarea name="reschedule_reason" class="reason-textarea" rows="2" placeholder="Reason for rescheduling..." required></textarea>
                         <button type="submit" class="btn" style="background:#7c3aed;color:white;margin-top:6px;width:100%;">Send Proposal</button>
                     </form>
@@ -158,68 +165,68 @@ body{background:linear-gradient(120deg,#e6fff7,#d7f5ee,#f0fffb);min-height:100vh
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="4" style="padding:20px;text-align:center;color:#666;">No upcoming appointments.</td></tr>
+        <tr><td colspan="4" style="text-align:center;color:#64748b;">No upcoming appointments.</td></tr>
         {% endfor %}
     </table>
 </div>
 
 <!-- ─── COMPLETED HISTORY ─────────────────────────────── -->
 <div class="card">
-    <h3 style="margin-bottom:15px;color:#555;">✅ Completed Consultations</h3>
-    <table style="width:100%;border-collapse:collapse;text-align:left;">
-        <tr style="border-bottom:2px solid #eee;">
-            <th style="padding:12px;">Date</th>
-            <th style="padding:12px;">Patient</th>
-            <th style="padding:12px;">Follow-up</th>
-            <th style="padding:12px;">Consultation</th>
+    <h3 style="margin-bottom:15px;color:#94a3b8;">✅ Completed Consultations</h3>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Patient</th>
+            <th>Follow-up</th>
+            <th>Consultation</th>
         </tr>
         {% for apt in past_completed %}
-        <tr style="border-bottom:1px solid #eee;">
-            <td style="padding:12px;color:#666;font-size:14px;">{{ apt.preferred_date }}<br><span style="font-size:11px;">{{ apt.appointment_time|default:"" }}</span></td>
-            <td style="padding:12px;"><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a></td>
-            <td style="padding:12px;font-size:13px;color:#555;">
-                {% if apt.follow_up_date %}<span style="color:#d97706;">📅 {{ apt.follow_up_date }}</span>{% else %}<span style="color:#9ca3af;">—</span>{% endif %}
+        <tr>
+            <td style="color:#94a3b8;">{{ apt.preferred_date }}<br><span style="font-size:11px;">{{ apt.appointment_time|default:"" }}</span></td>
+            <td><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a></td>
+            <td style="font-size:13px;color:#94a3b8;">
+                {% if apt.follow_up_date %}<span style="color:#fcd34d;">📅 {{ apt.follow_up_date }}</span>{% else %}—{% endif %}
             </td>
-            <td style="padding:12px;">
+            <td>
                 {% if apt.consultation %}
-                    <a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" class="btn" style="background:#e0f2fe;color:#0284c7;">View Notes</a>
+                    <a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" class="btn" style="background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.2);">View Notes</a>
                 {% else %}
                     <span class="badge badge-completed">COMPLETED</span>
                 {% endif %}
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="4" style="padding:20px;text-align:center;color:#999;">No completed appointments yet.</td></tr>
+        <tr><td colspan="4" style="text-align:center;color:#64748b;">No completed appointments yet.</td></tr>
         {% endfor %}
     </table>
 </div>
 
 <!-- ─── CANCELLED / REJECTED ─────────────────────────── -->
-<div class="card" style="border-left:4px solid #f87171;">
-    <h3 style="margin-bottom:15px;color:#991b1b;">❌ Cancelled / Rejected</h3>
-    <table style="width:100%;border-collapse:collapse;text-align:left;">
-        <tr style="border-bottom:2px solid #eee;">
-            <th style="padding:12px;">Date</th>
-            <th style="padding:12px;">Patient</th>
-            <th style="padding:12px;">Status</th>
-            <th style="padding:12px;">Reason</th>
+<div class="card" style="border-left:4px solid #ef4444;">
+    <h3 style="margin-bottom:15px;color:#fca5a5;">❌ Cancelled / Rejected</h3>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Patient</th>
+            <th>Status</th>
+            <th>Reason</th>
         </tr>
         {% for apt in cancelled %}
-        <tr style="border-bottom:1px solid #eee;">
-            <td style="padding:12px;color:#666;font-size:14px;">{{ apt.preferred_date }}</td>
-            <td style="padding:12px;"><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a></td>
-            <td style="padding:12px;">
+        <tr>
+            <td style="color:#94a3b8;">{{ apt.preferred_date }}</td>
+            <td><a href="{% url 'doctor_patient_detail' apt.patient.patient_id %}" style="text-decoration:none;color:#1FBF8F;font-weight:bold;">{{ apt.patient.user.get_full_name|default:apt.patient.patient_id }}</a></td>
+            <td>
                 {% if apt.status == 'REJECTED' %}<span class="badge badge-rejected">REJECTED</span>
                 {% else %}<span class="badge badge-cancelled">CANCELLED</span>{% endif %}
             </td>
-            <td style="padding:12px;font-size:13px;color:#6b7280;">
+            <td style="font-size:13px;color:#64748b;">
                 {% if apt.rejection_reason %}{{ apt.rejection_reason }}
                 {% elif apt.cancellation_reason %}{{ apt.cancellation_reason }}
                 {% else %}<em>No reason given</em>{% endif %}
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="4" style="padding:20px;text-align:center;color:#999;">No cancelled or rejected appointments.</td></tr>
+        <tr><td colspan="4" style="text-align:center;color:#64748b;">No cancelled or rejected appointments.</td></tr>
         {% endfor %}
     </table>
 </div>

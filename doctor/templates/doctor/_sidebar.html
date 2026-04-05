@@ -1,18 +1,16 @@
 <div class="sidebar" style="position: sticky; top: 0; min-height: 100vh;">
-<div class="logo" onclick="window.location.href='/'">CareSync</div>
-
-<div class="nav">
-<a href="{% url 'doctor_dashboard' %}" class="{% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}">Dashboard</a>
-<a href="{% url 'doctor_search' %}" class="{% if request.resolver_match.url_name == 'doctor_search' %}active{% endif %}">Search Records</a>
-<a href="{% url 'doctor_appointments' %}" class="{% if request.resolver_match.url_name == 'doctor_appointments' %}active{% endif %}">Appointments {% if pending_appointments %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_appointments }}</span>{% endif %}</a>
-<a href="{% url 'pending_reviews' %}" class="{% if request.resolver_match.url_name == 'pending_reviews' %}active{% endif %}">Pending AI Reviews {% if pending_reviews_count %}<span style="background: white; color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-left: 5px;">{{ pending_reviews_count }}</span>{% endif %}</a>
-<a href="{% url 'my_patients' %}" class="{% if request.resolver_match.url_name == 'my_patients' %}active{% endif %}">My Patients</a>
-<a href="{% url 'doctor_hospital_affiliations' %}" class="{% if request.resolver_match.url_name == 'doctor_hospital_affiliations' %}active{% endif %}">Hospital Affiliations</a>
-<a href="{% url 'doctor_disease_catalog' %}" class="{% if request.resolver_match.url_name == 'doctor_disease_catalog' %}active{% endif %}">Disease Catalog</a>
-<a href="{% url 'doctor_profile' %}" class="{% if request.resolver_match.url_name == 'doctor_profile' %}active{% endif %}">Profile Settings</a>
-</div>
-
-<div class="logout">
-<a href="{% url 'doctor_logout' %}">Logout</a>
-</div>
+    <div class="logo" onclick="window.location.href='/'" style="cursor:pointer;">CareSync <span>Doctor Portal</span></div>
+    
+    <nav class="nav">
+        <a href="{% url 'doctor_dashboard' %}" class="{% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}">🏠 Dashboard</a>
+        <a href="{% url 'doctor_search' %}" class="{% if request.resolver_match.url_name == 'doctor_search' %}active{% endif %}">🔍 Search Records</a>
+        <a href="{% url 'doctor_appointments' %}" class="{% if request.resolver_match.url_name == 'doctor_appointments' %}active{% endif %}">📅 Appointments {% if pending_appointments %}<span style="background: rgba(31,191,143,0.15); color: #1FBF8F; padding: 2px 6px; border-radius: 10px; font-size: 11px; margin-left: auto;">{{ pending_appointments }}</span>{% endif %}</a>
+        <a href="{% url 'pending_reviews' %}" class="{% if request.resolver_match.url_name == 'pending_reviews' %}active{% endif %}">⏳ AI Reviews {% if pending_reviews_count %}<span style="background: rgba(245,158,11,0.15); color: #fbbf24; padding: 2px 6px; border-radius: 10px; font-size: 11px; margin-left: auto;">{{ pending_reviews_count }}</span>{% endif %}</a>
+        <a href="{% url 'my_patients' %}" class="{% if request.resolver_match.url_name == 'my_patients' %}active{% endif %}">👥 My Patients</a>
+        <a href="{% url 'doctor_hospital_affiliations' %}" class="{% if request.resolver_match.url_name == 'doctor_hospital_affiliations' %}active{% endif %}">🏥 Hospital Affiliations</a>
+        <a href="{% url 'doctor_disease_catalog' %}" class="{% if request.resolver_match.url_name == 'doctor_disease_catalog' %}active{% endif %}">🧬 Disease Catalog</a>
+        <a href="{% url 'doctor_profile' %}" class="{% if request.resolver_match.url_name == 'doctor_profile' %}active{% endif %}">⚙️ Profile Settings</a>
+    </nav>
+    
+    <a href="{% url 'doctor_logout' %}" class="logout-btn">⬅ Logout</a>
 </div>

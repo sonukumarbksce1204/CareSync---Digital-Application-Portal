@@ -1,0 +1,10 @@
+<div class="sidebar" style="position: sticky; top: 0; min-height: 100vh;">
+    <div class="logo">CareSync <span>Hospital Portal</span></div>
+    <nav class="nav">
+        <a href="{% url 'hospital_dashboard' %}" class="{% if request.resolver_match.url_name == 'hospital_dashboard' %}active{% endif %}">🏠 Dashboard</a>
+        <a href="{% url 'hospital_search' %}" class="{% if request.resolver_match.url_name == 'hospital_search' or request.resolver_match.url_name == 'hospital_patient_result' or request.resolver_match.url_name == 'hospital_family_result' %}active{% endif %}">🔍 Search Patients</a>
+        <a href="{% url 'hospital_affiliations' %}" class="{% if request.resolver_match.url_name == 'hospital_affiliations' %}active{% endif %}">👨‍⚕️ Doctor Affiliations</a>
+        <a href="{% url 'hospital_appointments' %}" class="{% if request.resolver_match.url_name == 'hospital_appointments' %}active{% endif %}">📅 Appointments</a>
+    </nav>
+    <a href="{% url 'hospital_logout' %}" class="logout-btn">⬅ Logout</a>
+</div>

@@ -1,0 +1,60 @@
+# ── Base image ────────────────────────────────────────────────────────────────
+FROM python:3.10-slim
+
+# ── System dependencies for Postgres and image processing ────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Working directory ─────────────────────────────────────────────────────────
+WORKDIR /app
+
+# ── Non-root user required by Hugging Face ────────────────────────────────────
+RUN useradd -m -u 1000 user
+
+# ── Install Python dependencies ───────────────────────────────────────────────
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ── Copy project files (including ml_model/, templates/, static/, etc.) ───────
+COPY --chown=user:user . /app
+
+# ── Collect static files at BUILD time ───────────────────────────────────────
+# We inject a dummy SECRET_KEY so Django can load settings without a real key.
+# DATABASE_URL and CLOUDINARY_URL are intentionally absent here — collectstatic
+# does not need a database connection or Cloudinary (static files are served by
+# WhiteNoise, NOT Cloudinary). The dummy CLOUDINARY_URL below allows the
+# cloudinary package to import without raising a missing config error.
+RUN SECRET_KEY=dummy-build-key-not-real \
+    CLOUDINARY_URL="" \
+    SPACE_ID=dummy-build \
+    python manage.py collectstatic --noinput
+
+# ── Fix ownership after collectstatic writes staticfiles/ ────────────────────
+RUN chown -R user:user /app
+
+# ── Switch to non-root user ───────────────────────────────────────────────────
+USER user
+ENV PATH="/home/user/.local/bin:$PATH"
+
+# ── Expose Hugging Face required port ────────────────────────────────────────
+EXPOSE 7860
+
+# ── Startup: run migrations then start gunicorn ───────────────────────────────
+#
+# Gunicorn notes:
+#  --workers 1   : Only one worker. TensorFlow/Keras model loading is
+#                  memory-intensive. Using 2+ workers on HF free tier can
+#                  cause OOM kills. One worker is stable and sufficient.
+#  --timeout 300 : Allow 5 min for the first request so TF model can load
+#                  on cold start without gunicorn killing the worker.
+#  NO --preload  : TensorFlow has known issues sharing GPU/CPU session state
+#                  across forked worker processes. Lazy loading (default) is
+#                  safer. The model loads on first request and stays cached.
+#
+CMD python manage.py migrate --noinput && \
+    gunicorn CareSync.wsgi:application \
+        --bind 0.0.0.0:7860 \
+        --workers 1 \
+        --timeout 300
