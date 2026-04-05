@@ -4,6 +4,7 @@ django>=4.2,<6.0
 # to time out during the HF build process.
 tensorflow-cpu
 numpy
+scikit-learn
 joblib
 gunicorn
 whitenoise[brotli]
